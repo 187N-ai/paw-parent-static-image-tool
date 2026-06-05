@@ -823,24 +823,17 @@
     <div class="setup-banner" id="setupBanner">
       <div class="setup-title">Setup — one time per device</div>
       <div class="setup-row">
-        <span class="setup-label">Apify Actor URL</span>
-        <input type="text" class="setup-input" id="apifyUrl"
-          placeholder="https://api.apify.com/v2/acts/YOUR-ACTOR-ID/runs?token=YOUR-TOKEN">
-        <button class="setup-btn" onclick="saveSetup()">Save</button>
-      </div>
-      <div class="setup-row">
         <span class="setup-label">Anthropic API Key</span>
         <input type="password" class="setup-input" id="anthropicKey" placeholder="sk-ant-...">
+        <button class="setup-btn" onclick="saveSetup()">Save</button>
       </div>
       <span id="setupStatus" class="setup-status" style="display:none;"></span>
     </div>
 
     <div class="info-box" id="setupHelp">
-      <strong>How to set up (one time):</strong>
-      1. Deploy the Apify Actor from the /apify-actor folder in this repo to your Apify account<br>
-      2. Set NOTION_API_KEY and NOTION_DB_ID as environment variables in the Actor settings<br>
-      3. Paste the Actor run URL + your Apify token above<br>
-      4. Paste your Anthropic API key above and click Save
+      <strong>Setup (one time):</strong>
+      Paste your Anthropic API key above and click Save. The tool uses Claude to search and fetch your Notion batches
+      directly — no other services needed.
     </div>
 
     <!-- STEP 1: BATCH SEARCH -->
@@ -1091,7 +1084,6 @@
   </div>
   <script>
     // ─── CONFIG ──────────────────────────────────────────────
-    const APIFY_URL_KEY = 'cs_apify_url';
     const ANTHROPIC_KEY_KEY = 'cs_anthropic_key';
 
     // ─── LANDING PAGE KNOWLEDGE BASE ─────────────────────────
@@ -1208,11 +1200,9 @@ COPY WRITING RULES — apply to every piece of copy:
 
     // ─── SETUP ───────────────────────────────────────────────
     window.addEventListener('DOMContentLoaded', () => {
-      const savedUrl = localStorage.getItem(APIFY_URL_KEY);
       const savedKey = localStorage.getItem(ANTHROPIC_KEY_KEY);
-      if (savedUrl) { document.getElementById('apifyUrl').value = savedUrl; }
       if (savedKey) { document.getElementById('anthropicKey').value = savedKey; }
-      if (savedUrl && savedKey) {
+      if (savedKey) {
         document.getElementById('setupBanner').classList.add('done');
         document.getElementById('setupStatus').style.display = 'inline';
         document.getElementById('setupStatus').textContent = '✓ Ready';
@@ -1222,11 +1212,8 @@ COPY WRITING RULES — apply to every piece of copy:
     });
 
     function saveSetup() {
-      const url = document.getElementById('apifyUrl').value.trim();
       const key = document.getElementById('anthropicKey').value.trim();
-      if (!url) { alert('Please enter your Apify Actor URL.'); return; }
       if (!key || !key.startsWith('sk-ant-')) { alert('Please enter a valid Anthropic API key (starts with sk-ant-).'); return; }
-      localStorage.setItem(APIFY_URL_KEY, url);
       localStorage.setItem(ANTHROPIC_KEY_KEY, key);
       document.getElementById('setupBanner').classList.add('done');
       document.getElementById('setupStatus').style.display = 'inline';
@@ -1234,52 +1221,48 @@ COPY WRITING RULES — apply to every piece of copy:
       document.getElementById('setupHelp').style.display = 'none';
     }
 
-    function getApifyUrl() { return localStorage.getItem(APIFY_URL_KEY) || document.getElementById('apifyUrl').value.trim(); }
     function getAnthropicKey() { return localStorage.getItem(ANTHROPIC_KEY_KEY) || document.getElementById('anthropicKey').value.trim(); }
 
     // ─── APIFY CALLER ────────────────────────────────────────
-    async function callApify(input) {
-      const runsUrl = getApifyUrl();
-      if (!runsUrl) throw new Error('Apify URL not set — complete setup first.');
+    // ─── NOTION VIA CLAUDE API ───────────────────────────────
+    // Claude searches and fetches Notion directly using the Notion MCP tool.
+    // No proxy needed — all handled server-side by Claude.
 
-      // Extract token and build actor base URL
-      const token = runsUrl.split('token=')[1]?.split('&')[0];
-      const actorBase = runsUrl.split('/runs')[0];
+    const NOTION_DB_ID = '326b303c3ccc8101aedcff1441fbc9ba';
 
-      // Use run-sync to wait for result in one call (avoids polling CORS issues)
-      const syncUrl = `${actorBase}/run-sync?token=${token}&timeout=60`;
-
-      let res;
-      try {
-        res = await fetch(syncUrl, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(input)
-        });
-      } catch (e) {
-        throw new Error('Network error calling Apify — check your Actor URL and token. Detail: ' + e.message);
-      }
-
+    async function claudeWithNotion(systemPrompt, userPrompt) {
+      const apiKey = getAnthropicKey();
+      if (!apiKey) throw new Error('Anthropic API key not set — complete setup first.');
+      const res = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': apiKey,
+          'anthropic-version': '2023-06-01',
+          'anthropic-dangerous-direct-browser-access': 'true'
+        },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 4000,
+          tools: [{
+            type: 'mcp',
+            server_name: 'notion',
+            server_url: 'https://mcp.notion.com/mcp',
+            allowed_tools: ['notion-search', 'notion-fetch', 'notion-query-database-view']
+          }],
+          system: systemPrompt,
+          messages: [{ role: 'user', content: userPrompt }]
+        })
+      });
       if (!res.ok) {
         const text = await res.text();
-        throw new Error(`Apify returned ${res.status}: ${text}`);
+        throw new Error(`Claude API error ${res.status}: ${text}`);
       }
-
-      const runData = await res.json();
-      const runId = runData.data?.id || runData.id;
-      if (!runId) throw new Error('No run ID in response: ' + JSON.stringify(runData));
-
-      // Fetch the OUTPUT record from the run's key-value store
-      const outputUrl = `https://api.apify.com/v2/actor-runs/${runId}/key-value-stores/default/records/OUTPUT?token=${token}`;
-      let outRes;
-      try {
-        outRes = await fetch(outputUrl);
-      } catch (e) {
-        throw new Error('Could not fetch Actor output: ' + e.message);
-      }
-
-      if (!outRes.ok) throw new Error(`Output fetch failed ${outRes.status}`);
-      return await outRes.json();
+      const data = await res.json();
+      if (data.error) throw new Error(data.error.message);
+      // Extract text blocks from response
+      const textBlocks = (data.content || []).filter(b => b.type === 'text');
+      return textBlocks.map(b => b.text).join('');
     }
 
     // ─── BATCH SEARCH ────────────────────────────────────────
@@ -1292,9 +1275,21 @@ COPY WRITING RULES — apply to every piece of copy:
       status.textContent = 'Searching Creative Tracking Board...';
       document.getElementById('searchResults').innerHTML = '';
       try {
-        const result = await callApify({ action: 'search', batchName: q });
-        renderSearchResults(result.results || []);
-        status.textContent = (result.results?.length || 0) + ' batch(es) found';
+        const raw = await claudeWithNotion(
+          'You are a Notion search assistant. Search the Creative Tracking Board database and return results as JSON only. No markdown, no explanation.',
+          `Search the Notion Creative Tracking Board (database ID: ${NOTION_DB_ID}) for batches matching: "${q}".
+Return ONLY valid JSON like this:
+{"results":[{"id":"page-id","title":"batch title","angle":"angle if visible","format":"format if visible","status":"status if visible","awareness":"awareness stage if visible"}]}`
+        );
+        let parsed;
+        try {
+          const match = raw.match(/\{[\s\S]*\}/);
+          parsed = JSON.parse(match ? match[0] : raw);
+        } catch (e) {
+          throw new Error('Could not parse search results: ' + raw.substring(0, 200));
+        }
+        renderSearchResults(parsed.results || []);
+        status.textContent = (parsed.results?.length || 0) + ' batch(es) found';
       } catch (e) {
         status.textContent = 'Search failed: ' + e.message;
       }
@@ -1318,12 +1313,42 @@ COPY WRITING RULES — apply to every piece of copy:
       document.getElementById('searchResults').innerHTML = '';
       document.getElementById('searchStatus').textContent = 'Loading batch from Notion...';
       try {
-        const data = await callApify({ action: 'fetchPage', pageId: result.id });
-        if (data.error) throw new Error(data.error);
-        loadedBatchData = data.page;
-        await runFullAnalysis(data.page);
+        const raw = await claudeWithNotion(
+          'You are a Notion data extractor. Fetch the page and return all its data as JSON only. No markdown, no explanation.',
+          `Fetch this Notion page: ${result.id}
+
+Extract ALL properties and content. Return ONLY valid JSON:
+{
+  "title": "batch name",
+  "product": "Spine & Disc Powder or Hip & Joint",
+  "angle": "full angle description",
+  "avatar": "full avatar description",
+  "desire": "desire field",
+  "emotion": "emotion field",
+  "awareness": "awareness stage",
+  "format": "video format",
+  "destination": "destination landing page name",
+  "testingHypothesis": "testing hypothesis",
+  "whyItWorked": "why it worked or failed",
+  "hook": "primary hook or first hook variant",
+  "headline1": "headline 1", "headline2": "headline 2", "headline3": "headline 3",
+  "primaryText1": "primary text 1", "primaryText2": "primary text 2", "primaryText3": "primary text 3",
+  "description1": "description 1", "description2": "description 2", "description3": "description 3",
+  "displayLink": "display link", "frameLink": "frame io link",
+  "content": "full page content as plain text"
+}`
+        );
+        let parsed;
+        try {
+          const match = raw.match(/\{[\s\S]*\}/);
+          parsed = JSON.parse(match ? match[0] : raw);
+        } catch (e) {
+          throw new Error('Could not parse batch data');
+        }
+        loadedBatchData = parsed;
+        await runFullAnalysis(parsed);
         document.getElementById('loadedBatch').style.display = 'block';
-        document.getElementById('loadedBatchName').textContent = data.page.title || result.title;
+        document.getElementById('loadedBatchName').textContent = parsed.title || result.title;
         document.getElementById('analyzeRow').style.display = 'block';
         document.getElementById('searchStatus').textContent = '';
       } catch (e) {
