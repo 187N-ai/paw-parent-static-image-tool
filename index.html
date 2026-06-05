@@ -1239,28 +1239,47 @@ COPY WRITING RULES — apply to every piece of copy:
 
     // ─── APIFY CALLER ────────────────────────────────────────
     async function callApify(input) {
-      const url = getApifyUrl();
-      if (!url) throw new Error('Apify URL not set — complete setup first.');
-      // Start the run
-      const startRes = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(input) });
-      const startData = await startRes.json();
-      const runId = startData.data?.id || startData.id;
-      if (!runId) throw new Error('Apify run did not start: ' + JSON.stringify(startData));
-      // Poll for result
-      const baseUrl = url.split('/runs')[0];
-      const token = url.split('token=')[1]?.split('&')[0];
-      for (let i = 0; i < 30; i++) {
-        await new Promise(r => setTimeout(r, 2000));
-        const statusRes = await fetch(`${baseUrl}/runs/${runId}?token=${token}`);
-        const statusData = await statusRes.json();
-        const status = statusData.data?.status;
-        if (status === 'SUCCEEDED') {
-          const outRes = await fetch(`${baseUrl}/runs/${runId}/key-value-stores/default/records/OUTPUT?token=${token}`);
-          return await outRes.json();
-        }
-        if (status === 'FAILED' || status === 'ABORTED') throw new Error('Apify Actor failed: ' + status);
+      const runsUrl = getApifyUrl();
+      if (!runsUrl) throw new Error('Apify URL not set — complete setup first.');
+
+      // Extract token and build actor base URL
+      const token = runsUrl.split('token=')[1]?.split('&')[0];
+      const actorBase = runsUrl.split('/runs')[0];
+
+      // Use run-sync to wait for result in one call (avoids polling CORS issues)
+      const syncUrl = `${actorBase}/run-sync?token=${token}&timeout=60`;
+
+      let res;
+      try {
+        res = await fetch(syncUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(input)
+        });
+      } catch (e) {
+        throw new Error('Network error calling Apify — check your Actor URL and token. Detail: ' + e.message);
       }
-      throw new Error('Apify Actor timed out after 60 seconds.');
+
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(`Apify returned ${res.status}: ${text}`);
+      }
+
+      const runData = await res.json();
+      const runId = runData.data?.id || runData.id;
+      if (!runId) throw new Error('No run ID in response: ' + JSON.stringify(runData));
+
+      // Fetch the OUTPUT record from the run's key-value store
+      const outputUrl = `https://api.apify.com/v2/actor-runs/${runId}/key-value-stores/default/records/OUTPUT?token=${token}`;
+      let outRes;
+      try {
+        outRes = await fetch(outputUrl);
+      } catch (e) {
+        throw new Error('Could not fetch Actor output: ' + e.message);
+      }
+
+      if (!outRes.ok) throw new Error(`Output fetch failed ${outRes.status}`);
+      return await outRes.json();
     }
 
     // ─── BATCH SEARCH ────────────────────────────────────────
