@@ -1,337 +1,1169 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Creative Strategist — The Paw Parent</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;500;600&family=Inter:wght@400;500&display=swap" rel="stylesheet">
-<style>
-:root{--bg:#F7F5F0;--surface:#FFF;--surface2:#F0EDE6;--border:#E2DDD5;--border2:#C8C2B8;--text:#1A1814;--text2:#6B6560;--text3:#9E9891;--purple:#534AB7;--purple-light:#EEEDFE;--purple-dark:#3C3489;--teal:#0F6E56;--teal-light:#E1F5EE;--amber:#854F0B;--amber-light:#FAEEDA;--coral:#993C1D;--coral-light:#FAECE7;--red:#A32D2D;--radius:10px;--radius-sm:6px;}
-*{box-sizing:border-box;margin:0;padding:0;}
-body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:14px;line-height:1.6;min-height:100vh;}
-.page{max-width:820px;margin:0 auto;padding:40px 24px 80px;}
-.header{margin-bottom:32px;}
-.header-eyebrow{font-family:'DM Mono',monospace;font-size:11px;color:var(--purple);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;}
-.header h1{font-family:'Syne',sans-serif;font-size:28px;font-weight:600;line-height:1.2;}
-.header p{color:var(--text2);margin-top:8px;font-size:14px;}
-.setup-banner{background:var(--surface);border:1.5px solid #AFA9EC;border-radius:var(--radius);padding:20px;margin-bottom:16px;}
-.setup-banner.done{border-color:#5DCAA5;background:var(--teal-light);}
-.setup-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:600;margin-bottom:12px;color:var(--text);}
-.setup-banner.done .setup-title{color:var(--teal);}
-.setup-row{display:flex;gap:8px;align-items:center;margin-bottom:8px;flex-wrap:wrap;}
-.setup-label{font-family:'DM Mono',monospace;font-size:11px;color:var(--purple-dark);text-transform:uppercase;letter-spacing:.06em;white-space:nowrap;min-width:130px;}
-.setup-banner.done .setup-label{color:var(--teal);}
-.setup-input{flex:1;min-width:200px;background:var(--purple-light);border:1px solid #AFA9EC;border-radius:var(--radius-sm);padding:7px 11px;font-family:'DM Mono',monospace;font-size:12px;color:var(--purple-dark);outline:none;}
-.setup-banner.done .setup-input{background:#fff;border-color:#5DCAA5;color:var(--teal);}
-.setup-btn{background:var(--purple);color:#fff;border:none;border-radius:var(--radius-sm);padding:7px 16px;font-size:12px;font-weight:500;cursor:pointer;font-family:'Inter',sans-serif;white-space:nowrap;}
-.setup-btn:hover{background:var(--purple-dark);}
-.setup-status{font-size:12px;color:var(--teal);font-weight:500;}
-.info-box{background:var(--amber-light);border:1px solid #EF9F27;border-radius:var(--radius-sm);padding:12px 16px;font-size:12px;color:var(--amber);line-height:1.6;margin-bottom:16px;}
-.info-box strong{font-weight:600;display:block;margin-bottom:4px;}
-.step-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:16px;}
-.step-header{display:flex;align-items:center;gap:12px;margin-bottom:16px;}
-.step-num{width:28px;height:28px;border-radius:50%;background:var(--purple-light);color:var(--purple-dark);font-family:'DM Mono',monospace;font-size:12px;font-weight:500;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-.step-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:600;}
-.label{font-family:'DM Mono',monospace;font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;display:block;}
-.sec-label{font-size:12px;color:var(--text2);margin:14px 0 4px;font-weight:500;}
-.sec-hint{font-size:11px;color:var(--text3);margin-bottom:8px;line-height:1.5;}
-input[type="text"],textarea,select{font-family:'Inter',sans-serif;color:var(--text);background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;outline:none;transition:border-color .15s;}
-input[type="text"]{padding:8px 11px;width:100%;}
-input[type="text"]:focus,textarea:focus,select:focus{border-color:var(--purple);}
-select{padding:6px 10px;cursor:pointer;}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
-.tag{display:inline-block;font-size:12px;padding:4px 12px;border-radius:20px;margin:3px 3px 3px 0;cursor:pointer;border:1px solid #AFA9EC;background:var(--purple-light);color:var(--purple-dark);user-select:none;transition:all .12s;font-family:'Inter',sans-serif;}
-.tag.on{background:var(--purple);color:#fff;border-color:var(--purple);}
-.tag.teal{background:var(--teal-light);color:var(--teal);border-color:#5DCAA5;}
-.tag.teal.on{background:var(--teal);color:#fff;border-color:var(--teal);}
-.tag.amber{background:var(--amber-light);color:var(--amber);border-color:#EF9F27;}
-.tag.amber.on{background:var(--amber);color:#fff;border-color:var(--amber);}
-.tag.coral{background:var(--coral-light);color:var(--coral);border-color:#F0997B;}
-.tag.coral.on{background:var(--coral);color:#fff;border-color:var(--coral);}
-.abox{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px;}
-.abox .alabel{font-family:'DM Mono',monospace;font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px;display:block;}
-.abox textarea{width:100%;background:transparent;border:none;outline:none;font-size:12px;color:var(--text);resize:none;line-height:1.55;margin-top:2px;}
-.batch-result{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;margin-bottom:6px;cursor:pointer;transition:all .12s;display:flex;justify-content:space-between;align-items:center;}
-.batch-result:hover{border-color:var(--purple);background:var(--purple-light);}
-.batch-result .br-title{font-size:13px;font-weight:500;color:var(--text);}
-.batch-result .br-meta{font-size:11px;color:var(--text3);margin-top:2px;}
-.loaded-badge{display:inline-flex;align-items:center;gap:6px;background:var(--teal-light);color:var(--teal);font-size:12px;font-weight:500;padding:6px 12px;border-radius:20px;border:1px solid #5DCAA5;margin-bottom:14px;}
-.why-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:6px;cursor:pointer;transition:all .12s;}
-.why-card:hover{border-color:var(--border2);}
-.why-card.on{border-color:var(--purple);background:var(--purple-light);}
-.why-card .wname{font-size:13px;font-weight:500;color:var(--text);display:flex;align-items:center;gap:8px;}
-.why-card.on .wname{color:var(--purple-dark);}
-.why-card .wdesc{font-size:11px;color:var(--text3);margin-top:3px;line-height:1.45;}
-.why-card.on .wdesc{color:var(--purple);}
-.wchk{width:15px;height:15px;border-radius:50%;border:1.5px solid #AFA9EC;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;font-size:9px;color:transparent;}
-.why-card.on .wchk{background:var(--purple);border-color:var(--purple);color:#fff;}
-.fmt{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;margin-bottom:6px;cursor:pointer;transition:all .12s;}
-.fmt:hover{border-color:var(--border2);}
-.fmt.on{border-color:var(--purple);background:var(--purple-light);}
-.fmt .fname{font-size:13px;font-weight:500;color:var(--text);display:flex;align-items:center;gap:9px;}
-.fmt.on .fname{color:var(--purple-dark);}
-.fmt .fdesc{font-size:11px;color:var(--text3);margin-top:3px;line-height:1.4;}
-.fmt.on .fdesc{color:var(--purple);}
-.chk{width:16px;height:16px;border-radius:50%;border:1.5px solid #AFA9EC;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;font-size:9px;color:transparent;}
-.fmt.on .chk{background:var(--purple);border-color:var(--purple);color:#fff;}
-.concept-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:18px;margin-bottom:14px;}
-.concept-card-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;}
-.concept-title{font-family:'Syne',sans-serif;font-size:15px;font-weight:600;}
-.fmt-badge{display:inline-block;font-size:11px;padding:3px 10px;border-radius:20px;background:var(--purple-light);color:var(--purple-dark);font-family:'DM Mono',monospace;margin-top:4px;}
-.cf{margin-bottom:12px;}
-.cf label{font-family:'DM Mono',monospace;font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;display:block;margin-bottom:4px;}
-.cf textarea{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 10px;font-size:12px;color:var(--text);resize:none;font-family:'Inter',sans-serif;line-height:1.55;}
-.cf input[type="text"]{background:var(--surface);font-size:12px;}
-.cf select{background:var(--surface);font-size:12px;width:100%;}
-.section-divider{font-family:'DM Mono',monospace;font-size:10px;color:var(--purple);text-transform:uppercase;letter-spacing:.1em;border-top:1px solid var(--border);padding-top:12px;margin:16px 0 12px;}
-.mini-upload{border:1.5px dashed var(--border2);border-radius:var(--radius-sm);padding:12px;text-align:center;cursor:pointer;transition:all .15s;background:var(--surface);font-size:12px;color:var(--text3);}
-.mini-upload:hover{border-color:var(--purple);background:var(--purple-light);color:var(--purple);}
-.mini-upload.has-file{border-color:var(--teal);background:var(--teal-light);border-style:solid;color:var(--teal);}
-.img-preview{max-width:100%;max-height:140px;border-radius:var(--radius-sm);margin-top:8px;display:block;object-fit:cover;}
-.brief-box{background:var(--purple-light);border:1px solid #AFA9EC;border-radius:var(--radius);padding:20px;margin-bottom:12px;}
-.brief-label{font-family:'DM Mono',monospace;font-size:11px;color:var(--purple-dark);font-weight:500;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;}
-.brief-content{font-family:'DM Mono',monospace;font-size:11.5px;color:#26215C;line-height:1.75;white-space:pre-wrap;}
-.brief-img-wrap{margin-top:14px;border-top:1px solid #AFA9EC;padding-top:14px;}
-.bi-label{font-family:'DM Mono',monospace;font-size:10px;color:var(--purple-dark);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px;}
-.brief-img-grid{display:flex;gap:12px;flex-wrap:wrap;}
-.brief-img-grid img{max-height:140px;max-width:200px;border-radius:var(--radius-sm);border:1px solid #AFA9EC;object-fit:cover;}
-.copy-btn{background:transparent;border:1px solid #AFA9EC;border-radius:var(--radius-sm);padding:4px 12px;font-size:11px;color:var(--purple);cursor:pointer;font-family:'DM Mono',monospace;}
-.copy-btn:hover{background:#CCC8F0;}
-.btn-primary{background:var(--purple);color:#fff;border:none;border-radius:var(--radius-sm);padding:9px 20px;font-size:13px;font-weight:500;cursor:pointer;font-family:'Inter',sans-serif;}
-.btn-primary:hover{background:var(--purple-dark);}
-.btn-primary:disabled{opacity:.5;cursor:not-allowed;}
-.btn-outline{background:transparent;color:var(--text);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:8px 16px;font-size:13px;cursor:pointer;font-family:'Inter',sans-serif;}
-.btn-outline:hover{background:var(--surface2);border-color:var(--purple);color:var(--purple);}
-.status-msg{font-size:12px;color:var(--teal);margin-left:12px;display:inline-flex;align-items:center;gap:5px;}
-.status-msg.err{color:var(--red);}
-.spinner{display:inline-block;width:13px;height:13px;border:2px solid #C8C2B8;border-top-color:var(--purple);border-radius:50%;animation:spin .7s linear infinite;}
-@keyframes spin{to{transform:rotate(360deg);}}
-hr.divider{border:none;border-top:1px solid var(--border);margin:16px 0;}
-@media(max-width:600px){.grid2,.grid3{grid-template-columns:1fr;}}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Creative Strategist — The Paw Parent</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;500;600&family=Inter:wght@400;500&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --bg: #F7F5F0;
+      --surface: #FFF;
+      --surface2: #F0EDE6;
+      --border: #E2DDD5;
+      --border2: #C8C2B8;
+      --text: #1A1814;
+      --text2: #6B6560;
+      --text3: #9E9891;
+      --purple: #534AB7;
+      --purple-light: #EEEDFE;
+      --purple-dark: #3C3489;
+      --teal: #0F6E56;
+      --teal-light: #E1F5EE;
+      --amber: #854F0B;
+      --amber-light: #FAEEDA;
+      --coral: #993C1D;
+      --coral-light: #FAECE7;
+      --red: #A32D2D;
+      --radius: 10px;
+      --radius-sm: 6px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    .page {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 40px 24px 80px;
+    }
+
+    .header {
+      margin-bottom: 32px;
+    }
+
+    .header-eyebrow {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--purple);
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .header h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: 28px;
+      font-weight: 600;
+      line-height: 1.2;
+    }
+
+    .header p {
+      color: var(--text2);
+      margin-top: 8px;
+      font-size: 14px;
+    }
+
+    .setup-banner {
+      background: var(--surface);
+      border: 1.5px solid #AFA9EC;
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+
+    .setup-banner.done {
+      border-color: #5DCAA5;
+      background: var(--teal-light);
+    }
+
+    .setup-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      color: var(--text);
+    }
+
+    .setup-banner.done .setup-title {
+      color: var(--teal);
+    }
+
+    .setup-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+    }
+
+    .setup-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--purple-dark);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      white-space: nowrap;
+      min-width: 130px;
+    }
+
+    .setup-banner.done .setup-label {
+      color: var(--teal);
+    }
+
+    .setup-input {
+      flex: 1;
+      min-width: 200px;
+      background: var(--purple-light);
+      border: 1px solid #AFA9EC;
+      border-radius: var(--radius-sm);
+      padding: 7px 11px;
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      color: var(--purple-dark);
+      outline: none;
+    }
+
+    .setup-banner.done .setup-input {
+      background: #fff;
+      border-color: #5DCAA5;
+      color: var(--teal);
+    }
+
+    .setup-btn {
+      background: var(--purple);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-sm);
+      padding: 7px 16px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      white-space: nowrap;
+    }
+
+    .setup-btn:hover {
+      background: var(--purple-dark);
+    }
+
+    .setup-status {
+      font-size: 12px;
+      color: var(--teal);
+      font-weight: 500;
+    }
+
+    .info-box {
+      background: var(--amber-light);
+      border: 1px solid #EF9F27;
+      border-radius: var(--radius-sm);
+      padding: 12px 16px;
+      font-size: 12px;
+      color: var(--amber);
+      line-height: 1.6;
+      margin-bottom: 16px;
+    }
+
+    .info-box strong {
+      font-weight: 600;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .step-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 16px;
+    }
+
+    .step-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .step-num {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--purple-light);
+      color: var(--purple-dark);
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .step-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .label {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      color: var(--text3);
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      margin-bottom: 6px;
+      display: block;
+    }
+
+    .sec-label {
+      font-size: 12px;
+      color: var(--text2);
+      margin: 14px 0 4px;
+      font-weight: 500;
+    }
+
+    .sec-hint {
+      font-size: 11px;
+      color: var(--text3);
+      margin-bottom: 8px;
+      line-height: 1.5;
+    }
+
+    input[type="text"],
+    textarea,
+    select {
+      font-family: 'Inter', sans-serif;
+      color: var(--text);
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      outline: none;
+      transition: border-color .15s;
+    }
+
+    input[type="text"] {
+      padding: 8px 11px;
+      width: 100%;
+    }
+
+    input[type="text"]:focus,
+    textarea:focus,
+    select:focus {
+      border-color: var(--purple);
+    }
+
+    select {
+      padding: 6px 10px;
+      cursor: pointer;
+    }
+
+    .grid2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .grid3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+    }
+
+    .tag {
+      display: inline-block;
+      font-size: 12px;
+      padding: 4px 12px;
+      border-radius: 20px;
+      margin: 3px 3px 3px 0;
+      cursor: pointer;
+      border: 1px solid #AFA9EC;
+      background: var(--purple-light);
+      color: var(--purple-dark);
+      user-select: none;
+      transition: all .12s;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .tag.on {
+      background: var(--purple);
+      color: #fff;
+      border-color: var(--purple);
+    }
+
+    .tag.teal {
+      background: var(--teal-light);
+      color: var(--teal);
+      border-color: #5DCAA5;
+    }
+
+    .tag.teal.on {
+      background: var(--teal);
+      color: #fff;
+      border-color: var(--teal);
+    }
+
+    .tag.amber {
+      background: var(--amber-light);
+      color: var(--amber);
+      border-color: #EF9F27;
+    }
+
+    .tag.amber.on {
+      background: var(--amber);
+      color: #fff;
+      border-color: var(--amber);
+    }
+
+    .tag.coral {
+      background: var(--coral-light);
+      color: var(--coral);
+      border-color: #F0997B;
+    }
+
+    .tag.coral.on {
+      background: var(--coral);
+      color: #fff;
+      border-color: var(--coral);
+    }
+
+    .abox {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 12px;
+    }
+
+    .abox .alabel {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      color: var(--text3);
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      margin-bottom: 4px;
+      display: block;
+    }
+
+    .abox textarea {
+      width: 100%;
+      background: transparent;
+      border: none;
+      outline: none;
+      font-size: 12px;
+      color: var(--text);
+      resize: none;
+      line-height: 1.55;
+      margin-top: 2px;
+    }
+
+    .batch-result {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
+      margin-bottom: 6px;
+      cursor: pointer;
+      transition: all .12s;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .batch-result:hover {
+      border-color: var(--purple);
+      background: var(--purple-light);
+    }
+
+    .batch-result .br-title {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .batch-result .br-meta {
+      font-size: 11px;
+      color: var(--text3);
+      margin-top: 2px;
+    }
+
+    .loaded-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--teal-light);
+      color: var(--teal);
+      font-size: 12px;
+      font-weight: 500;
+      padding: 6px 12px;
+      border-radius: 20px;
+      border: 1px solid #5DCAA5;
+      margin-bottom: 14px;
+    }
+
+    .why-card {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 12px 14px;
+      margin-bottom: 6px;
+      cursor: pointer;
+      transition: all .12s;
+    }
+
+    .why-card:hover {
+      border-color: var(--border2);
+    }
+
+    .why-card.on {
+      border-color: var(--purple);
+      background: var(--purple-light);
+    }
+
+    .why-card .wname {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .why-card.on .wname {
+      color: var(--purple-dark);
+    }
+
+    .why-card .wdesc {
+      font-size: 11px;
+      color: var(--text3);
+      margin-top: 3px;
+      line-height: 1.45;
+    }
+
+    .why-card.on .wdesc {
+      color: var(--purple);
+    }
+
+    .wchk {
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      border: 1.5px solid #AFA9EC;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 9px;
+      color: transparent;
+    }
+
+    .why-card.on .wchk {
+      background: var(--purple);
+      border-color: var(--purple);
+      color: #fff;
+    }
+
+    .fmt {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
+      margin-bottom: 6px;
+      cursor: pointer;
+      transition: all .12s;
+    }
+
+    .fmt:hover {
+      border-color: var(--border2);
+    }
+
+    .fmt.on {
+      border-color: var(--purple);
+      background: var(--purple-light);
+    }
+
+    .fmt .fname {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 9px;
+    }
+
+    .fmt.on .fname {
+      color: var(--purple-dark);
+    }
+
+    .fmt .fdesc {
+      font-size: 11px;
+      color: var(--text3);
+      margin-top: 3px;
+      line-height: 1.4;
+    }
+
+    .fmt.on .fdesc {
+      color: var(--purple);
+    }
+
+    .chk {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      border: 1.5px solid #AFA9EC;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 9px;
+      color: transparent;
+    }
+
+    .fmt.on .chk {
+      background: var(--purple);
+      border-color: var(--purple);
+      color: #fff;
+    }
+
+    .concept-card {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 18px;
+      margin-bottom: 14px;
+    }
+
+    .concept-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 14px;
+    }
+
+    .concept-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .fmt-badge {
+      display: inline-block;
+      font-size: 11px;
+      padding: 3px 10px;
+      border-radius: 20px;
+      background: var(--purple-light);
+      color: var(--purple-dark);
+      font-family: 'DM Mono', monospace;
+      margin-top: 4px;
+    }
+
+    .cf {
+      margin-bottom: 12px;
+    }
+
+    .cf label {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      color: var(--text3);
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .cf textarea {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 8px 10px;
+      font-size: 12px;
+      color: var(--text);
+      resize: none;
+      font-family: 'Inter', sans-serif;
+      line-height: 1.55;
+    }
+
+    .cf input[type="text"] {
+      background: var(--surface);
+      font-size: 12px;
+    }
+
+    .cf select {
+      background: var(--surface);
+      font-size: 12px;
+      width: 100%;
+    }
+
+    .section-divider {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      color: var(--purple);
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      border-top: 1px solid var(--border);
+      padding-top: 12px;
+      margin: 16px 0 12px;
+    }
+
+    .mini-upload {
+      border: 1.5px dashed var(--border2);
+      border-radius: var(--radius-sm);
+      padding: 12px;
+      text-align: center;
+      cursor: pointer;
+      transition: all .15s;
+      background: var(--surface);
+      font-size: 12px;
+      color: var(--text3);
+    }
+
+    .mini-upload:hover {
+      border-color: var(--purple);
+      background: var(--purple-light);
+      color: var(--purple);
+    }
+
+    .mini-upload.has-file {
+      border-color: var(--teal);
+      background: var(--teal-light);
+      border-style: solid;
+      color: var(--teal);
+    }
+
+    .img-preview {
+      max-width: 100%;
+      max-height: 140px;
+      border-radius: var(--radius-sm);
+      margin-top: 8px;
+      display: block;
+      object-fit: cover;
+    }
+
+    .brief-box {
+      background: var(--purple-light);
+      border: 1px solid #AFA9EC;
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-bottom: 12px;
+    }
+
+    .brief-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--purple-dark);
+      font-weight: 500;
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .brief-content {
+      font-family: 'DM Mono', monospace;
+      font-size: 11.5px;
+      color: #26215C;
+      line-height: 1.75;
+      white-space: pre-wrap;
+    }
+
+    .brief-img-wrap {
+      margin-top: 14px;
+      border-top: 1px solid #AFA9EC;
+      padding-top: 14px;
+    }
+
+    .bi-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      color: var(--purple-dark);
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      margin-bottom: 6px;
+    }
+
+    .brief-img-grid {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .brief-img-grid img {
+      max-height: 140px;
+      max-width: 200px;
+      border-radius: var(--radius-sm);
+      border: 1px solid #AFA9EC;
+      object-fit: cover;
+    }
+
+    .copy-btn {
+      background: transparent;
+      border: 1px solid #AFA9EC;
+      border-radius: var(--radius-sm);
+      padding: 4px 12px;
+      font-size: 11px;
+      color: var(--purple);
+      cursor: pointer;
+      font-family: 'DM Mono', monospace;
+    }
+
+    .copy-btn:hover {
+      background: #CCC8F0;
+    }
+
+    .btn-primary {
+      background: var(--purple);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-sm);
+      padding: 9px 20px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .btn-primary:hover {
+      background: var(--purple-dark);
+    }
+
+    .btn-primary:disabled {
+      opacity: .5;
+      cursor: not-allowed;
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--border2);
+      border-radius: var(--radius-sm);
+      padding: 8px 16px;
+      font-size: 13px;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .btn-outline:hover {
+      background: var(--surface2);
+      border-color: var(--purple);
+      color: var(--purple);
+    }
+
+    .status-msg {
+      font-size: 12px;
+      color: var(--teal);
+      margin-left: 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .status-msg.err {
+      color: var(--red);
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 13px;
+      height: 13px;
+      border: 2px solid #C8C2B8;
+      border-top-color: var(--purple);
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    hr.divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 16px 0;
+    }
+
+    @media(max-width:600px) {
+
+      .grid2,
+      .grid3 {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
 </head>
+
 <body>
-<div class="page">
+  <div class="page">
 
-<div class="header">
-  <div class="header-eyebrow">The Paw Parent</div>
-  <h1>Creative Strategist Tool</h1>
-  <p>Search your Notion batch, analyze it with Claude, and generate designer-ready static briefs with ad copy.</p>
-</div>
+    <div class="header">
+      <div class="header-eyebrow">The Paw Parent</div>
+      <h1>Creative Strategist Tool</h1>
+      <p>Search your Notion batch, analyze it with Claude, and generate designer-ready static briefs with ad copy.</p>
+    </div>
 
-<!-- SETUP -->
-<div class="setup-banner" id="setupBanner">
-  <div class="setup-title">Setup — one time per device</div>
-  <div class="setup-row">
-    <span class="setup-label">Apify Actor URL</span>
-    <input type="text" class="setup-input" id="apifyUrl" placeholder="https://api.apify.com/v2/acts/YOUR-ACTOR-ID/runs?token=YOUR-TOKEN">
-    <button class="setup-btn" onclick="saveSetup()">Save</button>
-  </div>
-  <div class="setup-row">
-    <span class="setup-label">Anthropic API Key</span>
-    <input type="password" class="setup-input" id="anthropicKey" placeholder="sk-ant-...">
-  </div>
-  <span id="setupStatus" class="setup-status" style="display:none;"></span>
-</div>
+    <!-- SETUP -->
+    <div class="setup-banner" id="setupBanner">
+      <div class="setup-title">Setup — one time per device</div>
+      <div class="setup-row">
+        <span class="setup-label">Apify Actor URL</span>
+        <input type="text" class="setup-input" id="apifyUrl"
+          placeholder="https://api.apify.com/v2/acts/YOUR-ACTOR-ID/runs?token=YOUR-TOKEN">
+        <button class="setup-btn" onclick="saveSetup()">Save</button>
+      </div>
+      <div class="setup-row">
+        <span class="setup-label">Anthropic API Key</span>
+        <input type="password" class="setup-input" id="anthropicKey" placeholder="sk-ant-...">
+      </div>
+      <span id="setupStatus" class="setup-status" style="display:none;"></span>
+    </div>
 
-<div class="info-box" id="setupHelp">
-  <strong>How to set up (one time):</strong>
-  1. Deploy the Apify Actor from the /apify-actor folder in this repo to your Apify account<br>
-  2. Set NOTION_API_KEY and NOTION_DB_ID as environment variables in the Actor settings<br>
-  3. Paste the Actor run URL + your Apify token above<br>
-  4. Paste your Anthropic API key above and click Save
-</div>
+    <div class="info-box" id="setupHelp">
+      <strong>How to set up (one time):</strong>
+      1. Deploy the Apify Actor from the /apify-actor folder in this repo to your Apify account<br>
+      2. Set NOTION_API_KEY and NOTION_DB_ID as environment variables in the Actor settings<br>
+      3. Paste the Actor run URL + your Apify token above<br>
+      4. Paste your Anthropic API key above and click Save
+    </div>
 
-<!-- STEP 1: BATCH SEARCH -->
-<div class="step-card">
-  <div class="step-header"><div class="step-num">1</div><div class="step-title">Find batch in Notion</div></div>
-  <p style="font-size:13px;color:var(--text2);margin-bottom:14px;">Type a batch number or keyword. Matching batches from your Creative Tracking Board will appear.</p>
-  <div style="display:flex;gap:8px;margin-bottom:12px;">
-    <input type="text" id="batchSearch" placeholder="e.g. BATCH-703 or breeder or GLM..." onkeydown="if(event.key==='Enter')searchBatch()">
-    <button class="btn-primary" onclick="searchBatch()" id="searchBtn" style="white-space:nowrap;">Search Notion</button>
-  </div>
-  <div id="searchStatus" style="font-size:12px;color:var(--text3);margin-bottom:8px;"></div>
-  <div id="searchResults"></div>
-  <div id="loadedBatch" style="display:none;">
-    <div class="loaded-badge">✓ <span id="loadedBatchName"></span></div>
-  </div>
-</div>
+    <!-- STEP 1: BATCH SEARCH -->
+    <div class="step-card">
+      <div class="step-header">
+        <div class="step-num">1</div>
+        <div class="step-title">Find batch in Notion</div>
+      </div>
+      <p style="font-size:13px;color:var(--text2);margin-bottom:14px;">Type a batch number or keyword. Matching batches
+        from your Creative Tracking Board will appear.</p>
+      <div style="display:flex;gap:8px;margin-bottom:12px;">
+        <input type="text" id="batchSearch" placeholder="e.g. BATCH-703 or breeder or GLM..."
+          onkeydown="if(event.key==='Enter')searchBatch()">
+        <button class="btn-primary" onclick="searchBatch()" id="searchBtn" style="white-space:nowrap;">Search
+          Notion</button>
+      </div>
+      <div id="searchStatus" style="font-size:12px;color:var(--text3);margin-bottom:8px;"></div>
+      <div id="searchResults"></div>
+      <div id="loadedBatch" style="display:none;">
+        <div class="loaded-badge">✓ <span id="loadedBatchName"></span></div>
+      </div>
+    </div>
 
-<!-- STEP 2: ANALYSIS -->
-<div class="step-card">
-  <div class="step-header"><div class="step-num">2</div><div class="step-title">Batch analysis</div></div>
-  <p style="font-size:13px;color:var(--text2);margin-bottom:14px;">Auto-filled from Notion after loading a batch. Correct anything that's off.</p>
-  <div id="analyzeRow" style="display:none;margin-bottom:16px;">
-    <button class="btn-primary" onclick="runAnalysis()" id="analyzeBtn">Analyze with Claude</button>
-    <span class="status-msg" id="analysisStatus"></span>
-  </div>
-  <div class="grid2" style="margin-bottom:14px;">
-    <div class="abox"><div class="alabel">Angle</div><textarea id="angleText" rows="3" placeholder="What creative angle is this batch using?"></textarea></div>
-    <div class="abox"><div class="alabel">Avatar</div><textarea id="avatarText" rows="3" placeholder="Who is this targeting?"></textarea></div>
-    <div class="abox"><div class="alabel">Hook</div><textarea id="hookText" rows="3" placeholder="How does it open?"></textarea></div>
-    <div class="abox"><div class="alabel">Why it's working</div><textarea id="whyText" rows="3" placeholder="What drives performance?"></textarea></div>
-  </div>
-  <div class="sec-label">Angle / condition</div>
-  <div id="angleTags">
-    <span class="tag teal" onclick="tog(this)">IVDD</span>
-    <span class="tag teal" onclick="tog(this)">Hip Dysplasia</span>
-    <span class="tag teal" onclick="tog(this)">Arthritis</span>
-    <span class="tag teal" onclick="tog(this)">Glucosamine vs GLM</span>
-  </div>
-  <div class="sec-label">Video format</div>
-  <div id="vidFmtTags">
-    <span class="tag coral" onclick="togSingle(this,'vidFmtTags')">AI UGC</span>
-    <span class="tag coral" onclick="togSingle(this,'vidFmtTags')">AI Vet</span>
-    <span class="tag coral" onclick="togSingle(this,'vidFmtTags')">Animation</span>
-    <span class="tag coral" onclick="togSingle(this,'vidFmtTags')">Claymation</span>
-    <span class="tag coral" onclick="togSingle(this,'vidFmtTags')">Yapper ad / VSL</span>
-    <span class="tag coral" onclick="togSingle(this,'vidFmtTags')">B-roll only</span>
-  </div>
-  <div class="sec-label">Authority figure</div>
-  <div id="authTags">
-    <span class="tag amber" onclick="togSingle(this,'authTags')">Veterinarian</span>
-    <span class="tag amber" onclick="togSingle(this,'authTags')">Breeder</span>
-    <span class="tag amber" onclick="togSingle(this,'authTags')">Neurologist</span>
-    <span class="tag amber" onclick="togSingle(this,'authTags')">Consumer — female</span>
-    <span class="tag amber" onclick="togSingle(this,'authTags')">Consumer — male</span>
-    <span class="tag amber" onclick="togSingle(this,'authTags')">None</span>
-  </div>
-  <div class="sec-label">Why it's working</div>
-  <div class="sec-hint">Select all elements that explain performance. Each informs which static formats translate best.</div>
-  <div id="whyCards">
-    <div class="why-card" onclick="this.classList.toggle('on')"><div class="wname"><span class="wchk">✓</span>Pattern interrupt hook</div><div class="wdesc">The opening disrupts the scroll — unexpected visual, bold statement, or jarring contrast.</div></div>
-    <div class="why-card" onclick="this.classList.toggle('on')"><div class="wname"><span class="wchk">✓</span>Strong avatar mirror</div><div class="wdesc">The ad reflects the viewer's exact situation — they feel seen and keep watching.</div></div>
-    <div class="why-card" onclick="this.classList.toggle('on')"><div class="wname"><span class="wchk">✓</span>Proof stacking</div><div class="wdesc">Multiple layers of evidence build trust — testimonials, stats, credentials, results.</div></div>
-    <div class="why-card" onclick="this.classList.toggle('on')"><div class="wname"><span class="wchk">✓</span>Objection handling</div><div class="wdesc">Addresses doubt before the viewer thinks it. Pre-empts resistance and increases conviction.</div></div>
-    <div class="why-card" onclick="this.classList.toggle('on')"><div class="wname"><span class="wchk">✓</span>Simple mechanism</div><div class="wdesc">Clearly explains HOW the product works in plain language. Makes the benefit believable.</div></div>
-    <div class="why-card" onclick="this.classList.toggle('on')"><div class="wname"><span class="wchk">✓</span>Emotional arc</div><div class="wdesc">Takes the viewer from pain to hope to solution. Emotional journey drives purchase intent.</div></div>
-    <div class="why-card" onclick="this.classList.toggle('on')"><div class="wname"><span class="wchk">✓</span>Contrast / tension</div><div class="wdesc">Before vs after. Old way vs new way. Visual or narrative contrast that makes the benefit pop.</div></div>
-    <div class="why-card" onclick="this.classList.toggle('on')"><div class="wname"><span class="wchk">✓</span>Clear single CTA</div><div class="wdesc">One action, asked once, at the right moment. No confusion about what to do next.</div></div>
-    <div class="why-card" onclick="this.classList.toggle('on')"><div class="wname"><span class="wchk">✓</span>Native / organic feel</div><div class="wdesc">Looks like regular content — not an ad. Lower resistance, higher trust, better CTR.</div></div>
-    <div class="why-card" onclick="this.classList.toggle('on')"><div class="wname"><span class="wchk">✓</span>Curiosity loop</div><div class="wdesc">Opens a gap in the viewer's mind that only clicking will close.</div></div>
-    <div class="why-card" onclick="this.classList.toggle('on')"><div class="wname"><span class="wchk">✓</span>Specificity / concrete numbers</div><div class="wdesc">Exact figures feel more credible than vague claims.</div></div>
-    <div class="why-card" onclick="this.classList.toggle('on')"><div class="wname"><span class="wchk">✓</span>Dream outcome shown</div><div class="wdesc">Shows the desired end result. Sells the destination, not the vehicle.</div></div>
-    <div class="why-card" onclick="this.classList.toggle('on')"><div class="wname"><span class="wchk">✓</span>Relatable scenario</div><div class="wdesc">Everyday moment the avatar recognizes instantly. Creates immediate connection.</div></div>
-    <div class="why-card" onclick="this.classList.toggle('on')"><div class="wname"><span class="wchk">✓</span>Fear of consequence</div><div class="wdesc">Shows what happens if the problem is ignored. Activates loss aversion.</div></div>
-  </div>
-</div>
+    <!-- STEP 2: ANALYSIS -->
+    <div class="step-card">
+      <div class="step-header">
+        <div class="step-num">2</div>
+        <div class="step-title">Batch analysis</div>
+      </div>
+      <p style="font-size:13px;color:var(--text2);margin-bottom:14px;">Auto-filled from Notion after loading a batch.
+        Correct anything that's off.</p>
+      <div id="analyzeRow" style="display:none;margin-bottom:16px;">
+        <button class="btn-primary" onclick="runAnalysis()" id="analyzeBtn">Analyze with Claude</button>
+        <span class="status-msg" id="analysisStatus"></span>
+      </div>
+      <div class="grid2" style="margin-bottom:14px;">
+        <div class="abox">
+          <div class="alabel">Angle</div><textarea id="angleText" rows="3"
+            placeholder="What creative angle is this batch using?"></textarea>
+        </div>
+        <div class="abox">
+          <div class="alabel">Avatar</div><textarea id="avatarText" rows="3"
+            placeholder="Who is this targeting?"></textarea>
+        </div>
+        <div class="abox">
+          <div class="alabel">Hook</div><textarea id="hookText" rows="3" placeholder="How does it open?"></textarea>
+        </div>
+        <div class="abox">
+          <div class="alabel">Why it's working</div><textarea id="whyText" rows="3"
+            placeholder="What drives performance?"></textarea>
+        </div>
+      </div>
+      <div class="sec-label">Angle / condition</div>
+      <div id="angleTags">
+        <span class="tag teal" onclick="tog(this)">IVDD</span>
+        <span class="tag teal" onclick="tog(this)">Hip Dysplasia</span>
+        <span class="tag teal" onclick="tog(this)">Arthritis</span>
+        <span class="tag teal" onclick="tog(this)">Glucosamine vs GLM</span>
+      </div>
+      <div class="sec-label">Video format</div>
+      <div id="vidFmtTags">
+        <span class="tag coral" onclick="togSingle(this,'vidFmtTags')">AI UGC</span>
+        <span class="tag coral" onclick="togSingle(this,'vidFmtTags')">AI Vet</span>
+        <span class="tag coral" onclick="togSingle(this,'vidFmtTags')">Animation</span>
+        <span class="tag coral" onclick="togSingle(this,'vidFmtTags')">Claymation</span>
+        <span class="tag coral" onclick="togSingle(this,'vidFmtTags')">Yapper ad / VSL</span>
+        <span class="tag coral" onclick="togSingle(this,'vidFmtTags')">B-roll only</span>
+      </div>
+      <div class="sec-label">Authority figure</div>
+      <div id="authTags">
+        <span class="tag amber" onclick="togSingle(this,'authTags')">Veterinarian</span>
+        <span class="tag amber" onclick="togSingle(this,'authTags')">Breeder</span>
+        <span class="tag amber" onclick="togSingle(this,'authTags')">Neurologist</span>
+        <span class="tag amber" onclick="togSingle(this,'authTags')">Consumer — female</span>
+        <span class="tag amber" onclick="togSingle(this,'authTags')">Consumer — male</span>
+        <span class="tag amber" onclick="togSingle(this,'authTags')">None</span>
+      </div>
+      <div class="sec-label">Why it's working</div>
+      <div class="sec-hint">Select all elements that explain performance. Each informs which static formats translate
+        best.</div>
+      <div id="whyCards">
+        <div class="why-card" onclick="this.classList.toggle('on')">
+          <div class="wname"><span class="wchk">✓</span>Pattern interrupt hook</div>
+          <div class="wdesc">The opening disrupts the scroll — unexpected visual, bold statement, or jarring contrast.
+          </div>
+        </div>
+        <div class="why-card" onclick="this.classList.toggle('on')">
+          <div class="wname"><span class="wchk">✓</span>Strong avatar mirror</div>
+          <div class="wdesc">The ad reflects the viewer's exact situation — they feel seen and keep watching.</div>
+        </div>
+        <div class="why-card" onclick="this.classList.toggle('on')">
+          <div class="wname"><span class="wchk">✓</span>Proof stacking</div>
+          <div class="wdesc">Multiple layers of evidence build trust — testimonials, stats, credentials, results.</div>
+        </div>
+        <div class="why-card" onclick="this.classList.toggle('on')">
+          <div class="wname"><span class="wchk">✓</span>Objection handling</div>
+          <div class="wdesc">Addresses doubt before the viewer thinks it. Pre-empts resistance and increases conviction.
+          </div>
+        </div>
+        <div class="why-card" onclick="this.classList.toggle('on')">
+          <div class="wname"><span class="wchk">✓</span>Simple mechanism</div>
+          <div class="wdesc">Clearly explains HOW the product works in plain language. Makes the benefit believable.
+          </div>
+        </div>
+        <div class="why-card" onclick="this.classList.toggle('on')">
+          <div class="wname"><span class="wchk">✓</span>Emotional arc</div>
+          <div class="wdesc">Takes the viewer from pain to hope to solution. Emotional journey drives purchase intent.
+          </div>
+        </div>
+        <div class="why-card" onclick="this.classList.toggle('on')">
+          <div class="wname"><span class="wchk">✓</span>Contrast / tension</div>
+          <div class="wdesc">Before vs after. Old way vs new way. Visual or narrative contrast that makes the benefit
+            pop.</div>
+        </div>
+        <div class="why-card" onclick="this.classList.toggle('on')">
+          <div class="wname"><span class="wchk">✓</span>Clear single CTA</div>
+          <div class="wdesc">One action, asked once, at the right moment. No confusion about what to do next.</div>
+        </div>
+        <div class="why-card" onclick="this.classList.toggle('on')">
+          <div class="wname"><span class="wchk">✓</span>Native / organic feel</div>
+          <div class="wdesc">Looks like regular content — not an ad. Lower resistance, higher trust, better CTR.</div>
+        </div>
+        <div class="why-card" onclick="this.classList.toggle('on')">
+          <div class="wname"><span class="wchk">✓</span>Curiosity loop</div>
+          <div class="wdesc">Opens a gap in the viewer's mind that only clicking will close.</div>
+        </div>
+        <div class="why-card" onclick="this.classList.toggle('on')">
+          <div class="wname"><span class="wchk">✓</span>Specificity / concrete numbers</div>
+          <div class="wdesc">Exact figures feel more credible than vague claims.</div>
+        </div>
+        <div class="why-card" onclick="this.classList.toggle('on')">
+          <div class="wname"><span class="wchk">✓</span>Dream outcome shown</div>
+          <div class="wdesc">Shows the desired end result. Sells the destination, not the vehicle.</div>
+        </div>
+        <div class="why-card" onclick="this.classList.toggle('on')">
+          <div class="wname"><span class="wchk">✓</span>Relatable scenario</div>
+          <div class="wdesc">Everyday moment the avatar recognizes instantly. Creates immediate connection.</div>
+        </div>
+        <div class="why-card" onclick="this.classList.toggle('on')">
+          <div class="wname"><span class="wchk">✓</span>Fear of consequence</div>
+          <div class="wdesc">Shows what happens if the problem is ignored. Activates loss aversion.</div>
+        </div>
+      </div>
+    </div>
 
-<!-- STEP 3: FORMAT SELECTION -->
-<div class="step-card">
-  <div class="step-header"><div class="step-num">3</div><div class="step-title">Select static formats</div></div>
-  <p style="font-size:13px;color:var(--text2);margin-bottom:12px;">Select 1 to 5 formats. Claude auto-suggests based on the batch — adjust as needed. Each selected format becomes one concept in step 4.</p>
-  <div id="fmtSelCount" style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text3);margin-bottom:10px;">0 selected</div>
-  <div id="formatList">
-    <div class="fmt" data-key="us-them" onclick="togFmt(this,'us-them')"><div class="fname"><span class="chk">✓</span>Us vs them</div><div class="fdesc">Your product vs competitor or old way. Differentiation and superiority angles.</div></div>
-    <div class="fmt" data-key="problem-aware" onclick="togFmt(this,'problem-aware')"><div class="fname"><span class="chk">✓</span>Problem-aware static</div><div class="fdesc">Bold headline naming the pain plus visual showing the symptom. Mirrors what the avatar feels.</div></div>
-    <div class="fmt" data-key="news" onclick="togFmt(this,'news')"><div class="fname"><span class="chk">✓</span>News / authority editorial</div><div class="fdesc">Styled as a news article. Leads with authority — vet, study, expert quote.</div></div>
-    <div class="fmt" data-key="native-longcopy" onclick="togFmt(this,'native-longcopy')"><div class="fname"><span class="chk">✓</span>Native image + long copy</div><div class="fdesc">UGC-feel photo with long-form copy block. Reads like a personal story.</div></div>
-    <div class="fmt" data-key="before-after" onclick="togFmt(this,'before-after')"><div class="fname"><span class="chk">✓</span>Before / after</div><div class="fdesc">Visual transformation split. Works when there is a visible, undeniable change to show.</div></div>
-    <div class="fmt" data-key="testimonial" onclick="togFmt(this,'testimonial')"><div class="fname"><span class="chk">✓</span>Testimonial / social proof</div><div class="fdesc">Real customer quote in screenshot or styled card. Trust through peer identification.</div></div>
-    <div class="fmt" data-key="listicle" onclick="togFmt(this,'listicle')"><div class="fname"><span class="chk">✓</span>Listicle / reasons why</div><div class="fdesc">3 to 5 bullet reasons, benefits, or mistakes. Works when avatar needs logical convincing.</div></div>
-    <div class="fmt" data-key="advertorial" onclick="togFmt(this,'advertorial')"><div class="fname"><span class="chk">✓</span>Advertorial (fake article)</div><div class="fdesc">Styled as a magazine or blog article. High native feel. Long-form persuasion in image form.</div></div>
-    <div class="fmt" data-key="quiz-question" onclick="togFmt(this,'quiz-question')"><div class="fname"><span class="chk">✓</span>Quiz / question hook</div><div class="fdesc">Does your dog show these signs? Drives curiosity and click. Strong self-identification trigger.</div></div>
-    <div class="fmt" data-key="shocking-stat" onclick="togFmt(this,'shocking-stat')"><div class="fname"><span class="chk">✓</span>Shocking stat / bold claim</div><div class="fdesc">One large, hard-to-ignore number or claim. Pattern interrupt that forces a second look.</div></div>
-    <div class="fmt" data-key="product-hero" onclick="togFmt(this,'product-hero')"><div class="fname"><span class="chk">✓</span>Product hero / feature callout</div><div class="fdesc">Clean product shot with callouts. Lower funnel — retargeting and warm audiences.</div></div>
-    <div class="fmt" data-key="urgency-scarcity" onclick="togFmt(this,'urgency-scarcity')"><div class="fname"><span class="chk">✓</span>Urgency / scarcity static</div><div class="fdesc">Limited offer, countdown, low stock. Lower funnel retargeting format.</div></div>
-    <div class="fmt" data-key="meme-cultural" onclick="togFmt(this,'meme-cultural')"><div class="fname"><span class="chk">✓</span>Meme / cultural reference</div><div class="fdesc">Recognizable meme format adapted to the angle. Low cost, high shareability.</div></div>
-    <div class="fmt" data-key="dream-outcome" onclick="togFmt(this,'dream-outcome')"><div class="fname"><span class="chk">✓</span>Dream outcome visual</div><div class="fdesc">Shows the desired end state — dog running, playing, pain-free. Sells the destination.</div></div>
+    <!-- STEP 3: FORMAT SELECTION -->
+    <div class="step-card">
+      <div class="step-header">
+        <div class="step-num">3</div>
+        <div class="step-title">Select static formats</div>
+      </div>
+      <p style="font-size:13px;color:var(--text2);margin-bottom:12px;">Select 1 to 5 formats. Claude auto-suggests based
+        on the batch — adjust as needed. Each selected format becomes one concept in step 4.</p>
+      <div id="fmtSelCount"
+        style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text3);margin-bottom:10px;">0 selected</div>
+      <div id="formatList">
+        <div class="fmt" data-key="us-them" onclick="togFmt(this,'us-them')">
+          <div class="fname"><span class="chk">✓</span>Us vs them</div>
+          <div class="fdesc">Your product vs competitor or old way. Differentiation and superiority angles.</div>
+        </div>
+        <div class="fmt" data-key="problem-aware" onclick="togFmt(this,'problem-aware')">
+          <div class="fname"><span class="chk">✓</span>Problem-aware static</div>
+          <div class="fdesc">Bold headline naming the pain plus visual showing the symptom. Mirrors what the avatar
+            feels.</div>
+        </div>
+        <div class="fmt" data-key="news" onclick="togFmt(this,'news')">
+          <div class="fname"><span class="chk">✓</span>News / authority editorial</div>
+          <div class="fdesc">Styled as a news article. Leads with authority — vet, study, expert quote.</div>
+        </div>
+        <div class="fmt" data-key="native-longcopy" onclick="togFmt(this,'native-longcopy')">
+          <div class="fname"><span class="chk">✓</span>Native image + long copy</div>
+          <div class="fdesc">UGC-feel photo with long-form copy block. Reads like a personal story.</div>
+        </div>
+        <div class="fmt" data-key="before-after" onclick="togFmt(this,'before-after')">
+          <div class="fname"><span class="chk">✓</span>Before / after</div>
+          <div class="fdesc">Visual transformation split. Works when there is a visible, undeniable change to show.
+          </div>
+        </div>
+        <div class="fmt" data-key="testimonial" onclick="togFmt(this,'testimonial')">
+          <div class="fname"><span class="chk">✓</span>Testimonial / social proof</div>
+          <div class="fdesc">Real customer quote in screenshot or styled card. Trust through peer identification.</div>
+        </div>
+        <div class="fmt" data-key="listicle" onclick="togFmt(this,'listicle')">
+          <div class="fname"><span class="chk">✓</span>Listicle / reasons why</div>
+          <div class="fdesc">3 to 5 bullet reasons, benefits, or mistakes. Works when avatar needs logical convincing.
+          </div>
+        </div>
+        <div class="fmt" data-key="advertorial" onclick="togFmt(this,'advertorial')">
+          <div class="fname"><span class="chk">✓</span>Advertorial (fake article)</div>
+          <div class="fdesc">Styled as a magazine or blog article. High native feel. Long-form persuasion in image form.
+          </div>
+        </div>
+        <div class="fmt" data-key="quiz-question" onclick="togFmt(this,'quiz-question')">
+          <div class="fname"><span class="chk">✓</span>Quiz / question hook</div>
+          <div class="fdesc">Does your dog show these signs? Drives curiosity and click. Strong self-identification
+            trigger.</div>
+        </div>
+        <div class="fmt" data-key="shocking-stat" onclick="togFmt(this,'shocking-stat')">
+          <div class="fname"><span class="chk">✓</span>Shocking stat / bold claim</div>
+          <div class="fdesc">One large, hard-to-ignore number or claim. Pattern interrupt that forces a second look.
+          </div>
+        </div>
+        <div class="fmt" data-key="product-hero" onclick="togFmt(this,'product-hero')">
+          <div class="fname"><span class="chk">✓</span>Product hero / feature callout</div>
+          <div class="fdesc">Clean product shot with callouts. Lower funnel — retargeting and warm audiences.</div>
+        </div>
+        <div class="fmt" data-key="urgency-scarcity" onclick="togFmt(this,'urgency-scarcity')">
+          <div class="fname"><span class="chk">✓</span>Urgency / scarcity static</div>
+          <div class="fdesc">Limited offer, countdown, low stock. Lower funnel retargeting format.</div>
+        </div>
+        <div class="fmt" data-key="meme-cultural" onclick="togFmt(this,'meme-cultural')">
+          <div class="fname"><span class="chk">✓</span>Meme / cultural reference</div>
+          <div class="fdesc">Recognizable meme format adapted to the angle. Low cost, high shareability.</div>
+        </div>
+        <div class="fmt" data-key="dream-outcome" onclick="togFmt(this,'dream-outcome')">
+          <div class="fname"><span class="chk">✓</span>Dream outcome visual</div>
+          <div class="fdesc">Shows the desired end state — dog running, playing, pain-free. Sells the destination.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 4: CONCEPTS -->
+    <div class="step-card">
+      <div class="step-header">
+        <div class="step-num">4</div>
+        <div class="step-title">Static concepts</div>
+      </div>
+      <p style="font-size:13px;color:var(--text2);margin-bottom:16px;">One concept per selected format. All fields
+        optional — fill what is relevant.</p>
+      <div id="conceptsWrap">
+        <p style="font-size:13px;color:var(--text3);font-style:italic;">Select formats in step 3 to populate concepts
+          here.</p>
+      </div>
+    </div>
+
+    <!-- STEP 5: DESIGNER BRIEF -->
+    <div class="step-card">
+      <div class="step-header">
+        <div class="step-num">5</div>
+        <div class="step-title">Designer brief</div>
+      </div>
+      <p style="font-size:13px;color:var(--text2);margin-bottom:16px;">Generate a full brief including visual spec,
+        copy, headlines, and descriptions for each concept.</p>
+      <div id="briefBtns" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;"></div>
+      <div id="briefOut"></div>
+    </div>
+
   </div>
-</div>
+  <script>
+    // ─── CONFIG ──────────────────────────────────────────────
+    const APIFY_URL_KEY = 'cs_apify_url';
+    const ANTHROPIC_KEY_KEY = 'cs_anthropic_key';
 
-<!-- STEP 4: CONCEPTS -->
-<div class="step-card">
-  <div class="step-header"><div class="step-num">4</div><div class="step-title">Static concepts</div></div>
-  <p style="font-size:13px;color:var(--text2);margin-bottom:16px;">One concept per selected format. All fields optional — fill what is relevant.</p>
-  <div id="conceptsWrap"><p style="font-size:13px;color:var(--text3);font-style:italic;">Select formats in step 3 to populate concepts here.</p></div>
-</div>
+    // ─── LANDING PAGE KNOWLEDGE BASE ─────────────────────────
+    const LANDING_PAGES = {
+      'Rosabella IVDD Landing Page': {
+        url: 'try.thepawparent.com/shopify/spine-and-disc',
+        stage: 'TOF/BOF',
+        author: 'Editorial sales page',
+        promise: 'Long-form sales page with Buy 2 Get 1 Free bundle. Three testimonial anchors: dragging legs, post-surgery, wheelchair avoided.',
+        staticRule: 'Tease the transformation story. Lead with fear or curiosity. Do not reveal the product in the static. Hook the click.',
+        ctaDirection: 'See what helped / Learn what breeders use'
+      },
+      'IVDD Advertorial': {
+        url: 'thepawparent.com/pages/ivdd-adv1',
+        stage: 'TOF',
+        author: 'Editorial / discovery article styled as canineresearch.com',
+        promise: 'Reads like a discovery story (Rosie 2021). Soft intro to product through the story. Native, not salesy.',
+        staticRule: 'The discovery moment framing. News editorial format. No product name in the ad. The ad sells the article, the article sells the product.',
+        ctaDirection: 'I found this article / Read the article'
+      },
+      '10 Reasons Why IVDD Prevention': {
+        url: 'thepawparent.com/pages/10-reasons-ivdd-prevention',
+        stage: 'MOF',
+        author: 'Team of vets and IVDD pet parents. Displayed under canineresearch.com. NOT written by the authority figure in the video.',
+        promise: 'Listicle: FGF4 gene, disc inflammation, why ramps are not enough, Green Lipped Mussel + ETA, 87% vs 12% absorption, rebuilding the disc. Language: the fire, 35 cushions, the jelly, it starts as a puppy, $8-12K surgery.',
+        staticRule: 'Create a curiosity gap around a symptom the avatar recognizes. CTA sells reading the article — never the product. The authority figure discovered the article, they did not write it. Use the same vocabulary: the fire, the disc, it starts silently.',
+        ctaDirection: 'Read it. The link is below / Read what she found / The link is below'
+      },
+      '10 Reasons Why GLM vs Glucosamine': {
+        url: 'thepawparent.com/pages/listicle-10-reasons',
+        stage: 'MOF',
+        author: 'Research / editorial article. Vet or research framing.',
+        promise: 'Why glucosamine only reaches 12% of the joint. What the other 88% does. ETA compound in GLM. Synthetic vs natural. Why the decline continues even while supplementing.',
+        staticRule: 'Lead with the frustration of giving glucosamine and seeing no results. The it is not your fault angle. CTA sells the article as the explanation — not the product.',
+        ctaDirection: 'Read this before buying another supplement / The article that explained why nothing worked'
+      },
+      '10 Reasons Why Hip Dysplasia': {
+        url: 'thepawparent.com/pages/10-reasons-hip-dysplasia',
+        stage: 'MOF',
+        author: 'Team of vets and researchers. Dr. Emily Rodriguez voiceover authority.',
+        promise: 'Two-layer problem: loose joint and muscle lock. The shrinking list of behaviors. Why chews only touch the soreness. GLM working on both cushion and swelling. Urgency: the joint does not pause while you decide.',
+        staticRule: 'Recognition of a micro-symptom the avatar has already seen but filed under old age — sloppy sit, bunny hop, couch avoidance. CTA sells reading the research.',
+        ctaDirection: 'Read all the research / What is actually happening inside the joint'
+      },
+      'PDP Spine & Disc': {
+        url: 'thepawparent.com/products/the-pawrent-spine-disc-powder',
+        stage: 'BOF',
+        author: 'Product page',
+        promise: 'Direct Shopify product page. Standard PDP.',
+        staticRule: 'Product hero, testimonial, or urgency formats. Avatar is warm — they know the product. Lead with offer, proof, or reason to act now.',
+        ctaDirection: 'Try risk-free / Shop now / Claim offer'
+      },
+      'PDP Hip & Joint': {
+        url: 'thepawparent.com/products/hip-joint-support-for-small-medium-breeds',
+        stage: 'BOF',
+        author: 'Product page',
+        promise: 'Direct Shopify product page for Hip & Joint.',
+        staticRule: 'Product hero, testimonial, urgency. Warm audience. Lead with offer or social proof.',
+        ctaDirection: 'Try risk-free / Shop now'
+      },
+      'Anti-inflammatory PDP': {
+        url: 'thepawparent.com/products/the-1-vet-recommended-anti-inflammatory-powder',
+        stage: 'BOF',
+        author: 'Product page — vet-recommended framing baked into URL',
+        promise: 'Direct product page. Vet recommendation is the core trust signal.',
+        staticRule: 'Lean heavily on authority — vet quote, clinical framing, vet-recommended badge visible.',
+        ctaDirection: 'Shop the vet-recommended formula / Try risk-free'
+      }
+    };
 
-<!-- STEP 5: DESIGNER BRIEF -->
-<div class="step-card">
-  <div class="step-header"><div class="step-num">5</div><div class="step-title">Designer brief</div></div>
-  <p style="font-size:13px;color:var(--text2);margin-bottom:16px;">Generate a full brief including visual spec, copy, headlines, and descriptions for each concept.</p>
-  <div id="briefBtns" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;"></div>
-  <div id="briefOut"></div>
-</div>
-
-</div>
-<script>
-// ─── CONFIG ──────────────────────────────────────────────
-const APIFY_URL_KEY = 'cs_apify_url';
-const ANTHROPIC_KEY_KEY = 'cs_anthropic_key';
-
-// ─── LANDING PAGE KNOWLEDGE BASE ─────────────────────────
-const LANDING_PAGES = {
-  'Rosabella IVDD Landing Page': {
-    url: 'try.thepawparent.com/shopify/spine-and-disc',
-    stage: 'TOF/BOF',
-    author: 'Editorial sales page',
-    promise: 'Long-form sales page with Buy 2 Get 1 Free bundle. Three testimonial anchors: dragging legs, post-surgery, wheelchair avoided.',
-    staticRule: 'Tease the transformation story. Lead with fear or curiosity. Do not reveal the product in the static. Hook the click.',
-    ctaDirection: 'See what helped / Learn what breeders use'
-  },
-  'IVDD Advertorial': {
-    url: 'thepawparent.com/pages/ivdd-adv1',
-    stage: 'TOF',
-    author: 'Editorial / discovery article styled as canineresearch.com',
-    promise: 'Reads like a discovery story (Rosie 2021). Soft intro to product through the story. Native, not salesy.',
-    staticRule: 'The discovery moment framing. News editorial format. No product name in the ad. The ad sells the article, the article sells the product.',
-    ctaDirection: 'I found this article / Read the article'
-  },
-  '10 Reasons Why IVDD Prevention': {
-    url: 'thepawparent.com/pages/10-reasons-ivdd-prevention',
-    stage: 'MOF',
-    author: 'Team of vets and IVDD pet parents. Displayed under canineresearch.com. NOT written by the authority figure in the video.',
-    promise: 'Listicle: FGF4 gene, disc inflammation, why ramps are not enough, Green Lipped Mussel + ETA, 87% vs 12% absorption, rebuilding the disc. Language: the fire, 35 cushions, the jelly, it starts as a puppy, $8-12K surgery.',
-    staticRule: 'Create a curiosity gap around a symptom the avatar recognizes. CTA sells reading the article — never the product. The authority figure discovered the article, they did not write it. Use the same vocabulary: the fire, the disc, it starts silently.',
-    ctaDirection: 'Read it. The link is below / Read what she found / The link is below'
-  },
-  '10 Reasons Why GLM vs Glucosamine': {
-    url: 'thepawparent.com/pages/listicle-10-reasons',
-    stage: 'MOF',
-    author: 'Research / editorial article. Vet or research framing.',
-    promise: 'Why glucosamine only reaches 12% of the joint. What the other 88% does. ETA compound in GLM. Synthetic vs natural. Why the decline continues even while supplementing.',
-    staticRule: 'Lead with the frustration of giving glucosamine and seeing no results. The it is not your fault angle. CTA sells the article as the explanation — not the product.',
-    ctaDirection: 'Read this before buying another supplement / The article that explained why nothing worked'
-  },
-  '10 Reasons Why Hip Dysplasia': {
-    url: 'thepawparent.com/pages/10-reasons-hip-dysplasia',
-    stage: 'MOF',
-    author: 'Team of vets and researchers. Dr. Emily Rodriguez voiceover authority.',
-    promise: 'Two-layer problem: loose joint and muscle lock. The shrinking list of behaviors. Why chews only touch the soreness. GLM working on both cushion and swelling. Urgency: the joint does not pause while you decide.',
-    staticRule: 'Recognition of a micro-symptom the avatar has already seen but filed under old age — sloppy sit, bunny hop, couch avoidance. CTA sells reading the research.',
-    ctaDirection: 'Read all the research / What is actually happening inside the joint'
-  },
-  'PDP Spine & Disc': {
-    url: 'thepawparent.com/products/the-pawrent-spine-disc-powder',
-    stage: 'BOF',
-    author: 'Product page',
-    promise: 'Direct Shopify product page. Standard PDP.',
-    staticRule: 'Product hero, testimonial, or urgency formats. Avatar is warm — they know the product. Lead with offer, proof, or reason to act now.',
-    ctaDirection: 'Try risk-free / Shop now / Claim offer'
-  },
-  'PDP Hip & Joint': {
-    url: 'thepawparent.com/products/hip-joint-support-for-small-medium-breeds',
-    stage: 'BOF',
-    author: 'Product page',
-    promise: 'Direct Shopify product page for Hip & Joint.',
-    staticRule: 'Product hero, testimonial, urgency. Warm audience. Lead with offer or social proof.',
-    ctaDirection: 'Try risk-free / Shop now'
-  },
-  'Anti-inflammatory PDP': {
-    url: 'thepawparent.com/products/the-1-vet-recommended-anti-inflammatory-powder',
-    stage: 'BOF',
-    author: 'Product page — vet-recommended framing baked into URL',
-    promise: 'Direct product page. Vet recommendation is the core trust signal.',
-    staticRule: 'Lean heavily on authority — vet quote, clinical framing, vet-recommended badge visible.',
-    ctaDirection: 'Shop the vet-recommended formula / Try risk-free'
-  }
-};
-
-// ─── COPY RULES ───────────────────────────────────────────
-const COPY_RULES = `
+    // ─── COPY RULES ───────────────────────────────────────────
+    const COPY_RULES = `
 COPY WRITING RULES — apply to every piece of copy:
 1. Write as a direct response marketer. Every line earns the next. No padding.
 2. Broad problem-aware avatar — never pin copy to one specific sub-avatar or life moment.
@@ -345,165 +1177,165 @@ COPY WRITING RULES — apply to every piece of copy:
 10. The authority figure discovered the article. They did not write it.
 `;
 
-// ─── ALL FORMATS ──────────────────────────────────────────
-const ALL_FMTS=[
-  {key:'us-them',label:'Us vs them'},{key:'problem-aware',label:'Problem-aware static'},
-  {key:'news',label:'News / authority editorial'},{key:'native-longcopy',label:'Native image + long copy'},
-  {key:'before-after',label:'Before / after'},{key:'testimonial',label:'Testimonial / social proof'},
-  {key:'listicle',label:'Listicle / reasons why'},{key:'advertorial',label:'Advertorial (fake article)'},
-  {key:'quiz-question',label:'Quiz / question hook'},{key:'shocking-stat',label:'Shocking stat / bold claim'},
-  {key:'product-hero',label:'Product hero / feature callout'},{key:'urgency-scarcity',label:'Urgency / scarcity static'},
-  {key:'meme-cultural',label:'Meme / cultural reference'},{key:'dream-outcome',label:'Dream outcome visual'}
-];
-const fmtKeyMap={'us vs them':'us-them','problem-aware static':'problem-aware','news / authority editorial':'news','native image + long copy':'native-longcopy','before / after':'before-after','testimonial / social proof':'testimonial','listicle / reasons why':'listicle','advertorial (fake article)':'advertorial','quiz / question hook':'quiz-question','shocking stat / bold claim':'shocking-stat','product hero / feature callout':'product-hero','urgency / scarcity static':'urgency-scarcity','meme / cultural reference':'meme-cultural','dream outcome visual':'dream-outcome'};
-const awarenessLevels=['Unaware','Problem aware','Solution aware','Product aware','Most aware'];
-const placements=['Top center','Top left','Top right','Center','Bottom center','Bottom left','Bottom right'];
-const logoPositions=['Top left','Top right','Bottom left','Bottom right','Bottom center','Top center','None'];
-const shotTypes=['','Close-up on dog','Full body dog','Owner + dog','Product only','Dog + product','Wide environment shot'];
-const bgSettings=['','Living room / home interior','Vet clinic / medical setting','Outdoors / park / garden','Studio / white background','Bedroom','Kitchen','Split screen','Abstract / graphic'];
-const colorMoods=['','Warm & emotive','Cool & clinical','Dark & dramatic','Bright & aspirational','Muted & natural','High contrast B&W + color pop'];
-const textOverlays=['','Text on image','Text below image','Text beside image','Mixed — headline on image, copy below'];
-const authorityShown=['','Yes — featured prominently','Yes — subtle / small','No — copy only','No authority figure'];
+    // ─── ALL FORMATS ──────────────────────────────────────────
+    const ALL_FMTS = [
+      { key: 'us-them', label: 'Us vs them' }, { key: 'problem-aware', label: 'Problem-aware static' },
+      { key: 'news', label: 'News / authority editorial' }, { key: 'native-longcopy', label: 'Native image + long copy' },
+      { key: 'before-after', label: 'Before / after' }, { key: 'testimonial', label: 'Testimonial / social proof' },
+      { key: 'listicle', label: 'Listicle / reasons why' }, { key: 'advertorial', label: 'Advertorial (fake article)' },
+      { key: 'quiz-question', label: 'Quiz / question hook' }, { key: 'shocking-stat', label: 'Shocking stat / bold claim' },
+      { key: 'product-hero', label: 'Product hero / feature callout' }, { key: 'urgency-scarcity', label: 'Urgency / scarcity static' },
+      { key: 'meme-cultural', label: 'Meme / cultural reference' }, { key: 'dream-outcome', label: 'Dream outcome visual' }
+    ];
+    const fmtKeyMap = { 'us vs them': 'us-them', 'problem-aware static': 'problem-aware', 'news / authority editorial': 'news', 'native image + long copy': 'native-longcopy', 'before / after': 'before-after', 'testimonial / social proof': 'testimonial', 'listicle / reasons why': 'listicle', 'advertorial (fake article)': 'advertorial', 'quiz / question hook': 'quiz-question', 'shocking stat / bold claim': 'shocking-stat', 'product hero / feature callout': 'product-hero', 'urgency / scarcity static': 'urgency-scarcity', 'meme / cultural reference': 'meme-cultural', 'dream outcome visual': 'dream-outcome' };
+    const awarenessLevels = ['Unaware', 'Problem aware', 'Solution aware', 'Product aware', 'Most aware'];
+    const placements = ['Top center', 'Top left', 'Top right', 'Center', 'Bottom center', 'Bottom left', 'Bottom right'];
+    const logoPositions = ['Top left', 'Top right', 'Bottom left', 'Bottom right', 'Bottom center', 'Top center', 'None'];
+    const shotTypes = ['', 'Close-up on dog', 'Full body dog', 'Owner + dog', 'Product only', 'Dog + product', 'Wide environment shot'];
+    const bgSettings = ['', 'Living room / home interior', 'Vet clinic / medical setting', 'Outdoors / park / garden', 'Studio / white background', 'Bedroom', 'Kitchen', 'Split screen', 'Abstract / graphic'];
+    const colorMoods = ['', 'Warm & emotive', 'Cool & clinical', 'Dark & dramatic', 'Bright & aspirational', 'Muted & natural', 'High contrast B&W + color pop'];
+    const textOverlays = ['', 'Text on image', 'Text below image', 'Text beside image', 'Mixed — headline on image, copy below'];
+    const authorityShown = ['', 'Yes — featured prominently', 'Yes — subtle / small', 'No — copy only', 'No authority figure'];
 
-// ─── STATE ───────────────────────────────────────────────
-let selectedFmts=[];
-let conceptData=[];
-let loadedBatchData=null;
+    // ─── STATE ───────────────────────────────────────────────
+    let selectedFmts = [];
+    let conceptData = [];
+    let loadedBatchData = null;
 
-function defaultConcept(fmt){
-  return {fmt:fmt||'',awareness:'',visual:'',authorityInImage:'',authorityRole:'',dogBreed:'',dogAge:'',headlinePlacement:'Top center',headline:'',subtitle:'',btnText:'',copy1:'',copy2:'',copy3:'',hl1:'',hl2:'',hl3:'',description:'',btnPlacement:'Bottom center',headlineFont:'Work Sans',subtitleFont:'Poppins',shotType:'',bgSetting:'',colorMood:'',textOverlay:'',logoPlacement:'Bottom right',status:'Draft',refImgSrc:null,productImgSrc:null};
-}
-
-// ─── SETUP ───────────────────────────────────────────────
-window.addEventListener('DOMContentLoaded',()=>{
-  const savedUrl=localStorage.getItem(APIFY_URL_KEY);
-  const savedKey=localStorage.getItem(ANTHROPIC_KEY_KEY);
-  if(savedUrl){document.getElementById('apifyUrl').value=savedUrl;}
-  if(savedKey){document.getElementById('anthropicKey').value=savedKey;}
-  if(savedUrl&&savedKey){
-    document.getElementById('setupBanner').classList.add('done');
-    document.getElementById('setupStatus').style.display='inline';
-    document.getElementById('setupStatus').textContent='✓ Ready';
-    document.getElementById('setupHelp').style.display='none';
-  }
-  renderConcepts();renderBriefBtns();
-});
-
-function saveSetup(){
-  const url=document.getElementById('apifyUrl').value.trim();
-  const key=document.getElementById('anthropicKey').value.trim();
-  if(!url){alert('Please enter your Apify Actor URL.');return;}
-  if(!key||!key.startsWith('sk-ant-')){alert('Please enter a valid Anthropic API key (starts with sk-ant-).');return;}
-  localStorage.setItem(APIFY_URL_KEY,url);
-  localStorage.setItem(ANTHROPIC_KEY_KEY,key);
-  document.getElementById('setupBanner').classList.add('done');
-  document.getElementById('setupStatus').style.display='inline';
-  document.getElementById('setupStatus').textContent='✓ Saved';
-  document.getElementById('setupHelp').style.display='none';
-}
-
-function getApifyUrl(){return localStorage.getItem(APIFY_URL_KEY)||document.getElementById('apifyUrl').value.trim();}
-function getAnthropicKey(){return localStorage.getItem(ANTHROPIC_KEY_KEY)||document.getElementById('anthropicKey').value.trim();}
-
-// ─── APIFY CALLER ────────────────────────────────────────
-async function callApify(input){
-  const url=getApifyUrl();
-  if(!url)throw new Error('Apify URL not set — complete setup first.');
-  // Start the run
-  const startRes=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(input)});
-  const startData=await startRes.json();
-  const runId=startData.data?.id||startData.id;
-  if(!runId)throw new Error('Apify run did not start: '+JSON.stringify(startData));
-  // Poll for result
-  const baseUrl=url.split('/runs')[0];
-  const token=url.split('token=')[1]?.split('&')[0];
-  for(let i=0;i<30;i++){
-    await new Promise(r=>setTimeout(r,2000));
-    const statusRes=await fetch(`${baseUrl}/runs/${runId}?token=${token}`);
-    const statusData=await statusRes.json();
-    const status=statusData.data?.status;
-    if(status==='SUCCEEDED'){
-      const outRes=await fetch(`${baseUrl}/runs/${runId}/key-value-stores/default/records/OUTPUT?token=${token}`);
-      return await outRes.json();
+    function defaultConcept(fmt) {
+      return { fmt: fmt || '', awareness: '', visual: '', authorityInImage: '', authorityRole: '', dogBreed: '', dogAge: '', headlinePlacement: 'Top center', headline: '', subtitle: '', btnText: '', copy1: '', copy2: '', copy3: '', hl1: '', hl2: '', hl3: '', description: '', btnPlacement: 'Bottom center', headlineFont: 'Work Sans', subtitleFont: 'Poppins', shotType: '', bgSetting: '', colorMood: '', textOverlay: '', logoPlacement: 'Bottom right', status: 'Draft', refImgSrc: null, productImgSrc: null };
     }
-    if(status==='FAILED'||status==='ABORTED')throw new Error('Apify Actor failed: '+status);
-  }
-  throw new Error('Apify Actor timed out after 60 seconds.');
-}
 
-// ─── BATCH SEARCH ────────────────────────────────────────
-async function searchBatch(){
-  const q=document.getElementById('batchSearch').value.trim();
-  if(!q){alert('Enter a batch number or keyword.');return;}
-  const btn=document.getElementById('searchBtn');
-  const status=document.getElementById('searchStatus');
-  btn.disabled=true;btn.textContent='Searching...';
-  status.textContent='Searching Creative Tracking Board...';
-  document.getElementById('searchResults').innerHTML='';
-  try{
-    const result=await callApify({action:'search',batchName:q});
-    renderSearchResults(result.results||[]);
-    status.textContent=(result.results?.length||0)+' batch(es) found';
-  }catch(e){
-    status.textContent='Search failed: '+e.message;
-  }
-  btn.disabled=false;btn.textContent='Search Notion';
-}
+    // ─── SETUP ───────────────────────────────────────────────
+    window.addEventListener('DOMContentLoaded', () => {
+      const savedUrl = localStorage.getItem(APIFY_URL_KEY);
+      const savedKey = localStorage.getItem(ANTHROPIC_KEY_KEY);
+      if (savedUrl) { document.getElementById('apifyUrl').value = savedUrl; }
+      if (savedKey) { document.getElementById('anthropicKey').value = savedKey; }
+      if (savedUrl && savedKey) {
+        document.getElementById('setupBanner').classList.add('done');
+        document.getElementById('setupStatus').style.display = 'inline';
+        document.getElementById('setupStatus').textContent = '✓ Ready';
+        document.getElementById('setupHelp').style.display = 'none';
+      }
+      renderConcepts(); renderBriefBtns();
+    });
 
-function renderSearchResults(results){
-  const wrap=document.getElementById('searchResults');
-  if(!results||results.length===0){wrap.innerHTML='<p style="font-size:13px;color:var(--text3);">No batches found. Try a different search term.</p>';return;}
-  wrap.innerHTML=results.map(r=>`
-    <div class="batch-result" onclick='loadBatch(${JSON.stringify(r).replace(/'/g,"&#39;")})'>
+    function saveSetup() {
+      const url = document.getElementById('apifyUrl').value.trim();
+      const key = document.getElementById('anthropicKey').value.trim();
+      if (!url) { alert('Please enter your Apify Actor URL.'); return; }
+      if (!key || !key.startsWith('sk-ant-')) { alert('Please enter a valid Anthropic API key (starts with sk-ant-).'); return; }
+      localStorage.setItem(APIFY_URL_KEY, url);
+      localStorage.setItem(ANTHROPIC_KEY_KEY, key);
+      document.getElementById('setupBanner').classList.add('done');
+      document.getElementById('setupStatus').style.display = 'inline';
+      document.getElementById('setupStatus').textContent = '✓ Saved';
+      document.getElementById('setupHelp').style.display = 'none';
+    }
+
+    function getApifyUrl() { return localStorage.getItem(APIFY_URL_KEY) || document.getElementById('apifyUrl').value.trim(); }
+    function getAnthropicKey() { return localStorage.getItem(ANTHROPIC_KEY_KEY) || document.getElementById('anthropicKey').value.trim(); }
+
+    // ─── APIFY CALLER ────────────────────────────────────────
+    async function callApify(input) {
+      const url = getApifyUrl();
+      if (!url) throw new Error('Apify URL not set — complete setup first.');
+      // Start the run
+      const startRes = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(input) });
+      const startData = await startRes.json();
+      const runId = startData.data?.id || startData.id;
+      if (!runId) throw new Error('Apify run did not start: ' + JSON.stringify(startData));
+      // Poll for result
+      const baseUrl = url.split('/runs')[0];
+      const token = url.split('token=')[1]?.split('&')[0];
+      for (let i = 0; i < 30; i++) {
+        await new Promise(r => setTimeout(r, 2000));
+        const statusRes = await fetch(`${baseUrl}/runs/${runId}?token=${token}`);
+        const statusData = await statusRes.json();
+        const status = statusData.data?.status;
+        if (status === 'SUCCEEDED') {
+          const outRes = await fetch(`${baseUrl}/runs/${runId}/key-value-stores/default/records/OUTPUT?token=${token}`);
+          return await outRes.json();
+        }
+        if (status === 'FAILED' || status === 'ABORTED') throw new Error('Apify Actor failed: ' + status);
+      }
+      throw new Error('Apify Actor timed out after 60 seconds.');
+    }
+
+    // ─── BATCH SEARCH ────────────────────────────────────────
+    async function searchBatch() {
+      const q = document.getElementById('batchSearch').value.trim();
+      if (!q) { alert('Enter a batch number or keyword.'); return; }
+      const btn = document.getElementById('searchBtn');
+      const status = document.getElementById('searchStatus');
+      btn.disabled = true; btn.textContent = 'Searching...';
+      status.textContent = 'Searching Creative Tracking Board...';
+      document.getElementById('searchResults').innerHTML = '';
+      try {
+        const result = await callApify({ action: 'search', batchName: q });
+        renderSearchResults(result.results || []);
+        status.textContent = (result.results?.length || 0) + ' batch(es) found';
+      } catch (e) {
+        status.textContent = 'Search failed: ' + e.message;
+      }
+      btn.disabled = false; btn.textContent = 'Search Notion';
+    }
+
+    function renderSearchResults(results) {
+      const wrap = document.getElementById('searchResults');
+      if (!results || results.length === 0) { wrap.innerHTML = '<p style="font-size:13px;color:var(--text3);">No batches found. Try a different search term.</p>'; return; }
+      wrap.innerHTML = results.map(r => `
+    <div class="batch-result" onclick='loadBatch(${JSON.stringify(r).replace(/'/g, "&#39;")})'>
       <div>
-        <div class="br-title">${r.title||r.id}</div>
-        <div class="br-meta">${[r.angle,r.format,r.status,r.awareness].filter(Boolean).join(' · ')}</div>
+        <div class="br-title">${r.title || r.id}</div>
+        <div class="br-meta">${[r.angle, r.format, r.status, r.awareness].filter(Boolean).join(' · ')}</div>
       </div>
       <div style="color:var(--text3);">→</div>
     </div>`).join('');
-}
+    }
 
-async function loadBatch(result){
-  document.getElementById('searchResults').innerHTML='';
-  document.getElementById('searchStatus').textContent='Loading batch from Notion...';
-  try{
-    const data=await callApify({action:'fetchPage',pageId:result.id});
-    if(data.error)throw new Error(data.error);
-    loadedBatchData=data.page;
-    await runFullAnalysis(data.page);
-    document.getElementById('loadedBatch').style.display='block';
-    document.getElementById('loadedBatchName').textContent=data.page.title||result.title;
-    document.getElementById('analyzeRow').style.display='block';
-    document.getElementById('searchStatus').textContent='';
-  }catch(e){
-    document.getElementById('searchStatus').textContent='Failed to load batch: '+e.message;
-  }
-}
+    async function loadBatch(result) {
+      document.getElementById('searchResults').innerHTML = '';
+      document.getElementById('searchStatus').textContent = 'Loading batch from Notion...';
+      try {
+        const data = await callApify({ action: 'fetchPage', pageId: result.id });
+        if (data.error) throw new Error(data.error);
+        loadedBatchData = data.page;
+        await runFullAnalysis(data.page);
+        document.getElementById('loadedBatch').style.display = 'block';
+        document.getElementById('loadedBatchName').textContent = data.page.title || result.title;
+        document.getElementById('analyzeRow').style.display = 'block';
+        document.getElementById('searchStatus').textContent = '';
+      } catch (e) {
+        document.getElementById('searchStatus').textContent = 'Failed to load batch: ' + e.message;
+      }
+    }
 
-// ─── CLAUDE ANALYSIS ─────────────────────────────────────
-async function runFullAnalysis(batchData){
-  const apiKey=getAnthropicKey();
-  if(!apiKey)throw new Error('Anthropic API key not set.');
-  document.getElementById('analysisStatus').className='status-msg';
-  document.getElementById('analysisStatus').innerHTML='<span class="spinner"></span> Claude is analyzing...';
+    // ─── CLAUDE ANALYSIS ─────────────────────────────────────
+    async function runFullAnalysis(batchData) {
+      const apiKey = getAnthropicKey();
+      if (!apiKey) throw new Error('Anthropic API key not set.');
+      document.getElementById('analysisStatus').className = 'status-msg';
+      document.getElementById('analysisStatus').innerHTML = '<span class="spinner"></span> Claude is analyzing...';
 
-  const destination=batchData.destination||'';
-  const lpInfo=LANDING_PAGES[destination]||{};
+      const destination = batchData.destination || '';
+      const lpInfo = LANDING_PAGES[destination] || {};
 
-  const prompt=`You are a senior direct response creative strategist for The Paw Parent dog health supplement brand.
+      const prompt = `You are a senior direct response creative strategist for The Paw Parent dog health supplement brand.
 
 Analyze this Notion batch brief and return ONLY valid JSON, no markdown, no backticks.
 
 BATCH DATA:
-${JSON.stringify(batchData,null,2)}
+${JSON.stringify(batchData, null, 2)}
 
 DESTINATION LANDING PAGE: ${destination}
-${lpInfo.url?'URL: '+lpInfo.url:''}
-${lpInfo.stage?'Funnel stage: '+lpInfo.stage:''}
-${lpInfo.author?'Article author: '+lpInfo.author:''}
-${lpInfo.promise?'What the page delivers: '+lpInfo.promise:''}
-${lpInfo.staticRule?'Static congruence rule: '+lpInfo.staticRule:''}
-${lpInfo.ctaDirection?'CTA direction: '+lpInfo.ctaDirection:''}
+${lpInfo.url ? 'URL: ' + lpInfo.url : ''}
+${lpInfo.stage ? 'Funnel stage: ' + lpInfo.stage : ''}
+${lpInfo.author ? 'Article author: ' + lpInfo.author : ''}
+${lpInfo.promise ? 'What the page delivers: ' + lpInfo.promise : ''}
+${lpInfo.staticRule ? 'Static congruence rule: ' + lpInfo.staticRule : ''}
+${lpInfo.ctaDirection ? 'CTA direction: ' + lpInfo.ctaDirection : ''}
 
 COPY RULES:
 ${COPY_RULES}
@@ -547,157 +1379,164 @@ Return this JSON structure:
   ]
 }`;
 
-  try{
-    const res=await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',
-      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:4000,messages:[{role:'user',content:prompt}]})
-    });
-    const data=await res.json();
-    if(data.error)throw new Error(data.error.message);
-    const raw=data.content.filter(b=>b.type==='text').map(b=>b.text).join('');
-    let parsed;
-    try{parsed=JSON.parse(raw.replace(/```json|```/g,'').trim());}
-    catch(e){const m=raw.match(/\{[\s\S]*\}/);if(m)parsed=JSON.parse(m[0]);else throw e;}
-    fillAnalysis(parsed);
-    document.getElementById('analysisStatus').innerHTML='✓ Analysis complete — review and adjust below';
-    document.getElementById('analyzeBtn').textContent='Re-analyze';
-    document.getElementById('analyzeBtn').disabled=false;
-  }catch(e){
-    document.getElementById('analysisStatus').className='status-msg err';
-    document.getElementById('analysisStatus').innerHTML='✗ '+e.message;
-    document.getElementById('analyzeBtn').disabled=false;
-  }
-}
-
-async function runAnalysis(){
-  if(!loadedBatchData){alert('Load a batch first.');return;}
-  document.getElementById('analyzeBtn').disabled=true;
-  await runFullAnalysis(loadedBatchData);
-}
-
-function fillAnalysis(d){
-  if(d.angle)document.getElementById('angleText').value=d.angle;
-  if(d.avatar)document.getElementById('avatarText').value=d.avatar;
-  if(d.hook)document.getElementById('hookText').value=d.hook;
-  if(d.why_working)document.getElementById('whyText').value=d.why_working;
-  if(d.angle_tags){document.querySelectorAll('#angleTags .tag').forEach(t=>{t.classList[d.angle_tags.some(a=>a.toLowerCase()===t.textContent.trim().toLowerCase())?'add':'remove']('on');});}
-  if(d.video_format){document.querySelectorAll('#vidFmtTags .tag').forEach(t=>{t.classList[t.textContent.trim().toLowerCase().includes(d.video_format.toLowerCase())?'add':'remove']('on');});}
-  if(d.authority){document.querySelectorAll('#authTags .tag').forEach(t=>{t.classList[t.textContent.trim().toLowerCase().includes(d.authority.toLowerCase())?'add':'remove']('on');});}
-  if(d.why_tags){document.querySelectorAll('#whyCards .why-card').forEach(card=>{const name=card.querySelector('.wname').textContent.trim();card.classList[d.why_tags.some(w=>w.toLowerCase()===name.toLowerCase())?'add':'remove']('on');});}
-  selectedFmts=[];conceptData=[];
-  document.querySelectorAll('#formatList .fmt').forEach(el=>el.classList.remove('on'));
-  (d.selected_formats||[]).slice(0,5).forEach(f=>{
-    const key=fmtKeyMap[f.toLowerCase()]||'';
-    if(key&&!selectedFmts.includes(key)){
-      selectedFmts.push(key);
-      const c=defaultConcept(key);
-      const src=(d.concepts||[]).find(x=>fmtKeyMap[(x.format||'').toLowerCase()]===key);
-      if(src){
-        c.awareness=src.awareness||'';c.visual=src.visual||'';c.dogBreed=d.dog_breed||'';c.dogAge=d.dog_age||'';
-        c.shotType=src.shot_type||'';c.bgSetting=src.bg_setting||'';c.colorMood=src.color_mood||'';
-        c.authorityInImage=src.authority_in_image||'';c.authorityRole=src.authority_role||'';
-        c.headline=src.headline||'';c.subtitle=src.subtitle||'';c.btnText=src.btn_text||'';
-        c.copy1=src.copy_1||'';c.copy2=src.copy_2||'';c.copy3=src.copy_3||'';
-        c.hl1=src.headline_1||'';c.hl2=src.headline_2||'';c.hl3=src.headline_3||'';
-        c.description=src.description||'';
-        c.translatedFrom=src.translated_from_video||'';
-        c.congruenceNote=src.congruence_note||'';
+      try {
+        const res = await fetch('https://api.anthropic.com/v1/messages', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
+          body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 4000, messages: [{ role: 'user', content: prompt }] })
+        });
+        const data = await res.json();
+        if (data.error) throw new Error(data.error.message);
+        const raw = data.content.filter(b => b.type === 'text').map(b => b.text).join('');
+        let parsed;
+        try { parsed = JSON.parse(raw.replace(/```json|```/g, '').trim()); }
+        catch (e) { const m = raw.match(/\{[\s\S]*\}/); if (m) parsed = JSON.parse(m[0]); else throw e; }
+        fillAnalysis(parsed);
+        document.getElementById('analysisStatus').innerHTML = '✓ Analysis complete — review and adjust below';
+        document.getElementById('analyzeBtn').textContent = 'Re-analyze';
+        document.getElementById('analyzeBtn').disabled = false;
+      } catch (e) {
+        document.getElementById('analysisStatus').className = 'status-msg err';
+        document.getElementById('analysisStatus').innerHTML = '✗ ' + e.message;
+        document.getElementById('analyzeBtn').disabled = false;
       }
-      conceptData.push(c);
-      const el=document.querySelector(`#formatList .fmt[data-key="${key}"]`);
-      if(el)el.classList.add('on');
     }
-  });
-  updateFmtCount();renderConcepts();renderBriefBtns();
-}
 
-// ─── TAG HELPERS ──────────────────────────────────────────
-function tog(el){el.classList.toggle('on');}
-function togSingle(el,gid){document.querySelectorAll('#'+gid+' .tag').forEach(t=>t.classList.remove('on'));el.classList.add('on');}
-function togFmt(el,key){
-  const idx=selectedFmts.indexOf(key);
-  if(idx>-1){selectedFmts.splice(idx,1);el.classList.remove('on');conceptData.splice(idx,1);}
-  else{if(selectedFmts.length>=5){alert('Maximum 5 formats.');return;}selectedFmts.push(key);el.classList.add('on');conceptData.push(defaultConcept(key));}
-  updateFmtCount();renderConcepts();renderBriefBtns();
-}
-function updateFmtCount(){const n=selectedFmts.length;const el=document.getElementById('fmtSelCount');el.textContent=n===0?'0 selected':n+' selected';el.style.color=n>0?'var(--teal)':'var(--text3)';}
+    async function runAnalysis() {
+      if (!loadedBatchData) { alert('Load a batch first.'); return; }
+      document.getElementById('analyzeBtn').disabled = true;
+      await runFullAnalysis(loadedBatchData);
+    }
 
-// ─── IMAGE UPLOAD ─────────────────────────────────────────
-function handleImgUpload(input,idx,field){
-  if(!input||!input.files||!input.files[0])return;
-  const reader=new FileReader();
-  reader.onload=e=>{
-    if(conceptData[idx])conceptData[idx][field]=e.target.result;
-    const zone=input.closest('.mini-upload');if(!zone)return;
-    zone.classList.add('has-file');
-    const ex=zone.querySelector('.img-preview');if(ex)ex.remove();
-    const img=document.createElement('img');img.src=e.target.result;img.className='img-preview';zone.appendChild(img);
-    const lbl=zone.querySelector('.uz-label');if(lbl)lbl.textContent='✓ '+input.files[0].name;
-  };
-  reader.readAsDataURL(input.files[0]);
-}
+    function fillAnalysis(d) {
+      if (d.angle) document.getElementById('angleText').value = d.angle;
+      if (d.avatar) document.getElementById('avatarText').value = d.avatar;
+      if (d.hook) document.getElementById('hookText').value = d.hook;
+      if (d.why_working) document.getElementById('whyText').value = d.why_working;
+      if (d.angle_tags) { document.querySelectorAll('#angleTags .tag').forEach(t => { t.classList[d.angle_tags.some(a => a.toLowerCase() === t.textContent.trim().toLowerCase()) ? 'add' : 'remove']('on'); }); }
+      if (d.video_format) { document.querySelectorAll('#vidFmtTags .tag').forEach(t => { t.classList[t.textContent.trim().toLowerCase().includes(d.video_format.toLowerCase()) ? 'add' : 'remove']('on'); }); }
+      if (d.authority) { document.querySelectorAll('#authTags .tag').forEach(t => { t.classList[t.textContent.trim().toLowerCase().includes(d.authority.toLowerCase()) ? 'add' : 'remove']('on'); }); }
+      if (d.why_tags) { document.querySelectorAll('#whyCards .why-card').forEach(card => { const name = card.querySelector('.wname').textContent.trim(); card.classList[d.why_tags.some(w => w.toLowerCase() === name.toLowerCase()) ? 'add' : 'remove']('on'); }); }
+      selectedFmts = []; conceptData = [];
+      document.querySelectorAll('#formatList .fmt').forEach(el => el.classList.remove('on'));
+      (d.selected_formats || []).slice(0, 5).forEach(f => {
+        const key = fmtKeyMap[f.toLowerCase()] || '';
+        if (key && !selectedFmts.includes(key)) {
+          selectedFmts.push(key);
+          const c = defaultConcept(key);
+          const src = (d.concepts || []).find(x => fmtKeyMap[(x.format || '').toLowerCase()] === key);
+          if (src) {
+            c.awareness = src.awareness || ''; c.visual = src.visual || ''; c.dogBreed = d.dog_breed || ''; c.dogAge = d.dog_age || '';
+            c.shotType = src.shot_type || ''; c.bgSetting = src.bg_setting || ''; c.colorMood = src.color_mood || '';
+            c.authorityInImage = src.authority_in_image || ''; c.authorityRole = src.authority_role || '';
+            c.headline = src.headline || ''; c.subtitle = src.subtitle || ''; c.btnText = src.btn_text || '';
+            c.copy1 = src.copy_1 || ''; c.copy2 = src.copy_2 || ''; c.copy3 = src.copy_3 || '';
+            c.hl1 = src.headline_1 || ''; c.hl2 = src.headline_2 || ''; c.hl3 = src.headline_3 || '';
+            c.description = src.description || '';
+            c.translatedFrom = src.translated_from_video || '';
+            c.congruenceNote = src.congruence_note || '';
+          }
+          conceptData.push(c);
+          const el = document.querySelector(`#formatList .fmt[data-key="${key}"]`);
+          if (el) el.classList.add('on');
+        }
+      });
+      updateFmtCount(); renderConcepts(); renderBriefBtns();
+    }
 
-// ─── RENDER CONCEPTS ──────────────────────────────────────
-function mkOpts(arr,val){return arr.map(o=>`<option value="${o}" ${val===o?'selected':''}>${o||'— optional —'}</option>`).join('');}
+    // ─── TAG HELPERS ──────────────────────────────────────────
+    function tog(el) { el.classList.toggle('on'); }
+    function togSingle(el, gid) { document.querySelectorAll('#' + gid + ' .tag').forEach(t => t.classList.remove('on')); el.classList.add('on'); }
+    function togFmt(el, key) {
+      const idx = selectedFmts.indexOf(key);
+      if (idx > -1) { selectedFmts.splice(idx, 1); el.classList.remove('on'); conceptData.splice(idx, 1); }
+      else { if (selectedFmts.length >= 5) { alert('Maximum 5 formats.'); return; } selectedFmts.push(key); el.classList.add('on'); conceptData.push(defaultConcept(key)); }
+      updateFmtCount(); renderConcepts(); renderBriefBtns();
+    }
+    function updateFmtCount() { const n = selectedFmts.length; const el = document.getElementById('fmtSelCount'); el.textContent = n === 0 ? '0 selected' : n + ' selected'; el.style.color = n > 0 ? 'var(--teal)' : 'var(--text3)'; }
 
-function renderConcepts(){
-  const wrap=document.getElementById('conceptsWrap');
-  if(selectedFmts.length===0){wrap.innerHTML='<p style="font-size:13px;color:var(--text3);font-style:italic;">Select formats in step 3 to populate concepts here.</p>';return;}
-  wrap.innerHTML=conceptData.map((c,i)=>{
-    const fmtLabel=ALL_FMTS.find(f=>f.key===c.fmt)?.label||c.fmt||'Concept '+(i+1);
-    return`<div class="concept-card">
+    // ─── IMAGE UPLOAD ─────────────────────────────────────────
+    function handleImgUpload(input, idx, field) {
+      if (!input || !input.files || !input.files[0]) return;
+      const reader = new FileReader();
+      reader.onload = e => {
+        if (conceptData[idx]) conceptData[idx][field] = e.target.result;
+        const zone = input.closest('.mini-upload'); if (!zone) return;
+        zone.classList.add('has-file');
+        const ex = zone.querySelector('.img-preview'); if (ex) ex.remove();
+        const img = document.createElement('img'); img.src = e.target.result; img.className = 'img-preview'; zone.appendChild(img);
+        const lbl = zone.querySelector('.uz-label'); if (lbl) lbl.textContent = '✓ ' + input.files[0].name;
+      };
+      reader.readAsDataURL(input.files[0]);
+    }
+
+    // ─── RENDER CONCEPTS ──────────────────────────────────────
+    function mkOpts(arr, val) { return arr.map(o => `<option value="${o}" ${val === o ? 'selected' : ''}>${o || '— optional —'}</option>`).join(''); }
+
+    function renderConcepts() {
+      const wrap = document.getElementById('conceptsWrap');
+      if (selectedFmts.length === 0) { wrap.innerHTML = '<p style="font-size:13px;color:var(--text3);font-style:italic;">Select formats in step 3 to populate concepts here.</p>'; return; }
+      wrap.innerHTML = conceptData.map((c, i) => {
+        const fmtLabel = ALL_FMTS.find(f => f.key === c.fmt)?.label || c.fmt || 'Concept ' + (i + 1);
+        return `<div class="concept-card">
       <div class="concept-card-header">
-        <div><span class="concept-title">Concept ${i+1}</span><br><span class="fmt-badge">${fmtLabel}</span></div>
+        <div><span class="concept-title">Concept ${i + 1}</span><br><span class="fmt-badge">${fmtLabel}</span></div>
         <select style="font-size:11px;padding:4px 8px;" onchange="conceptData[${i}].status=this.value">
-          ${['Draft','Approved ✓','Needs revision','Rejected'].map(s=>`<option ${c.status===s?'selected':''}>${s}</option>`).join('')}
+          ${['Draft', 'Approved ✓', 'Needs revision', 'Rejected'].map(s => `<option ${c.status === s ? 'selected' : ''}>${s}</option>`).join('')}
         </select>
       </div>
       <div class="section-divider">Visual</div>
-      <div class="cf"><label>Translated from video</label><input type="text" placeholder="Which moment from the video does this translate?" value="${c.translatedFrom||''}" oninput="conceptData[${i}].translatedFrom=this.value"></div>
-      <div class="cf"><label>Visual scene — plain language description</label><textarea rows="4" placeholder="Describe what the designer sees — layout, dog action, setting, mood, color treatment." oninput="conceptData[${i}].visual=this.value">${c.visual||''}</textarea></div>
+      <div class="cf"><label>Translated from video</label><input type="text" placeholder="Which moment from the video does this translate?" value="${c.translatedFrom || ''}" oninput="conceptData[${i}].translatedFrom=this.value"></div>
+      <div class="cf"><label>Visual scene — plain language description</label><textarea rows="4" placeholder="Describe what the designer sees — layout, dog action, setting, mood, color treatment." oninput="conceptData[${i}].visual=this.value">${c.visual || ''}</textarea></div>
       <div class="grid2">
-        <div class="cf"><label>Shot type</label><select onchange="conceptData[${i}].shotType=this.value">${mkOpts(shotTypes,c.shotType)}</select></div>
-        <div class="cf"><label>Background</label><select onchange="conceptData[${i}].bgSetting=this.value">${mkOpts(bgSettings,c.bgSetting)}</select></div>
+        <div class="cf"><label>Shot type</label><select onchange="conceptData[${i}].shotType=this.value">${mkOpts(shotTypes, c.shotType)}</select></div>
+        <div class="cf"><label>Background</label><select onchange="conceptData[${i}].bgSetting=this.value">${mkOpts(bgSettings, c.bgSetting)}</select></div>
       </div>
       <div class="grid2">
-        <div class="cf"><label>Color mood</label><select onchange="conceptData[${i}].colorMood=this.value">${mkOpts(colorMoods,c.colorMood)}</select></div>
-        <div class="cf"><label>Text treatment</label><select onchange="conceptData[${i}].textOverlay=this.value">${mkOpts(textOverlays,c.textOverlay)}</select></div>
+        <div class="cf"><label>Color mood</label><select onchange="conceptData[${i}].colorMood=this.value">${mkOpts(colorMoods, c.colorMood)}</select></div>
+        <div class="cf"><label>Text treatment</label><select onchange="conceptData[${i}].textOverlay=this.value">${mkOpts(textOverlays, c.textOverlay)}</select></div>
       </div>
       <div class="section-divider">Dog</div>
       <div class="grid3">
-        <div class="cf"><label>Breed</label><input type="text" value="${c.dogBreed||''}" oninput="conceptData[${i}].dogBreed=this.value" placeholder="e.g. Dachshund"></div>
-        <div class="cf"><label>Age</label><input type="text" value="${c.dogAge||''}" oninput="conceptData[${i}].dogAge=this.value" placeholder="e.g. adult, senior"></div>
-        <div class="cf"><label>Awareness stage</label><select onchange="conceptData[${i}].awareness=this.value"><option value="">— optional —</option>${awarenessLevels.map(a=>`<option ${c.awareness===a?'selected':''}>${a}</option>`).join('')}</select></div>
+        <div class="cf"><label>Breed</label><input type="text" value="${c.dogBreed || ''}" oninput="conceptData[${i}].dogBreed=this.value" placeholder="e.g. Dachshund"></div>
+        <div class="cf"><label>Age</label><input type="text" value="${c.dogAge || ''}" oninput="conceptData[${i}].dogAge=this.value" placeholder="e.g. adult, senior"></div>
+        <div class="cf"><label>Awareness stage</label><select onchange="conceptData[${i}].awareness=this.value"><option value="">— optional —</option>${awarenessLevels.map(a => `<option ${c.awareness === a ? 'selected' : ''}>${a}</option>`).join('')}</select></div>
       </div>
       <div class="section-divider">Authority figure</div>
       <div class="grid2">
-        <div class="cf"><label>Shown in image?</label><select onchange="conceptData[${i}].authorityInImage=this.value">${mkOpts(authorityShown,c.authorityInImage)}</select></div>
-        <div class="cf"><label>Role / name shown</label><input type="text" value="${c.authorityRole||''}" oninput="conceptData[${i}].authorityRole=this.value" placeholder="e.g. Linda O'Leary — Dachshund Breeder"></div>
+        <div class="cf"><label>Shown in image?</label><select onchange="conceptData[${i}].authorityInImage=this.value">${mkOpts(authorityShown, c.authorityInImage)}</select></div>
+        <div class="cf"><label>Role / name shown</label><input type="text" value="${c.authorityRole || ''}" oninput="conceptData[${i}].authorityRole=this.value" placeholder="e.g. Linda O'Leary — Dachshund Breeder"></div>
       </div>
-      <div class="section-divider">Static copy</div>
-      <div class="cf"><label>Headline (on image)</label><input type="text" value="${c.headline||''}" oninput="conceptData[${i}].headline=this.value" placeholder="e.g. 200 Dachshunds. 15 years. Almost zero IVDD cases."></div>
-      <div class="cf"><label>Subtitle</label><input type="text" value="${c.subtitle||''}" oninput="conceptData[${i}].subtitle=this.value"></div>
-      <div class="cf"><label>Button text</label><input type="text" value="${c.btnText||''}" oninput="conceptData[${i}].btnText=this.value" placeholder="e.g. Read it. The link is below."></div>
-      <div class="section-divider">Ad copy (3 versions)</div>
-      <div class="cf"><label>Copy 1</label><textarea rows="5" oninput="conceptData[${i}].copy1=this.value">${c.copy1||''}</textarea></div>
-      <div class="cf"><label>Copy 2</label><textarea rows="5" oninput="conceptData[${i}].copy2=this.value">${c.copy2||''}</textarea></div>
-      <div class="cf"><label>Copy 3 — short</label><textarea rows="4" oninput="conceptData[${i}].copy3=this.value">${c.copy3||''}</textarea></div>
-      <div class="section-divider">Meta headlines and description</div>
-      <div class="cf"><label>Headline 1</label><input type="text" value="${c.hl1||''}" oninput="conceptData[${i}].hl1=this.value"></div>
-      <div class="cf"><label>Headline 2</label><input type="text" value="${c.hl2||''}" oninput="conceptData[${i}].hl2=this.value"></div>
-      <div class="cf"><label>Headline 3</label><input type="text" value="${c.hl3||''}" oninput="conceptData[${i}].hl3=this.value"></div>
-      <div class="cf"><label>Description</label><input type="text" value="${c.description||''}" oninput="conceptData[${i}].description=this.value"></div>
+      <div class="section-divider">On the image</div>
+      <p style="font-size:11px;color:var(--text3);margin-bottom:10px;line-height:1.5;">Text that lives directly on the static image. Seen before anyone reads anything else — must stop the scroll on its own.</p>
+      <div style="background:var(--purple-light);border:1px solid #AFA9EC;border-radius:var(--radius-sm);padding:14px;margin-bottom:12px;">
+        <div class="cf"><label>Headline</label><input type="text" value="${c.headline || ''}" oninput="conceptData[${i}].headline=this.value" placeholder="e.g. 200 Dachshunds. 15 years. Almost zero IVDD cases."></div>
+        <div class="cf"><label>Subtitle</label><input type="text" value="${c.subtitle || ''}" oninput="conceptData[${i}].subtitle=this.value" placeholder="e.g. A Dachshund breeder shares what she found"></div>
+        <div class="cf" style="margin-bottom:0;"><label>Button text</label><input type="text" value="${c.btnText || ''}" oninput="conceptData[${i}].btnText=this.value" placeholder="e.g. Read it. The link is below."></div>
+      </div>
+      <div class="section-divider">Meta primary text — 3 versions</div>
+      <p style="font-size:11px;color:var(--text3);margin-bottom:10px;line-height:1.5;">Text above the image in the Meta feed. Sell the click to the article, not the product. No em dashes. Close with a short direct action.</p>
+      <div class="cf"><label>Primary text 1</label><textarea rows="6" oninput="conceptData[${i}].copy1=this.value" placeholder="Direct response copy — broad avatar, no em dashes, close with: Read it. The link is below.">${c.copy1 || ''}</textarea></div>
+      <div class="cf"><label>Primary text 2</label><textarea rows="6" oninput="conceptData[${i}].copy2=this.value">${c.copy2 || ''}</textarea></div>
+      <div class="cf"><label>Primary text 3 — short version</label><textarea rows="4" oninput="conceptData[${i}].copy3=this.value">${c.copy3 || ''}</textarea></div>
+      <div class="section-divider">Meta headline + description</div>
+      <p style="font-size:11px;color:var(--text3);margin-bottom:10px;line-height:1.5;">Shown below the image in the Meta feed as the link title and one-line description. Short and punchy.</p>
+      <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:14px;margin-bottom:12px;">
+        <div class="cf"><label>Meta headline 1 — link title</label><input type="text" value="${c.hl1 || ''}" oninput="conceptData[${i}].hl1=this.value" placeholder="e.g. A Dachshund Breeder With Almost Zero IVDD Cases Shares Why"></div>
+        <div class="cf"><label>Meta headline 2 — link title</label><input type="text" value="${c.hl2 || ''}" oninput="conceptData[${i}].hl2=this.value" placeholder="e.g. 200 Dachshunds. 15 Years. Almost Zero IVDD. Here's How."></div>
+        <div class="cf"><label>Meta headline 3 — link title</label><input type="text" value="${c.hl3 || ''}" oninput="conceptData[${i}].hl3=this.value" placeholder="e.g. What This Breeder Sends Home With Every Puppy"></div>
+        <div class="cf" style="margin-bottom:0;"><label>Description — one liner below link title</label><input type="text" value="${c.description || ''}" oninput="conceptData[${i}].description=this.value" placeholder="e.g. 15 years. 200 Dachshunds. Almost zero IVDD. One breeder explains why."></div>
+      </div>
       <div class="section-divider">Layout and typography</div>
       <div class="grid2">
-        <div class="cf"><label>Headline placement</label><select onchange="conceptData[${i}].headlinePlacement=this.value">${placements.map(p=>`<option ${c.headlinePlacement===p?'selected':''}>${p}</option>`).join('')}</select></div>
-        <div class="cf"><label>Button placement</label><select onchange="conceptData[${i}].btnPlacement=this.value">${placements.map(p=>`<option ${c.btnPlacement===p?'selected':''}>${p}</option>`).join('')}</select></div>
+        <div class="cf"><label>Headline placement</label><select onchange="conceptData[${i}].headlinePlacement=this.value">${placements.map(p => `<option ${c.headlinePlacement === p ? 'selected' : ''}>${p}</option>`).join('')}</select></div>
+        <div class="cf"><label>Button placement</label><select onchange="conceptData[${i}].btnPlacement=this.value">${placements.map(p => `<option ${c.btnPlacement === p ? 'selected' : ''}>${p}</option>`).join('')}</select></div>
       </div>
       <div class="grid2">
-        <div class="cf"><label>Headline font</label><input type="text" value="${c.headlineFont||'Work Sans'}" oninput="conceptData[${i}].headlineFont=this.value"></div>
-        <div class="cf"><label>Subtitle font</label><input type="text" value="${c.subtitleFont||'Poppins'}" oninput="conceptData[${i}].subtitleFont=this.value"></div>
+        <div class="cf"><label>Headline font</label><input type="text" value="${c.headlineFont || 'Work Sans'}" oninput="conceptData[${i}].headlineFont=this.value"></div>
+        <div class="cf"><label>Subtitle font</label><input type="text" value="${c.subtitleFont || 'Poppins'}" oninput="conceptData[${i}].subtitleFont=this.value"></div>
       </div>
-      <div class="cf"><label>Logo placement</label><select onchange="conceptData[${i}].logoPlacement=this.value">${logoPositions.map(p=>`<option ${c.logoPlacement===p?'selected':''}>${p}</option>`).join('')}</select></div>
+      <div class="cf"><label>Logo placement</label><select onchange="conceptData[${i}].logoPlacement=this.value">${logoPositions.map(p => `<option ${c.logoPlacement === p ? 'selected' : ''}>${p}</option>`).join('')}</select></div>
       <div class="section-divider">Reference images</div>
       <div class="grid2">
         <div><div class="cf"><label>Reference image</label></div>
@@ -705,7 +1544,7 @@ function renderConcepts(){
             <input type="file" id="refImg_${i}" accept="image/*" style="display:none;" onchange="handleImgUpload(this,${i},'refImgSrc')">
             <div class="uz-label" style="font-size:12px;">Click to upload reference</div>
             <div style="font-size:11px;margin-top:2px;color:var(--text3);">PNG, JPG — optional</div>
-            ${c.refImgSrc?`<img src="${c.refImgSrc}" class="img-preview">`:''}
+            ${c.refImgSrc ? `<img src="${c.refImgSrc}" class="img-preview">` : ''}
           </div>
         </div>
         <div><div class="cf"><label>Product image</label></div>
@@ -713,124 +1552,133 @@ function renderConcepts(){
             <input type="file" id="prodImg_${i}" accept="image/*" style="display:none;" onchange="handleImgUpload(this,${i},'productImgSrc')">
             <div class="uz-label" style="font-size:12px;">Click to upload product image</div>
             <div style="font-size:11px;margin-top:2px;color:var(--text3);">PNG, JPG — optional</div>
-            ${c.productImgSrc?`<img src="${c.productImgSrc}" class="img-preview">`:''}
+            ${c.productImgSrc ? `<img src="${c.productImgSrc}" class="img-preview">` : ''}
           </div>
         </div>
       </div>
     </div>`;
-  }).join('');
-}
+      }).join('');
+    }
 
-// ─── BRIEF BUTTONS ────────────────────────────────────────
-function renderBriefBtns(){
-  const wrap=document.getElementById('briefBtns');
-  if(conceptData.length===0){wrap.innerHTML='';return;}
-  wrap.innerHTML=conceptData.map((_,i)=>`<button class="btn-outline" onclick="genBrief(${i})">Brief — Concept ${i+1}</button>`).join('');
-}
+    // ─── BRIEF BUTTONS ────────────────────────────────────────
+    function renderBriefBtns() {
+      const wrap = document.getElementById('briefBtns');
+      if (conceptData.length === 0) { wrap.innerHTML = ''; return; }
+      wrap.innerHTML = conceptData.map((_, i) => `<button class="btn-outline" onclick="genBrief(${i})">Brief — Concept ${i + 1}</button>`).join('');
+    }
 
-// ─── GENERATE BRIEF ───────────────────────────────────────
-const awarenessCtx={
-  'Unaware':"doesn't know their dog has a problem yet. Lead with the pain — introduce and name the symptom before anything else.",
-  'Problem aware':"knows something is wrong but not what. Name the symptom clearly, create urgency, hint at a solution.",
-  'Solution aware':"knows solutions exist but hasn't chosen one. Show why this is the superior choice.",
-  'Product aware':"knows this product but hasn't bought. Address objections, layer social proof, reduce risk.",
-  'Most aware':"is ready to buy. Lead with the offer, remove friction, create urgency."
-};
+    // ─── GENERATE BRIEF ───────────────────────────────────────
+    const awarenessCtx = {
+      'Unaware': "doesn't know their dog has a problem yet. Lead with the pain — introduce and name the symptom before anything else.",
+      'Problem aware': "knows something is wrong but not what. Name the symptom clearly, create urgency, hint at a solution.",
+      'Solution aware': "knows solutions exist but hasn't chosen one. Show why this is the superior choice.",
+      'Product aware': "knows this product but hasn't bought. Address objections, layer social proof, reduce risk.",
+      'Most aware': "is ready to buy. Lead with the offer, remove friction, create urgency."
+    };
 
-function genBrief(i){
-  const c=conceptData[i];if(!c)return;
-  const fmtLabel=ALL_FMTS.find(f=>f.key===c.fmt)?.label||c.fmt||'';
-  const batchName=loadedBatchData?.title||document.getElementById('loadedBatchName').textContent||'';
-  const destination=loadedBatchData?.destination||'';
-  const lpInfo=LANDING_PAGES[destination]||{};
-  const angleTag=Array.from(document.querySelectorAll('#angleTags .on')).map(t=>t.textContent.trim()).join(', ')||'';
-  const vidFmt=Array.from(document.querySelectorAll('#vidFmtTags .on')).map(t=>t.textContent.trim()).join('')||'';
-  const awareness=c.awareness||'';
-  const ctx=awarenessCtx[awareness]||'';
+    function genBrief(i) {
+      const c = conceptData[i]; if (!c) return;
+      const fmtLabel = ALL_FMTS.find(f => f.key === c.fmt)?.label || c.fmt || '';
+      const batchName = loadedBatchData?.title || document.getElementById('loadedBatchName').textContent || '';
+      const destination = loadedBatchData?.destination || '';
+      const lpInfo = LANDING_PAGES[destination] || {};
+      const angleTag = Array.from(document.querySelectorAll('#angleTags .on')).map(t => t.textContent.trim()).join(', ') || '';
+      const vidFmt = Array.from(document.querySelectorAll('#vidFmtTags .on')).map(t => t.textContent.trim()).join('') || '';
+      const awareness = c.awareness || '';
+      const ctx = awarenessCtx[awareness] || '';
 
-  const lines=[];
-  const sec=(title)=>lines.push('','━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',title,'━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-  const row=(k,v)=>{if(v&&String(v).trim())lines.push(`${k.padEnd(22)}${v}`);};
+      const lines = [];
+      const sec = (title) => lines.push('', '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', title, '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      const row = (k, v) => { if (v && String(v).trim()) lines.push(`${k.padEnd(22)}${v}`); };
 
-  lines.push('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━','STATIC IMAGE DESIGNER BRIEF','━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-  row('Batch:',batchName);
-  row('Source video format:',vidFmt);
-  row('Concept:',`${i+1}`);
-  row('Static format:',fmtLabel);
-  row('Condition:',angleTag);
-  row('Destination:',destination+(lpInfo.url?' ('+lpInfo.url+')':''));
-  row('Status:',c.status);
+      lines.push('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', 'STATIC IMAGE DESIGNER BRIEF', '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      row('Batch:', batchName);
+      row('Source video format:', vidFmt);
+      row('Concept:', `${i + 1}`);
+      row('Static format:', fmtLabel);
+      row('Condition:', angleTag);
+      row('Destination:', destination + (lpInfo.url ? ' (' + lpInfo.url + ')' : ''));
+      row('Status:', c.status);
 
-  if(c.translatedFrom){sec('TRANSLATED FROM VIDEO');lines.push(c.translatedFrom);}
+      if (c.translatedFrom) { sec('TRANSLATED FROM VIDEO'); lines.push(c.translatedFrom); }
 
-  if(awareness){sec('AWARENESS STAGE');lines.push(awareness);if(ctx)lines.push('','This viewer '+ctx);}
+      if (awareness) { sec('AWARENESS STAGE'); lines.push(awareness); if (ctx) lines.push('', 'This viewer ' + ctx); }
 
-  if(c.congruenceNote){sec('LANDING PAGE CONGRUENCE');lines.push(c.congruenceNote);if(lpInfo.staticRule)lines.push('',lpInfo.staticRule);}
+      if (c.congruenceNote) { sec('LANDING PAGE CONGRUENCE'); lines.push(c.congruenceNote); if (lpInfo.staticRule) lines.push('', lpInfo.staticRule); }
 
-  if(c.visual){
-    sec('VISUAL');lines.push(c.visual,'');
-    row('Shot type:',c.shotType);row('Background:',c.bgSetting);row('Color mood:',c.colorMood);row('Text treatment:',c.textOverlay);
-  }
+      if (c.visual) {
+        sec('VISUAL'); lines.push(c.visual, '');
+        row('Shot type:', c.shotType); row('Background:', c.bgSetting); row('Color mood:', c.colorMood); row('Text treatment:', c.textOverlay);
+      }
 
-  const dogLines=[];
-  if(c.dogBreed)dogLines.push(`${'Breed:'.padEnd(22)}${c.dogBreed}`);
-  if(c.dogAge)dogLines.push(`${'Age:'.padEnd(22)}${c.dogAge}`);
-  if(dogLines.length){sec('DOG');lines.push(...dogLines);}
+      const dogLines = [];
+      if (c.dogBreed) dogLines.push(`${'Breed:'.padEnd(22)}${c.dogBreed}`);
+      if (c.dogAge) dogLines.push(`${'Age:'.padEnd(22)}${c.dogAge}`);
+      if (dogLines.length) { sec('DOG'); lines.push(...dogLines); }
 
-  const authLines=[];
-  if(c.authorityInImage)authLines.push(`${'Shown in image:'.padEnd(22)}${c.authorityInImage}`);
-  if(c.authorityRole)authLines.push(`${'Role / title:'.padEnd(22)}${c.authorityRole}`);
-  if(authLines.length){sec('AUTHORITY FIGURE');lines.push(...authLines);}
+      const authLines = [];
+      if (c.authorityInImage) authLines.push(`${'Shown in image:'.padEnd(22)}${c.authorityInImage}`);
+      if (c.authorityRole) authLines.push(`${'Role / title:'.padEnd(22)}${c.authorityRole}`);
+      if (authLines.length) { sec('AUTHORITY FIGURE'); lines.push(...authLines); }
 
-  if(c.headline||c.subtitle||c.btnText){
-    sec('STATIC COPY');
-    row('Headline:',c.headline);row('Subtitle:',c.subtitle);row('Button text:',c.btnText);
-  }
+      if (c.headline || c.subtitle || c.btnText) {
+        sec('ON THE IMAGE');
+        lines.push('These elements appear directly on the static image.');
+        lines.push('');
+        row('Headline:', c.headline);
+        row('Subtitle:', c.subtitle);
+        row('Button text:', c.btnText);
+      }
 
-  if(c.copy1||c.copy2||c.copy3){
-    sec('AD COPY');
-    if(c.copy1)lines.push('--- Copy 1 ---','',c.copy1,'');
-    if(c.copy2)lines.push('--- Copy 2 ---','',c.copy2,'');
-    if(c.copy3)lines.push('--- Copy 3 (short) ---','',c.copy3,'');
-  }
+      if (c.copy1 || c.copy2 || c.copy3) {
+        sec('META PRIMARY TEXT — 3 VERSIONS');
+        lines.push('Text above the image in the Meta feed. Sell the click. No em dashes. Close with a short direct action.');
+        lines.push('');
+        if (c.copy1) lines.push('--- Primary text 1 ---', '', c.copy1, '');
+        if (c.copy2) lines.push('--- Primary text 2 ---', '', c.copy2, '');
+        if (c.copy3) lines.push('--- Primary text 3 (short) ---', '', c.copy3, '');
+      }
 
-  if(c.hl1||c.hl2||c.hl3||c.description){
-    sec('META HEADLINES + DESCRIPTION');
-    if(c.hl1)lines.push('H1: '+c.hl1);
-    if(c.hl2)lines.push('H2: '+c.hl2);
-    if(c.hl3)lines.push('H3: '+c.hl3);
-    if(c.description)lines.push('','Description: '+c.description);
-  }
+      if (c.hl1 || c.hl2 || c.hl3 || c.description) {
+        sec('META HEADLINE + DESCRIPTION');
+        lines.push('Shown below the image in Meta as the link title and one-liner.');
+        lines.push('');
+        if (c.hl1) lines.push('Headline 1:  ' + c.hl1);
+        if (c.hl2) lines.push('Headline 2:  ' + c.hl2);
+        if (c.hl3) lines.push('Headline 3:  ' + c.hl3);
+        if (c.description) lines.push('', 'Description: ' + c.description);
+      }
 
-  sec('LAYOUT AND TYPOGRAPHY');
-  row('Headline placement:',c.headlinePlacement);row('Button placement:',c.btnPlacement);
-  row('Logo placement:',c.logoPlacement);row('Headline font:',c.headlineFont);row('Subtitle font:',c.subtitleFont);
+      sec('LAYOUT AND TYPOGRAPHY');
+      row('Headline placement:', c.headlinePlacement); row('Button placement:', c.btnPlacement);
+      row('Logo placement:', c.logoPlacement); row('Headline font:', c.headlineFont); row('Subtitle font:', c.subtitleFont);
 
-  sec('DELIVERABLES');
-  lines.push('Feed square:      1080 x 1080 px','Feed portrait:    1080 x 1350 px','Story / Reel:     1080 x 1920 px','Export: PNG + editable source file');
-  lines.push('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      sec('DELIVERABLES');
+      lines.push('Feed square:      1080 x 1080 px', 'Feed portrait:    1080 x 1350 px', 'Story / Reel:     1080 x 1920 px', 'Export: PNG + editable source file');
+      lines.push('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
-  const briefText=lines.join('\n');
-  const outWrap=document.getElementById('briefOut');
-  const ex=document.getElementById('briefBox_'+i);if(ex)ex.remove();
-  const box=document.createElement('div');box.className='brief-box';box.id='briefBox_'+i;
-  const lbl=document.createElement('div');lbl.className='brief-label';
-  lbl.innerHTML=`<span>BRIEF — CONCEPT ${i+1}: ${fmtLabel.toUpperCase()}</span>`;
-  const cb=document.createElement('button');cb.className='copy-btn';cb.textContent='Copy';
-  cb.onclick=()=>{navigator.clipboard.writeText(briefText).catch(()=>{});cb.textContent='Copied!';setTimeout(()=>cb.textContent='Copy',1500);};
-  lbl.appendChild(cb);box.appendChild(lbl);
-  const ct=document.createElement('div');ct.className='brief-content';ct.textContent=briefText;box.appendChild(ct);
-  if(c.refImgSrc||c.productImgSrc){
-    const iw=document.createElement('div');iw.className='brief-img-wrap';
-    iw.innerHTML='<div class="bi-label">Reference images</div>';
-    const ig=document.createElement('div');ig.className='brief-img-grid';
-    if(c.refImgSrc){const w=document.createElement('div');w.innerHTML='<div style="font-family:DM Mono,monospace;font-size:10px;color:#534AB7;margin-bottom:4px;text-transform:uppercase;">Reference</div>';const img=document.createElement('img');img.src=c.refImgSrc;w.appendChild(img);ig.appendChild(w);}
-    if(c.productImgSrc){const w=document.createElement('div');w.innerHTML='<div style="font-family:DM Mono,monospace;font-size:10px;color:#534AB7;margin-bottom:4px;text-transform:uppercase;">Product</div>';const img=document.createElement('img');img.src=c.productImgSrc;w.appendChild(img);ig.appendChild(w);}
-    iw.appendChild(ig);box.appendChild(iw);
-  }
-  outWrap.appendChild(box);
-  box.scrollIntoView({behavior:'smooth',block:'start'});
-}
-</script>
+      const briefText = lines.join('\n');
+      const outWrap = document.getElementById('briefOut');
+      const ex = document.getElementById('briefBox_' + i); if (ex) ex.remove();
+      const box = document.createElement('div'); box.className = 'brief-box'; box.id = 'briefBox_' + i;
+      const lbl = document.createElement('div'); lbl.className = 'brief-label';
+      lbl.innerHTML = `<span>BRIEF — CONCEPT ${i + 1}: ${fmtLabel.toUpperCase()}</span>`;
+      const cb = document.createElement('button'); cb.className = 'copy-btn'; cb.textContent = 'Copy';
+      cb.onclick = () => { navigator.clipboard.writeText(briefText).catch(() => { }); cb.textContent = 'Copied!'; setTimeout(() => cb.textContent = 'Copy', 1500); };
+      lbl.appendChild(cb); box.appendChild(lbl);
+      const ct = document.createElement('div'); ct.className = 'brief-content'; ct.textContent = briefText; box.appendChild(ct);
+      if (c.refImgSrc || c.productImgSrc) {
+        const iw = document.createElement('div'); iw.className = 'brief-img-wrap';
+        iw.innerHTML = '<div class="bi-label">Reference images</div>';
+        const ig = document.createElement('div'); ig.className = 'brief-img-grid';
+        if (c.refImgSrc) { const w = document.createElement('div'); w.innerHTML = '<div style="font-family:DM Mono,monospace;font-size:10px;color:#534AB7;margin-bottom:4px;text-transform:uppercase;">Reference</div>'; const img = document.createElement('img'); img.src = c.refImgSrc; w.appendChild(img); ig.appendChild(w); }
+        if (c.productImgSrc) { const w = document.createElement('div'); w.innerHTML = '<div style="font-family:DM Mono,monospace;font-size:10px;color:#534AB7;margin-bottom:4px;text-transform:uppercase;">Product</div>'; const img = document.createElement('img'); img.src = c.productImgSrc; w.appendChild(img); ig.appendChild(w); }
+        iw.appendChild(ig); box.appendChild(iw);
+      }
+      outWrap.appendChild(box);
+      box.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  </script>
 </body>
+
 </html>
