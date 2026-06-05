@@ -1,0 +1,13 @@
+{
+  "name": "creative-strategist-notion-proxy",
+  "version": "1.0.0",
+  "description": "Notion proxy for The Paw Parent creative strategist tool",
+  "main": "main.js",
+  "type": "module",
+  "dependencies": {
+    "apify": "^3.0.0"
+  },
+  "scripts": {
+    "start": "node main.js"
+  }
+}

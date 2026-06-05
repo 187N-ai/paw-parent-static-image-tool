@@ -1,0 +1,33 @@
+{
+  "actorSpecification": 1,
+  "name": "creative-strategist-notion-proxy",
+  "title": "Creative Strategist — Notion Proxy",
+  "description": "Searches and fetches Notion batch pages for The Paw Parent creative strategist tool. Also stores the Anthropic API key securely.",
+  "version": "1.0",
+  "input": {
+    "schemaVersion": 1,
+    "title": "Input",
+    "type": "object",
+    "properties": {
+      "action": {
+        "title": "Action",
+        "type": "string",
+        "description": "One of: search, fetchPage, setApiKey, getApiKey",
+        "enum": ["search", "fetchPage", "setApiKey", "getApiKey"]
+      },
+      "batchName": {
+        "title": "Batch name or number to search",
+        "type": "string"
+      },
+      "pageId": {
+        "title": "Notion page ID to fetch",
+        "type": "string"
+      },
+      "apiKey": {
+        "title": "Anthropic API key to store",
+        "type": "string"
+      }
+    },
+    "required": ["action"]
+  }
+}
