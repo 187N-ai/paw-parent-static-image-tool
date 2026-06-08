@@ -1079,6 +1079,11 @@
         copy, headlines, and descriptions for each concept.</p>
       <div id="briefBtns" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;"></div>
       <div id="briefOut"></div>
+      <div style="margin-top:20px;padding-top:20px;border-top:1px solid var(--border);">
+        <p style="font-size:13px;color:var(--text2);margin-bottom:12px;">Create one Creative Tracking Board record per concept, fields filled from the brief, Status <b>Ready for Editing</b>, Editor <b>Josiah</b>, full brief in the page body.</p>
+        <button class="btn-primary" id="pushBatchBtn" onclick="pushAllToNotion()">Push concepts to Notion</button>
+        <span id="pushBatchStatus" style="margin-left:12px;font-size:13px;color:var(--text3);"></span>
+      </div>
     </div>
 
   </div>
@@ -1358,6 +1363,10 @@ COPY WRITING RULES — apply to every piece of copy:
           adType: getStr('Ad Type'),
           status: getStr('Status'),
           destination: getStr('Destination'),
+          fanpage: getStr('Fanpage'),
+          mediaBuyer: getStr('Media Buyer'),
+          version: getStr('Version'),
+          campaignName: (props['Campaign Name']?.multi_select || []).map(s => s.name),
           displayLink: getStr('Display Link'),
           frameLink: getStr('Link To Frame.io'),
           tam: getStr('TAM'),
@@ -1738,6 +1747,74 @@ Return this JSON structure:
         if (btn) { btn.textContent = '→ Notion'; btn.disabled = false; }
         alert('Notion push failed: ' + e.message);
       }
+    }
+
+    // ─── PUSH CONCEPTS AS NOTION RECORDS ──────────────────────
+    const JOSIAH_USER_ID = 'c8a8422d-d855-4036-a21a-3212e760ee94'; // J Canlas (josiahxcanlas@gmail.com)
+    const FMT_TO_NOTION = {
+      'us-them': 'Side-by-Side Comparison', 'problem-aware': 'Native Phone Photo', 'news': 'Listicle/Advertorial',
+      'native-longcopy': 'Native Phone Photo', 'before-after': 'Side-by-Side Comparison', 'testimonial': 'Testimonial Static',
+      'listicle': 'Listicle/Advertorial', 'advertorial': 'Listicle/Advertorial', 'quiz-question': 'Native Phone Photo',
+      'shocking-stat': 'Infographic', 'product-hero': 'Product Lifestyle Shot', 'urgency-scarcity': 'Offer Static',
+      'meme-cultural': 'Meme', 'dream-outcome': 'Aesthetic Brand Static'
+    };
+
+    function buildNotionProperties(i) {
+      const c = conceptData[i];
+      const bd = loadedBatchData || {};
+      const fmtLabel = ALL_FMTS.find(f => f.key === c.fmt)?.label || c.fmt || ('Concept ' + (i + 1));
+      const batchShort = (bd.title || '').split(/\s+/)[0] || 'BATCH';
+      const rt = v => [{ text: { content: String(v).slice(0, 2000) } }];
+      const sel = v => (v && String(v).trim()) ? { select: { name: String(v).trim() } } : null;
+      const P = {};
+      P['Brief Name'] = { title: [{ text: { content: `${batchShort} · STATIC C${i + 1} · ${fmtLabel}`.slice(0, 200) } }] };
+      P['Asset Type'] = { select: { name: 'Static' } };
+      P['Status'] = { select: { name: 'Ready for Editing' } };
+      P['Editor'] = { people: [{ id: JOSIAH_USER_ID }] };
+      P['Version'] = { select: { name: 'V1' } };
+      if (FMT_TO_NOTION[c.fmt]) P['Format'] = { select: { name: FMT_TO_NOTION[c.fmt] } };
+      // inherited select values from the source batch (already-valid option names)
+      const inheritSel = { 'Angle - Sub-Angle': bd.angle, 'Awareness Stage': bd.awareness, 'Destination': bd.destination, 'Fanpage': bd.fanpage, 'Concept Type': bd.conceptType, 'Ad Type': bd.adType, 'Emotion': bd.emotion, 'Media Buyer': bd.mediaBuyer };
+      Object.keys(inheritSel).forEach(k => { const s = sel(inheritSel[k]); if (s) P[k] = s; });
+      if (Array.isArray(bd.campaignName) && bd.campaignName.length) P['Campaign Name'] = { multi_select: bd.campaignName.map(n => ({ name: n })) };
+      // inherited context (rich text)
+      const inheritRt = { 'AVATAR': bd.avatar, 'DESIRE': bd.desire, 'TAM': bd.tam, 'TESTING HYPOTHESE': bd.testingHypothesis, 'Why It Worked / Failed': bd.whyItWorked };
+      Object.keys(inheritRt).forEach(k => { if (inheritRt[k]) P[k] = { rich_text: rt(inheritRt[k]) }; });
+      // generated creative copy from the concept
+      if (c.hl1) P['Headline 1'] = { rich_text: rt(c.hl1) };
+      if (c.hl2) P['Headline 2'] = { rich_text: rt(c.hl2) };
+      if (c.hl3) P['Headline 3'] = { rich_text: rt(c.hl3) };
+      if (c.copy1) P['Primary Text 1'] = { rich_text: rt(c.copy1) };
+      if (c.copy2) P['Primary Text 2'] = { rich_text: rt(c.copy2) };
+      if (c.copy3) P['Primary Text 3'] = { rich_text: rt(c.copy3) };
+      if (c.description) P['Description 1'] = { rich_text: rt(c.description) };
+      const ca = (c.vd && (c.vd.concept_line || c.vd.composition)) || c.visual;
+      if (ca) P['Creative Analysis'] = { rich_text: rt(ca) };
+      return P;
+    }
+
+    async function pushAllToNotion() {
+      if (!loadedBatchData) { alert('Load and analyze a batch first.'); return; }
+      if (!conceptData.length) { alert('Select at least one format / concept first.'); return; }
+      if (!confirm(`Create ${conceptData.length} record(s) in the Creative Tracking Board?\nStatus: Ready for Editing · Editor: Josiah`)) return;
+      const btn = document.getElementById('pushBatchBtn');
+      const status = document.getElementById('pushBatchStatus');
+      btn.disabled = true; btn.textContent = 'Pushing...';
+      let ok = 0, fail = 0;
+      for (let i = 0; i < conceptData.length; i++) {
+        status.textContent = `Creating ${i + 1} of ${conceptData.length}...`;
+        try {
+          if (!briefTexts[i]) genBrief(i);
+          const properties = buildNotionProperties(i);
+          const blocks = mdToNotionBlocks(briefTexts[i] || '');
+          const created = await notionProxy({ op: 'create', properties, children: blocks.slice(0, 90) });
+          const newId = created && created.id;
+          if (newId) { for (let s = 90; s < blocks.length; s += 90) { await notionProxy({ op: 'append', id: newId, children: blocks.slice(s, s + 90) }); } }
+          ok++;
+        } catch (e) { fail++; console.error('Push failed for concept ' + (i + 1), e); }
+      }
+      btn.disabled = false; btn.textContent = 'Push concepts to Notion';
+      status.textContent = `✓ ${ok} created` + (fail ? `, ${fail} failed (see console)` : '');
     }
 
     function genBrief(i) {
