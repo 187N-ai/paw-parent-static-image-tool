@@ -1207,6 +1207,33 @@ COPYWRITING RULES:
 - Write in the voice of the assigned fan page persona.
 `;
 
+    // ─── NATIVE IMAGE PRINCIPLES (image description) ──────────
+    const NATIVE_IMAGE_PRINCIPLES = `
+A native image looks like a real pet parent's organic phone photo that happened to land in the feed. It is NOT a designed ad. The long-form copy does all the selling. The image only has to feel real and stop the scroll.
+
+NON-NEGOTIABLES:
+- NO text on the image. No headline, caption, logo, badge, price, arrow, or graphic overlay. The only text allowed is text that would naturally exist in the scene (a real product label, a vet chart on a screen, a phone UI).
+- Shot on a phone, iPhone-8 era. Slightly soft, NOT razor sharp. Available light only (window light, overhead kitchen light, daylight through a door). Allow mild imperfection: a little grain, slight motion blur, a thumb shadow, an off-center crop, a slightly crooked horizon. It should look snapped in a hurry, not staged.
+- Ordinary, lived-in settings beat pretty ones (the "boring wall" rule): a cluttered kitchen counter, a worn couch, a tiled bathroom floor, a car back seat, a plain backyard. Visible everyday mess is good (mail, a water bowl, a dog bed, a remote).
+- Real subjects. Dogs: breed-accurate anatomy, natural fur with flyaways, real eyes (no glow), maybe a little drool, NOT a flawless show dog. People: pores, stray hairs, no glam makeup, casual home clothes. NEVER glossy stock-photo people.
+
+NATIVE ARCHETYPES (pick the one that fits the angle):
+1. Before / After split — two honest phone photos, same angle and light (the dog hesitating at the stairs vs. bounding up them; a stiff gait vs. a run).
+2. "What I was given" snapshot — the chews / pills / vet bottles the owner was told to use, shot on the kitchen counter or held in hand. Documentary, unflattering, real packaging.
+3. Candid dog moment — the dog mid-action in a real home or yard (struggling off the couch, lying down stiffly, finally taking the stairs, running to the door) as if the owner just grabbed their phone.
+4. Owner + dog — phone held at chest height, real home behind, the dog leaning on them.
+5. Pseudo-diagnostic / documentary — an x-ray, a thermal/scan image, or a chart on a vet's screen, screenshot-like, with only the native labels that would really be there.
+6. Screenshot look — looks like a screenshot of a post, a text thread, or a search result.
+
+COMPOSITION & COLOR: amateur framing, subject off-center, real foreground depth, phone focal length (mild close-up distortion), eye-level or down-at-the-dog angle. True-to-life slightly flat color, mixed/warm indoor white balance. NOT cinematic grading, NOT HDR, NOT portrait-mode bokeh, NOT studio.
+
+AI-TELL QA (must avoid): correct number of legs and toes, no merged or extra limbs, natural eyes, breed-accurate face/ears/snout/coat, no melted leash or collar, no warped or invented text, no plastic skin, no eerie symmetry. Match real-dog reference anatomy for the stated breed.
+
+NEVER: studio lighting, beauty/bokeh portrait shots, brand logos, glossy product-hero packaging (unless it is the "what I was given" snapshot), text overlays, watermarks, or any polished advertising look.
+
+For native formats, visual_direction.style_realism must spell out the iPhone-8 amateur look, and visual_direction.avoid must always include: "any on-image text/overlay/logo, studio or cinematic look, AI gloss, AI anatomy tells".
+`;
+
     // ─── BRAND ────────────────────────────────────────────────
     const BRAND_COLORS = '#FF3B00 (CTA), #242424 (text), #FFFFFF (background), #F4F4F1 (cards), #FFE1D9 (accent), #FFA500 (stars)';
     const DEFAULT_GUARANTEE = '90-day money-back guarantee';
@@ -1468,7 +1495,10 @@ STRATEGY GUIDANCE:
 - messaging.objections: the top 2 to 3 doubts this avatar has, each with a one-line counter.
 - offer: infer from the destination. BOF / PDP pages lead with the offer and a guarantee. Listicle / advertorial / editorial pages sell the article click, so cta_button is "Learn More" and offer/guarantee can be empty strings.
 - landing_page.fit: reason about awareness stage vs the destination's funnel stage (Problem / Solution aware fits MOF listicle or advertorial; Most aware / Product aware fits a PDP). If the destination is a poor fit, name a better one in landing_page.alternative.
-- visual_direction: the most important block. Be concrete enough that a designer or image model can build the static without guessing. Specify breed, pose, expression, eye direction, setting, light, and what to avoid. Match the native amateur-phone aesthetic unless the format calls for editorial or product-hero.
+- visual_direction: the most important block. Be concrete enough that a designer or image model can build the static without guessing. Specify breed, pose, expression, eye direction, setting, light, props, and what to avoid. For native formats follow the NATIVE IMAGE PRINCIPLES below to the letter.
+
+NATIVE IMAGE PRINCIPLES — apply to visual_direction for native formats (Native image + long copy, Testimonial / social proof, Problem-aware static, Before / after, and any UGC-style concept). For designed formats (Listicle / advertorial, Us vs them, Shocking stat / bold claim, News / authority editorial, Product hero) keep the normal designed treatment.
+${NATIVE_IMAGE_PRINCIPLES}
 
 Return this JSON structure:
 {
