@@ -1617,7 +1617,7 @@ Return this JSON structure:
       <div style="background:var(--purple-light);border:1px solid #AFA9EC;border-radius:var(--radius-sm);padding:14px;margin-bottom:12px;">
         <div class="cf"><label>Headline</label><input type="text" value="${c.headline || ''}" oninput="conceptData[${i}].headline=this.value" placeholder="e.g. 200 Dachshunds. 15 years. Almost zero IVDD cases."></div>
         <div class="cf"><label>Subtitle</label><input type="text" value="${c.subtitle || ''}" oninput="conceptData[${i}].subtitle=this.value" placeholder="e.g. A Dachshund breeder shares what she found"></div>
-        <div class="cf" style="margin-bottom:0;"><label>Button text</label><input type="text" value="${c.btnText || ''}" oninput="conceptData[${i}].btnText=this.value" placeholder="e.g. Read it. The link is below."></div>
+        <div class="cf" style="margin-bottom:0;"><label>Button text (optional)</label><input type="text" value="${c.btnText || ''}" oninput="conceptData[${i}].btnText=this.value" placeholder="Optional — leave blank if the static has no button"></div>
       </div>
       <div class="section-divider">Meta primary text — 3 versions</div>
       <p style="font-size:11px;color:var(--text3);margin-bottom:10px;line-height:1.5;">Text above the image in the Meta feed. Sell the click to the article, not the product. No em dashes. Close with a short direct action.</p>
@@ -1760,8 +1760,9 @@ Return this JSON structure:
       if (mg.emotion_arc) { lines.push(''); field('Emotion arc', mg.emotion_arc); }
       lines.push('', '---', '');
 
-      // THE IMAGE — VISUAL DIRECTION
-      lines.push('## The Image — Visual Direction', '');
+      // THE IMAGE — IMAGE INSTRUCTIONS + ON-IMAGE ELEMENTS
+      lines.push('## The Image', '');
+      lines.push('### Image Instructions', '_Everything the designer or image model needs to build the static. Be literal._', '');
       field('Concept', vd.concept_line || c.visual);
       field('Composition & framing', vd.composition);
       field('Subject', vd.subject || [c.dogBreed, c.dogAge].filter(Boolean).join(', '));
@@ -1771,14 +1772,15 @@ Return this JSON structure:
       if (c.authorityInImage || c.authorityRole) field('Authority figure', [c.authorityInImage, c.authorityRole].filter(Boolean).join(' — '));
       field('Style & realism', vd.style_realism);
       field('Shot type', c.shotType);
-      const onImg = [];
-      if (c.headline) onImg.push('Headline "' + c.headline + '"');
-      if (c.subtitle) onImg.push('Subtitle "' + c.subtitle + '"');
-      if (c.btnText) onImg.push('Button "' + c.btnText + '"');
-      if (onImg.length) field('Text on image', onImg.join(' · ') + (c.textOverlay ? '  (' + c.textOverlay + ')' : ''));
-      field('Text placement', [c.headlinePlacement && 'headline ' + c.headlinePlacement, c.btnPlacement && 'button ' + c.btnPlacement, c.logoPlacement && 'logo ' + c.logoPlacement].filter(Boolean).join(' · '));
       field('Landing-page congruence', [c.congruenceNote, lpInfo.staticRule].filter(Boolean).join(' '));
       field('Do NOT include', vd.avoid || 'product jar, brand logo, glossy stock look, garbled text');
+      lines.push('', '### On-Image Elements', '');
+      lines.push('**Headline:** ' + (c.headline || '—'));
+      lines.push('**Subtitle:** ' + (c.subtitle || '—'));
+      lines.push('**Description beneath:** ' + (c.description || '(optional — blank for native ads)'));
+      lines.push('**Button text (optional):** ' + (c.btnText || '— none —'));
+      field('Text treatment', c.textOverlay);
+      field('Placement', [c.headlinePlacement && 'headline ' + c.headlinePlacement, c.btnPlacement && 'button ' + c.btnPlacement, c.logoPlacement && 'logo ' + c.logoPlacement].filter(Boolean).join(' · '));
       lines.push('', '---', '');
 
       // PRODUCTION NOTES
@@ -1795,8 +1797,7 @@ Return this JSON structure:
       if (c.copy2) lines.push('**Primary Text (Variant 2):**', c.copy2, '');
       if (c.copy3) lines.push('**Primary Text (Variant 3, short):**', c.copy3, '');
       const hls = [c.hl1, c.hl2, c.hl3].filter(Boolean);
-      if (hls.length) { lines.push('**Headlines:**'); hls.forEach((h, n) => lines.push(`${n + 1}. ${h}`)); lines.push(''); }
-      field('Description', c.description || '(blank — Paw Parent native ads ship Primary Text + Headlines only)');
+      if (hls.length) { lines.push('**Meta link headlines:**'); hls.forEach((h, n) => lines.push(`${n + 1}. ${h}`)); lines.push(''); }
       field('CTA Button', off.cta_button || c.btnText || 'Learn More');
       field('Landing Page', lpInfo.url || destination);
       field('Offer', off.offer);
