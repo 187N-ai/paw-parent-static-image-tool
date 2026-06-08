@@ -1224,16 +1224,22 @@ COPY WRITING RULES — apply to every piece of copy:
     function getAnthropicKey() { return localStorage.getItem(ANTHROPIC_KEY_KEY) || document.getElementById('anthropicKey').value.trim(); }
 
     // ─── APIFY CALLER ────────────────────────────────────────
-    // ─── NOTION DIRECT ───────────────────────────────────────
-    // Calls Notion API directly from the browser.
-    // Notion key and DB ID are stored here — this tool is internal only.
-    const NOTION_KEY = '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';
-    const NOTION_DB_ID = '326b303c3ccc8101aedcff1441fbc9ba';
-    const NOTION_HEADERS = {
-      'Authorization': 'Bearer ' + NOTION_KEY,
-      'Notion-Version': '2022-06-28',
-      'Content-Type': 'application/json'
-    };
+    // ─── NOTION (via serverless proxy) ───────────────────────
+    // All Notion calls go through /api/notion (Vercel serverless function).
+    // The Notion token lives server-side as the NOTION_KEY env var — never in the client.
+    // This avoids browser CORS (Notion blocks direct browser requests) and keeps the token private.
+    async function notionProxy(payload) {
+      const res = await fetch('/api/notion', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const text = await res.text();
+      let data;
+      try { data = JSON.parse(text); } catch (e) { data = { error: text }; }
+      if (!res.ok) throw new Error((data && data.error) ? data.error : ('Proxy returned ' + res.status));
+      return data;
+    }
 
     // ─── BATCH SEARCH ────────────────────────────────────────
     async function searchBatch() {
@@ -1245,19 +1251,7 @@ COPY WRITING RULES — apply to every piece of copy:
       status.textContent = 'Searching Creative Tracking Board...';
       document.getElementById('searchResults').innerHTML = '';
       try {
-        const res = await fetch(`https://api.notion.com/v1/databases/${NOTION_DB_ID}/query`, {
-          method: 'POST',
-          headers: NOTION_HEADERS,
-          body: JSON.stringify({
-            filter: { property: 'title', title: { contains: q } },
-            page_size: 8
-          })
-        });
-        if (!res.ok) {
-          const text = await res.text();
-          throw new Error(`Notion returned ${res.status}: ${text}`);
-        }
-        const data = await res.json();
+        const data = await notionProxy({ op: 'query', query: q });
         const results = (data.results || []).map(page => {
           const props = page.properties || {};
           const getTitle = p => (p?.title || p?.rich_text || []).map(t => t.plain_text).join('');
@@ -1304,14 +1298,11 @@ COPY WRITING RULES — apply to every piece of copy:
       document.getElementById('searchStatus').textContent = 'Loading batch from Notion...';
       try {
         const cleanId = result.id.replace(/-/g, '');
-        // Fetch page properties and blocks in parallel
-        const [pageRes, blocksRes] = await Promise.all([
-          fetch(`https://api.notion.com/v1/pages/${cleanId}`, { headers: NOTION_HEADERS }),
-          fetch(`https://api.notion.com/v1/blocks/${cleanId}/children?page_size=100`, { headers: NOTION_HEADERS })
+        // Fetch page properties and blocks in parallel (via serverless proxy)
+        const [page, blocks] = await Promise.all([
+          notionProxy({ op: 'page', id: cleanId }),
+          notionProxy({ op: 'blocks', id: cleanId }).catch(() => ({ results: [] }))
         ]);
-        if (!pageRes.ok) throw new Error('Could not load page: ' + pageRes.status);
-        const page = await pageRes.json();
-        const blocks = blocksRes.ok ? await blocksRes.json() : { results: [] };
 
         // Extract blocks as plain text
         const extractBlock = b => {
