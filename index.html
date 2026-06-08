@@ -1198,6 +1198,7 @@ COPY WRITING RULES — apply to every piece of copy:
     let conceptData = [];
     let loadedBatchData = null;
     let loadedAnalysis = null;
+    const briefTexts = {};
 
     function defaultConcept(fmt) {
       return { fmt: fmt || '', awareness: '', visual: '', vd: {}, authorityInImage: '', authorityRole: '', dogBreed: '', dogAge: '', headlinePlacement: 'Top center', headline: '', subtitle: '', btnText: '', copy1: '', copy2: '', copy3: '', hl1: '', hl2: '', hl3: '', description: '', btnPlacement: 'Bottom center', headlineFont: 'Work Sans', subtitleFont: 'Poppins', shotType: '', bgSetting: '', colorMood: '', textOverlay: '', logoPlacement: 'Bottom right', status: 'Draft', refImgSrc: null, productImgSrc: null };
@@ -1424,6 +1425,7 @@ STRATEGY GUIDANCE:
 - messaging.proof_points: concrete stats or studies only if supported by the batch (e.g. 87% vs 12% absorption). Never invent claims.
 - messaging.objections: the top 2 to 3 doubts this avatar has, each with a one-line counter.
 - offer: infer from the destination. BOF / PDP pages lead with the offer and a guarantee. Listicle / advertorial / editorial pages sell the article click, so cta_button is "Learn More" and offer/guarantee can be empty strings.
+- landing_page.fit: reason about awareness stage vs the destination's funnel stage (Problem / Solution aware fits MOF listicle or advertorial; Most aware / Product aware fits a PDP). If the destination is a poor fit, name a better one in landing_page.alternative.
 - visual_direction: the most important block. Be concrete enough that a designer or image model can build the static without guessing. Specify breed, pose, expression, eye direction, setting, light, and what to avoid. Match the native amateur-phone aesthetic unless the format calls for editorial or product-hero.
 
 Return this JSON structure:
@@ -1442,6 +1444,7 @@ Return this JSON structure:
   "target": { "demo": "short label e.g. Women 45-65", "breed": "target breed or All", "condition": "IVDD / Hip Dysplasia / Arthritis / etc.", "buyer_stage": "one of: Prevention, Early Warning, Active Problem, Post-Surgery" },
   "messaging": { "mechanism": "the one mechanism this creative must land", "proof_points": ["concrete stat or study, only if supported by the batch"], "objections": [{ "objection": "what the avatar doubts", "counter": "one line answer" }], "emotion_arc": "e.g. Fear to Hope to Confidence to Action" },
   "offer": { "cta_button": "Learn More or Shop Now", "offer": "the offer if BOF/PDP, else empty string", "guarantee": "guarantee if BOF/PDP, else empty string" },
+  "landing_page": { "fit": "one or two sentences — why the batch destination fits this awareness stage and angle", "alternative": "name a better-fitting landing page and why, or empty string if the destination is right" },
   "fan_page": { "page": "exact name from the FAN PAGES list", "reason": "one sentence — why this page fits this angle and persona" },
   "visual_style": "one short phrase — overall vibe e.g. Warm documentary / Clinical authority / Urgent news",
   "must_include": ["concrete elements the designer must include in the static"],
@@ -1681,6 +1684,62 @@ Return this JSON structure:
       'Most aware': "is ready to buy. Lead with the offer, remove friction, create urgency."
     };
 
+    // ─── PUSH BRIEF TO NOTION ─────────────────────────────────
+    // Converts the markdown brief into Notion blocks and appends them to the
+    // same batch page we loaded from Notion (via the /api/notion append proxy).
+    function mdToNotionBlocks(md) {
+      const rt = (s) => {
+        const parts = []; let last = 0; const re = /\*\*(.+?)\*\*/g; let m;
+        while ((m = re.exec(s)) !== null) {
+          if (m.index > last) parts.push({ type: 'text', text: { content: s.slice(last, m.index).slice(0, 2000) } });
+          parts.push({ type: 'text', text: { content: m[1].slice(0, 2000) }, annotations: { bold: true } });
+          last = re.lastIndex;
+        }
+        if (last < s.length) parts.push({ type: 'text', text: { content: s.slice(last).slice(0, 2000) } });
+        return parts.length ? parts : [{ type: 'text', text: { content: s.slice(0, 2000) } }];
+      };
+      const blk = (type, s) => ({ object: 'block', type, [type]: { rich_text: rt(s) } });
+      const blocks = [];
+      md.split('\n').forEach(raw => {
+        const line = raw.replace(/\s+$/, '');
+        if (!line.trim()) return;
+        if (/^### /.test(line)) blocks.push(blk('heading_3', line.slice(4)));
+        else if (/^## /.test(line)) blocks.push(blk('heading_2', line.slice(3)));
+        else if (/^# /.test(line)) blocks.push(blk('heading_1', line.slice(2)));
+        else if (/^---$/.test(line)) blocks.push({ object: 'block', type: 'divider', divider: {} });
+        else if (/^\|.*\|$/.test(line)) {
+          if (/^\|[\s:|-]+\|$/.test(line)) return; // table separator row
+          const cells = line.split('|').map(x => x.trim()).filter(x => x !== '');
+          if (cells.length === 2 && cells[0] === 'Field' && cells[1] === 'Detail') return; // table header
+          blocks.push(blk('paragraph', cells.join(': ')));
+        }
+        else if (/^[-*] /.test(line)) blocks.push(blk('bulleted_list_item', line.slice(2)));
+        else if (/^\d+\.\s/.test(line)) blocks.push(blk('numbered_list_item', line.replace(/^\d+\.\s/, '')));
+        else if (/^`.*`$/.test(line)) blocks.push(blk('paragraph', line.replace(/`/g, '')));
+        else blocks.push(blk('paragraph', line));
+      });
+      return blocks;
+    }
+
+    async function pushBriefToNotion(i) {
+      const text = briefTexts[i];
+      const pageId = loadedBatchData && loadedBatchData.id;
+      if (!text || !pageId) { alert('Load a batch and generate the brief first.'); return; }
+      if (!confirm('Append this brief to the Notion batch page?')) return;
+      const btn = document.getElementById('notionBtn_' + i);
+      if (btn) { btn.disabled = true; btn.textContent = 'Sending...'; }
+      try {
+        const blocks = mdToNotionBlocks(text);
+        for (let s = 0; s < blocks.length; s += 90) {
+          await notionProxy({ op: 'append', id: pageId, children: blocks.slice(s, s + 90) });
+        }
+        if (btn) { btn.textContent = '✓ Sent to Notion'; }
+      } catch (e) {
+        if (btn) { btn.textContent = '→ Notion'; btn.disabled = false; }
+        alert('Notion push failed: ' + e.message);
+      }
+    }
+
     function genBrief(i) {
       const c = conceptData[i]; if (!c) return;
       const fmtLabel = ALL_FMTS.find(f => f.key === c.fmt)?.label || c.fmt || '';
@@ -1730,6 +1789,18 @@ Return this JSON structure:
       mdrow('Destination', destination + (lpInfo.url ? ' (' + lpInfo.url + ')' : '') + (lpInfo.stage ? ' · ' + lpInfo.stage : ''));
       mdrow('Fan page', fp.page);
       mdrow('Deliverables', '1080x1080 · 1080x1350 · 1080x1920 · PNG + editable source');
+      lines.push('', '---', '');
+
+      // LANDING PAGE
+      const lp = A.landing_page || {};
+      lines.push('## Landing Page', '');
+      field('Chosen destination', destination + (lpInfo.url ? ' (' + lpInfo.url + ')' : ''));
+      field('Funnel stage', lpInfo.stage);
+      field('What the page delivers', lpInfo.promise);
+      field('Static handoff rule', lpInfo.staticRule);
+      field('CTA direction', lpInfo.ctaDirection);
+      field('Why it fits', lp.fit);
+      field('Alternative to consider', lp.alternative);
       lines.push('', '---', '');
 
       // TARGET
@@ -1821,6 +1892,7 @@ Return this JSON structure:
       lines.push('## Naming Convention', '', '`' + naming + '`');
 
       const briefText = lines.join('\n');
+      briefTexts[i] = briefText;
       const outWrap = document.getElementById('briefOut');
       const ex = document.getElementById('briefBox_' + i); if (ex) ex.remove();
       const box = document.createElement('div'); box.className = 'brief-box'; box.id = 'briefBox_' + i;
@@ -1828,7 +1900,11 @@ Return this JSON structure:
       lbl.innerHTML = `<span>BRIEF — CONCEPT ${i + 1}: ${fmtLabel.toUpperCase()}</span>`;
       const cb = document.createElement('button'); cb.className = 'copy-btn'; cb.textContent = 'Copy';
       cb.onclick = () => { navigator.clipboard.writeText(briefText).catch(() => { }); cb.textContent = 'Copied!'; setTimeout(() => cb.textContent = 'Copy', 1500); };
-      lbl.appendChild(cb); box.appendChild(lbl);
+      lbl.appendChild(cb);
+      const nb = document.createElement('button'); nb.className = 'copy-btn'; nb.id = 'notionBtn_' + i; nb.textContent = '→ Notion'; nb.style.marginLeft = '6px';
+      nb.onclick = () => pushBriefToNotion(i);
+      lbl.appendChild(nb);
+      box.appendChild(lbl);
       const ct = document.createElement('div'); ct.className = 'brief-content'; ct.textContent = briefText; box.appendChild(ct);
       if (c.refImgSrc || c.productImgSrc) {
         const iw = document.createElement('div'); iw.className = 'brief-img-wrap';
