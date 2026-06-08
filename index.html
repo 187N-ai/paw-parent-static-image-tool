@@ -1204,7 +1204,7 @@ COPYWRITING RULES:
 - No em dashes. No AI tell-words (game-changer, dive into, unlock, journey).
 - Every claim must be true for The Paw Parent Spine & Disc / Hip & Joint (100% NZ Green Lipped Mussel). NEVER invent ingredients (no bovine cartilage, no named Type II collagen, no CoQ10, no Vitamin K2).
 - Use "pet parent" not "pet owner".
-- Write in the voice of the assigned fan page persona.
+- Write the ENTIRE advertorial in FIRST PERSON as the assigned fan page persona — the page IS the author. The "I" is the breeder / veterinarian / pet parent named by the fan page. NEVER describe that persona in the third person ("a breeder I found", "this vet"). If the page is the brand page, use first-person-plural brand voice. The hook title and signature must match this same person.
 `;
 
     // ─── NATIVE IMAGE PRINCIPLES (image description) ──────────
@@ -1473,6 +1473,14 @@ For native formats, visual_direction.style_realism must spell out the iPhone-8 a
       const prompt = `You are a senior direct response creative strategist for The Paw Parent dog health supplement brand.
 
 Analyze this Notion batch brief and return ONLY valid JSON, no markdown, no backticks.
+
+VOICE AND POV (critical — applies to headline, subtitle, btn_text, and all copy fields):
+The ad is published FROM the assigned fan page, and that page IS the narrator. Write in FIRST PERSON as that persona — the breeder, the veterinarian, the pet parent, the authority. Do NOT write about them in the third person ("a breeder shares...", "this vet explains...", "what she found"), because the reader sees it directly on that person's page.
+- Breeder page (e.g. Linda O'Leary): "I've bred Dachshunds for 15 years..."
+- Veterinarian page (e.g. Dr. Emily Rodriguez): "In my 20 years as a vet..."
+- Pet-parent / UGC page (e.g. Sarah's Dog Diary): "I almost lost my dog..."
+- Brand page (The Pawparent): first-person-plural brand voice.
+Exception: an editorial / news / fake-article concept may use a third-party headline written as an article title. Otherwise first person throughout.
 
 BATCH DATA:
 ${JSON.stringify(batchData, null, 2)}
@@ -1847,10 +1855,11 @@ Core mechanism to land: ${(A.messaging || {}).mechanism || ''}
 Destination: ${bd.destination || ''} ${lpInfo.url ? '(' + lpInfo.url + ')' : ''}
 CTA direction: ${lpInfo.ctaDirection || ''}
 The native image shows: ${(c.vd && c.vd.concept_line) || c.visual || ''}`;
+      const persona = fp.page || bd.fanpage || 'the fan page persona';
       const angles = [
-        'Write it in the voice of an authority/insider (a breeder of 15 years, a vet tech) who has watched this for years.',
-        'Write it in the voice of a pet parent who watched another dog decline on the standard approach and refused to repeat it.',
-        'Write a punchier version (around 1,000 to 1,300 words) led by a single shocking realization, same structure compressed.'
+        `You ARE ${persona}. Write entirely in first person. Lead with your own authority and a bold first-person claim (your years of experience, your track record).`,
+        `You ARE ${persona}. Write entirely in first person. Lead with a specific case you personally witnessed or lived through, told as your own story.`,
+        `You ARE ${persona}. Write entirely in first person. A punchier, compressed version (around 1,000 to 1,300 words) led by a single shocking first-person realization.`
       ];
       const callOne = (note) => fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
