@@ -1200,7 +1200,7 @@ COPY WRITING RULES — apply to every piece of copy:
     let loadedAnalysis = null;
 
     function defaultConcept(fmt) {
-      return { fmt: fmt || '', awareness: '', visual: '', authorityInImage: '', authorityRole: '', dogBreed: '', dogAge: '', headlinePlacement: 'Top center', headline: '', subtitle: '', btnText: '', copy1: '', copy2: '', copy3: '', hl1: '', hl2: '', hl3: '', description: '', btnPlacement: 'Bottom center', headlineFont: 'Work Sans', subtitleFont: 'Poppins', shotType: '', bgSetting: '', colorMood: '', textOverlay: '', logoPlacement: 'Bottom right', status: 'Draft', refImgSrc: null, productImgSrc: null };
+      return { fmt: fmt || '', awareness: '', visual: '', vd: {}, authorityInImage: '', authorityRole: '', dogBreed: '', dogAge: '', headlinePlacement: 'Top center', headline: '', subtitle: '', btnText: '', copy1: '', copy2: '', copy3: '', hl1: '', hl2: '', hl3: '', description: '', btnPlacement: 'Bottom center', headlineFont: 'Work Sans', subtitleFont: 'Poppins', shotType: '', bgSetting: '', colorMood: '', textOverlay: '', logoPlacement: 'Bottom right', status: 'Draft', refImgSrc: null, productImgSrc: null };
     }
 
     // ─── SETUP ───────────────────────────────────────────────
@@ -1424,6 +1424,7 @@ STRATEGY GUIDANCE:
 - messaging.proof_points: concrete stats or studies only if supported by the batch (e.g. 87% vs 12% absorption). Never invent claims.
 - messaging.objections: the top 2 to 3 doubts this avatar has, each with a one-line counter.
 - offer: infer from the destination. BOF / PDP pages lead with the offer and a guarantee. Listicle / advertorial / editorial pages sell the article click, so cta_button is "Learn More" and offer/guarantee can be empty strings.
+- visual_direction: the most important block. Be concrete enough that a designer or image model can build the static without guessing. Specify breed, pose, expression, eye direction, setting, light, and what to avoid. Match the native amateur-phone aesthetic unless the format calls for editorial or product-hero.
 
 Return this JSON structure:
 {
@@ -1450,7 +1451,17 @@ Return this JSON structure:
       "format": "one of selected_formats",
       "awareness": "one of: Unaware, Problem aware, Solution aware, Product aware, Most aware",
       "translated_from_video": "one sentence — which specific moment or element from the video this static translates",
-      "visual": "describe the scene in plain everyday language — layout, dog action, setting, mood, color",
+      "visual": "one or two sentences — the scene at a glance",
+      "visual_direction": {
+        "concept_line": "one line — what the viewer instantly sees and feels",
+        "composition": "framing, crop, focal point, where each element sits, negative space left for the headline",
+        "subject": "the dog and/or person in detail — breed, age, coat, body pose, facial expression, eye direction, wardrobe",
+        "setting": "specific lived-in background and environment",
+        "lighting_color": "light source and direction, time of day, palette and mood",
+        "props": "objects in frame and where they sit (never the product jar unless a PDP/BOF destination)",
+        "style_realism": "aesthetic and realism, e.g. native iPhone amateur, soft focus, real fur and pores, no glossy AI polish",
+        "avoid": "what must not appear, e.g. product jar, brand logo, stock-studio look, garbled text"
+      },
       "shot_type": "one of: Close-up on dog, Full body dog, Owner + dog, Product only, Dog + product, Wide environment shot",
       "bg_setting": "one of: Living room / home interior, Vet clinic / medical setting, Outdoors / park / garden, Studio / white background, Bedroom, Kitchen, Split screen, Abstract / graphic",
       "color_mood": "one of: Warm & emotive, Cool & clinical, Dark & dramatic, Bright & aspirational, Muted & natural, High contrast B&W + color pop",
@@ -1475,7 +1486,7 @@ Return this JSON structure:
         const res = await fetch('https://api.anthropic.com/v1/messages', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
-          body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 8000, messages: [{ role: 'user', content: prompt }] })
+          body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 12000, messages: [{ role: 'user', content: prompt }] })
         });
         const data = await res.json();
         if (data.error) throw new Error(data.error.message);
@@ -1528,6 +1539,7 @@ Return this JSON structure:
             c.description = src.description || '';
             c.translatedFrom = src.translated_from_video || '';
             c.congruenceNote = src.congruence_note || '';
+            c.vd = src.visual_direction || {};
           }
           conceptData.push(c);
           const el = document.querySelector(`#formatList .fmt[data-key="${key}"]`);
@@ -1684,7 +1696,7 @@ Return this JSON structure:
       const sec = (title) => lines.push('', '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', title, '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
       const row = (k, v) => { if (v && String(v).trim()) lines.push(`${k.padEnd(22)}${v}`); };
 
-      // batch-level analysis + batch data for the full-mirror brief
+      // batch-level analysis + batch data
       const A = (typeof loadedAnalysis === 'object' && loadedAnalysis) ? loadedAnalysis : {};
       const bd = loadedBatchData || {};
       const sr = A.strategic_rationale || {};
@@ -1692,106 +1704,120 @@ Return this JSON structure:
       const mg = A.messaging || {};
       const off = A.offer || {};
       const fp = A.fan_page || {};
+      const vd = c.vd || {};
       const avatarStr = bd.avatar || A.avatar || document.getElementById('avatarText').value || '';
-      const product = bd.product || '';
-      const bullet = arr => (Array.isArray(arr) ? arr : []).map(x => {
-        const t = typeof x === 'string' ? x : (x && x.objection ? x.objection + (x.counter ? '  ->  ' + x.counter : '') : '');
-        return t && t.trim() ? '  • ' + t.trim() : '';
+      const batchShort = batchName.split(/\s+/)[0] || batchName;
+      const bullets = arr => (Array.isArray(arr) ? arr : []).map(x => {
+        const t = typeof x === 'string' ? x : (x && x.objection ? x.objection + ' -> ' + (x.counter || '') : '');
+        return t && t.replace(/->\s*$/, '').trim() ? '- ' + t.trim() : '';
       }).filter(Boolean);
-      const naming = [batchName.split(/\s+/)[0], destination, fp.page, (bd.angle || angleTag), awareness, 'STATIC', fmtLabel].filter(Boolean).join('_').replace(/\s+/g, '-');
+      const mdrow = (k, v) => { if (v && String(v).trim()) lines.push(`| ${k} | ${String(v).trim().replace(/\n+/g, ' ')} |`); };
+      const field = (k, v) => { if (v && String(v).trim()) lines.push(`**${k}:** ${String(v).trim()}`); };
+      const naming = [batchShort, destination, fp.page, (bd.angle || angleTag), awareness, 'STATIC', fmtLabel].filter(Boolean).join('_').replace(/\s+/g, '-');
 
-      lines.push('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', 'STATIC IMAGE AD BRIEF', '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      row('Batch:', batchName);
-      row('Concept:', `${i + 1} of ${conceptData.length}`);
-      row('Static format:', fmtLabel);
-      row('Source video format:', vidFmt);
-      row('Status:', c.status);
+      // HEADER
+      lines.push(`# STATIC IMAGE AD BRIEF — ${batchShort} · Concept ${i + 1} of ${conceptData.length}`, '');
+      field('Format', fmtLabel + (vidFmt ? ' (translated from ' + vidFmt + ')' : ''));
+      field('Why this static', sr.why_this_static || document.getElementById('whyText').value);
+      field('Inspired by', c.translatedFrom);
+      field('Status', c.status);
+      lines.push('', '---', '');
 
-      sec('STRATEGIC RATIONALE');
-      if (sr.why_this_static) lines.push(sr.why_this_static, '');
-      row('Translated from video:', c.translatedFrom);
-      row('Opportunity:', sr.opportunity || bd.whyItWorked);
-      row('Testing hypothesis:', bd.testingHypothesis);
+      // PRODUCTION OVERVIEW
+      lines.push('## Production Overview', '', '| Field | Detail |', '|-------|--------|');
+      mdrow('Static format', fmtLabel);
+      mdrow('Visual style', A.visual_style || vd.style_realism);
+      mdrow('Destination', destination + (lpInfo.url ? ' (' + lpInfo.url + ')' : '') + (lpInfo.stage ? ' · ' + lpInfo.stage : ''));
+      mdrow('Fan page', fp.page);
+      mdrow('Deliverables', '1080x1080 · 1080x1350 · 1080x1920 · PNG + editable source');
+      lines.push('', '---', '');
 
-      sec('TARGET');
-      row('Awareness stage:', awareness);
-      if (ctx) lines.push('  This viewer ' + ctx);
-      row('Avatar:', avatarStr);
-      row('Target demo:', tg.demo);
-      row('Breed:', c.dogBreed || tg.breed || A.dog_breed);
-      row('Condition:', tg.condition || angleTag);
-      row('Buyer stage:', tg.buyer_stage);
+      // TARGET
+      lines.push('## Target', '', '| Field | Detail |', '|-------|--------|');
+      mdrow('Awareness stage', awareness);
+      mdrow('Avatar', avatarStr);
+      mdrow('Target demo', tg.demo);
+      mdrow('Target breed', c.dogBreed || tg.breed || A.dog_breed);
+      mdrow('Target condition', tg.condition || bd.angle || angleTag);
+      mdrow('Buyer stage', tg.buyer_stage);
+      mdrow('Mass desire', bd.desire);
+      lines.push('', '---', '');
 
-      sec('MESSAGING');
-      if (mg.mechanism) lines.push('Key mechanism:', mg.mechanism, '');
-      const proof = bullet(mg.proof_points);
-      if (proof.length) lines.push('Proof points:', ...proof, '');
-      const objs = bullet(mg.objections);
-      if (objs.length) lines.push('Objections to pre-empt:', ...objs, '');
-      row('Emotion arc:', mg.emotion_arc);
+      // STRATEGIC RATIONALE
+      lines.push('## Strategic Rationale', '');
+      field('Opportunity', sr.opportunity || bd.whyItWorked);
+      field('Testing hypothesis', bd.testingHypothesis);
+      if (ctx) field('Awareness context', 'This viewer ' + ctx);
+      lines.push('', '---', '');
 
-      if (c.visual || c.shotType || c.bgSetting) {
-        sec('THE STATIC');
-        if (c.visual) lines.push(c.visual, '');
-        row('Shot type:', c.shotType); row('Background:', c.bgSetting); row('Color mood:', c.colorMood); row('Text treatment:', c.textOverlay);
-        row('Dog breed:', c.dogBreed); row('Dog age:', c.dogAge);
-        row('Authority in image:', c.authorityInImage); row('Authority role:', c.authorityRole);
-        if (c.congruenceNote || lpInfo.staticRule) { lines.push('', 'Landing page congruence:'); if (c.congruenceNote) lines.push(c.congruenceNote); if (lpInfo.staticRule) lines.push(lpInfo.staticRule); }
-      }
+      // MESSAGING
+      lines.push('## Messaging', '');
+      field('Key mechanism', mg.mechanism);
+      const proof = bullets(mg.proof_points);
+      if (proof.length) lines.push('', '**Proof points:**', ...proof);
+      const objs = bullets(mg.objections);
+      if (objs.length) lines.push('', '**Objections to pre-empt:**', ...objs);
+      if (mg.emotion_arc) { lines.push(''); field('Emotion arc', mg.emotion_arc); }
+      lines.push('', '---', '');
 
-      if (c.headline || c.subtitle || c.btnText) {
-        sec('ON THE IMAGE');
-        lines.push('Text that appears directly on the static.', '');
-        row('Headline:', c.headline); row('Subtitle:', c.subtitle); row('Button text:', c.btnText);
-      }
+      // THE IMAGE — VISUAL DIRECTION
+      lines.push('## The Image — Visual Direction', '');
+      field('Concept', vd.concept_line || c.visual);
+      field('Composition & framing', vd.composition);
+      field('Subject', vd.subject || [c.dogBreed, c.dogAge].filter(Boolean).join(', '));
+      field('Setting / background', vd.setting || c.bgSetting);
+      field('Lighting & color', vd.lighting_color || c.colorMood);
+      field('Props in frame', vd.props);
+      if (c.authorityInImage || c.authorityRole) field('Authority figure', [c.authorityInImage, c.authorityRole].filter(Boolean).join(' — '));
+      field('Style & realism', vd.style_realism);
+      field('Shot type', c.shotType);
+      const onImg = [];
+      if (c.headline) onImg.push('Headline "' + c.headline + '"');
+      if (c.subtitle) onImg.push('Subtitle "' + c.subtitle + '"');
+      if (c.btnText) onImg.push('Button "' + c.btnText + '"');
+      if (onImg.length) field('Text on image', onImg.join(' · ') + (c.textOverlay ? '  (' + c.textOverlay + ')' : ''));
+      field('Text placement', [c.headlinePlacement && 'headline ' + c.headlinePlacement, c.btnPlacement && 'button ' + c.btnPlacement, c.logoPlacement && 'logo ' + c.logoPlacement].filter(Boolean).join(' · '));
+      field('Landing-page congruence', [c.congruenceNote, lpInfo.staticRule].filter(Boolean).join(' '));
+      field('Do NOT include', vd.avoid || 'product jar, brand logo, glossy stock look, garbled text');
+      lines.push('', '---', '');
 
-      if (c.copy1 || c.copy2 || c.copy3) {
-        sec('AD COPY  /  META PRIMARY TEXT (3 versions)');
-        lines.push('Text above the image in the Meta feed. Sell the click. No em dashes. Close with a short direct action.', '');
-        if (c.copy1) lines.push('--- Primary text 1 ---', '', c.copy1, '');
-        if (c.copy2) lines.push('--- Primary text 2 ---', '', c.copy2, '');
-        if (c.copy3) lines.push('--- Primary text 3 (short) ---', '', c.copy3, '');
-      }
+      // PRODUCTION NOTES
+      lines.push('## Production Notes', '');
+      field('Brand colors (text / CTA)', BRAND_COLORS);
+      field('Fonts', [c.headlineFont && 'Headline ' + c.headlineFont, c.subtitleFont && 'Subtitle ' + c.subtitleFont].filter(Boolean).join(' · '));
+      const must = bullets(A.must_include);
+      if (must.length) lines.push('', '**Must include:**', ...must);
+      lines.push('', '---', '');
 
-      if (c.hl1 || c.hl2 || c.hl3 || c.description) {
-        sec('META HEADLINE + DESCRIPTION');
-        lines.push('Shown below the image in Meta as the link title and one-liner.', '');
-        if (c.hl1) lines.push('Headline 1:  ' + c.hl1);
-        if (c.hl2) lines.push('Headline 2:  ' + c.hl2);
-        if (c.hl3) lines.push('Headline 3:  ' + c.hl3);
-        if (c.description) lines.push('', 'Description: ' + c.description);
-      }
+      // AD COPY
+      lines.push('## Ad Copy (Meta Ads Manager)', '');
+      if (c.copy1) lines.push('**Primary Text (Variant 1):**', c.copy1, '');
+      if (c.copy2) lines.push('**Primary Text (Variant 2):**', c.copy2, '');
+      if (c.copy3) lines.push('**Primary Text (Variant 3, short):**', c.copy3, '');
+      const hls = [c.hl1, c.hl2, c.hl3].filter(Boolean);
+      if (hls.length) { lines.push('**Headlines:**'); hls.forEach((h, n) => lines.push(`${n + 1}. ${h}`)); lines.push(''); }
+      field('Description', c.description || '(blank — Paw Parent native ads ship Primary Text + Headlines only)');
+      field('CTA Button', off.cta_button || c.btnText || 'Learn More');
+      field('Landing Page', lpInfo.url || destination);
+      field('Offer', off.offer);
+      field('Guarantee', off.guarantee || DEFAULT_GUARANTEE);
+      lines.push('', '---', '');
 
-      sec('CTA & OFFER');
-      row('CTA button:', off.cta_button || c.btnText);
-      row('Landing page:', destination + (lpInfo.url ? ' (' + lpInfo.url + ')' : ''));
-      row('Funnel stage:', lpInfo.stage);
-      row('CTA direction:', lpInfo.ctaDirection);
-      row('Offer:', off.offer);
-      row('Guarantee:', off.guarantee || DEFAULT_GUARANTEE);
+      // FAN PAGE
+      lines.push('## Fan Page Assignment', '');
+      lines.push((fp.page ? '**' + fp.page + '**' : '_unassigned_') + (fp.reason ? ' — ' + fp.reason : ''));
+      lines.push('', '---', '');
 
-      sec('PRODUCTION FOR DESIGNER');
-      row('Product:', product);
-      row('Brand colors:', BRAND_COLORS);
-      row('Visual style / vibe:', A.visual_style);
-      const must = bullet(A.must_include);
-      if (must.length) lines.push('Must include:', ...must, '');
-      row('Headline placement:', c.headlinePlacement); row('Button placement:', c.btnPlacement);
-      row('Logo placement:', c.logoPlacement); row('Headline font:', c.headlineFont); row('Subtitle font:', c.subtitleFont);
+      // MEASUREMENT
+      lines.push('## Measurement', '', '- CTR target: > 1.5%', '- CPC target: < $2.00', '- Evaluate: 7-day test, 14-day decision', '- Kill: CTR < 0.5% after $20 spend', '- Scale: ROAS > 1.5x after 14 days');
+      lines.push('', '---', '');
 
-      sec('FAN PAGE / PERSONA');
-      row('Assigned page:', fp.page);
-      if (fp.reason) lines.push('', fp.reason);
+      // COMPLIANCE
+      lines.push('## Compliance Check', '', '- No em dashes · "pet parent" not "pet owner" · no brand name and no product jar in the image (unless PDP)', '- Claims backed only (e.g. ETA 200x fish oil, 87% vs 12% absorption)', '- Banned: cure / treat / heal / reverse / eliminate / guaranteed / clinically proven / prevents IVDD');
+      lines.push('', '---', '');
 
-      sec('NAMING CONVENTION');
-      lines.push(naming);
-
-      sec('MEASUREMENT');
-      lines.push('CTR target:           > 1.5%', 'CPC target:           < $2.00', 'Evaluate:             7-day test, 14-day decision', 'Kill criteria:        CTR < 0.5% after $20 spend', 'Scale criteria:       ROAS > 1.5x after 14 days');
-
-      sec('DELIVERABLES');
-      lines.push('Feed square:      1080 x 1080 px', 'Feed portrait:    1080 x 1350 px', 'Story / Reel:     1080 x 1920 px', 'Export: PNG + editable source file');
-      lines.push('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      // NAMING
+      lines.push('## Naming Convention', '', '`' + naming + '`');
 
       const briefText = lines.join('\n');
       const outWrap = document.getElementById('briefOut');
