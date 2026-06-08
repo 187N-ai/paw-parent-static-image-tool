@@ -866,7 +866,6 @@
       <p style="font-size:13px;color:var(--text2);margin-bottom:14px;">Auto-filled from Notion after loading a batch.
         Correct anything that's off.</p>
       <div id="analyzeRow" style="display:none;margin-bottom:16px;">
-        <button class="btn-primary" onclick="runAnalysis()" id="analyzeBtn">Analyze with Claude</button>
         <span class="status-msg" id="analysisStatus"></span>
       </div>
       <div class="grid2" style="margin-bottom:14px;">
@@ -1498,7 +1497,7 @@ Return this JSON structure:
         const res = await fetch('https://api.anthropic.com/v1/messages', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
-          body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 12000, messages: [{ role: 'user', content: prompt }] })
+          body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 12000, messages: [{ role: 'user', content: prompt }] })
         });
         const data = await res.json();
         if (data.error) throw new Error(data.error.message);
@@ -1507,20 +1506,12 @@ Return this JSON structure:
         try { parsed = JSON.parse(raw.replace(/```json|```/g, '').trim()); }
         catch (e) { const m = raw.match(/\{[\s\S]*\}/); if (m) parsed = JSON.parse(m[0]); else throw e; }
         fillAnalysis(parsed);
-        document.getElementById('analysisStatus').innerHTML = '✓ Analysis complete — review and adjust below';
-        document.getElementById('analyzeBtn').textContent = 'Re-analyze';
-        document.getElementById('analyzeBtn').disabled = false;
+        document.getElementById('analysisStatus').className = 'status-msg';
+        document.getElementById('analysisStatus').innerHTML = '✓ Loaded — review and adjust below';
       } catch (e) {
         document.getElementById('analysisStatus').className = 'status-msg err';
         document.getElementById('analysisStatus').innerHTML = '✗ ' + e.message;
-        document.getElementById('analyzeBtn').disabled = false;
       }
-    }
-
-    async function runAnalysis() {
-      if (!loadedBatchData) { alert('Load a batch first.'); return; }
-      document.getElementById('analyzeBtn').disabled = true;
-      await runFullAnalysis(loadedBatchData);
     }
 
     function fillAnalysis(d) {
