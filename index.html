@@ -1265,6 +1265,9 @@ For native formats, visual_direction.style_realism must spell out the iPhone-8 a
     let loadedAnalysis = null;
     const briefTexts = {};
 
+    // native image concept = "Native image + long copy" — primary text is the long-form advertorial
+    function isNativeConcept(fmt) { return fmt === 'native-longcopy'; }
+
     function defaultConcept(fmt) {
       return { fmt: fmt || '', awareness: '', visual: '', vd: {}, advertorial: '', authorityInImage: '', authorityRole: '', dogBreed: '', dogAge: '', headlinePlacement: 'Top center', headline: '', subtitle: '', btnText: '', copy1: '', copy2: '', copy3: '', hl1: '', hl2: '', hl3: '', description: '', btnPlacement: 'Bottom center', headlineFont: 'Work Sans', subtitleFont: 'Poppins', shotType: '', bgSetting: '', colorMood: '', textOverlay: '', logoPlacement: 'Bottom right', status: 'Draft', refImgSrc: null, productImgSrc: null };
     }
@@ -1572,6 +1575,14 @@ Return this JSON structure:
         fillAnalysis(parsed);
         document.getElementById('analysisStatus').className = 'status-msg';
         document.getElementById('analysisStatus').innerHTML = '✓ Loaded — review and adjust below';
+        // native image concepts: auto-write the long-form advertorials into the primary texts
+        const nativeIdx = conceptData.map((c, idx) => isNativeConcept(c.fmt) ? idx : -1).filter(idx => idx > -1);
+        if (nativeIdx.length) {
+          document.getElementById('analysisStatus').innerHTML = '<span class="spinner"></span> Writing long-form native ad copy (~60s)...';
+          await Promise.all(nativeIdx.map(idx => genNativeCopy(idx)));
+          document.getElementById('analysisStatus').className = 'status-msg';
+          document.getElementById('analysisStatus').innerHTML = '✓ Loaded with long-form native ad copy';
+        }
       } catch (e) {
         document.getElementById('analysisStatus').className = 'status-msg err';
         document.getElementById('analysisStatus').innerHTML = '✗ ' + e.message;
@@ -1686,15 +1697,20 @@ Return this JSON structure:
         <div class="cf"><label>Subtitle</label><input type="text" value="${c.subtitle || ''}" oninput="conceptData[${i}].subtitle=this.value" placeholder="e.g. A Dachshund breeder shares what she found"></div>
         <div class="cf" style="margin-bottom:0;"><label>Button text (optional)</label><input type="text" value="${c.btnText || ''}" oninput="conceptData[${i}].btnText=this.value" placeholder="Optional — leave blank if the static has no button"></div>
       </div>
-      <div class="section-divider">Long-form native ad copy</div>
-      <p style="font-size:11px;color:var(--text3);margin-bottom:10px;line-height:1.5;">The native advertorial that does the selling (1,200-2,200 words, proven 16-beat structure). The image just stops the scroll.</p>
-      <button class="btn-outline" id="advBtn_${i}" onclick="genAdvertorial(${i})">${c.advertorial ? 'Rewrite long-form ad copy' : 'Write long-form ad copy (Claude)'}</button>
-      <div class="cf" style="margin-top:10px;"><textarea rows="14" oninput="conceptData[${i}].advertorial=this.value" placeholder="Click the button above to generate a long-form native advertorial in the locked structure. ~60s.">${c.advertorial || ''}</textarea></div>
+      ${isNativeConcept(c.fmt) ? `
+      <div class="section-divider">Primary text — long-form native advertorial</div>
+      <p style="font-size:11px;color:var(--text3);margin-bottom:10px;line-height:1.5;">Native concept: the primary text IS the long-form advertorial (1,200-2,200 words, 16-beat structure). The image carries no text and just stops the scroll. Auto-generated on analysis. 3 variants to test.</p>
+      <button class="btn-outline" id="advBtn_${i}" onclick="genNativeCopy(${i})">${(c.copy1 || c.copy2 || c.copy3) ? 'Regenerate long-form ad copies' : 'Generate long-form ad copies (Claude)'}</button>
+      <div class="cf" style="margin-top:10px;"><label>Primary text 1 — long-form</label><textarea rows="16" oninput="conceptData[${i}].copy1=this.value" placeholder="Auto-generated for native concepts (~60s). Or click the button above.">${c.copy1 || ''}</textarea></div>
+      <div class="cf"><label>Primary text 2 — long-form</label><textarea rows="16" oninput="conceptData[${i}].copy2=this.value">${c.copy2 || ''}</textarea></div>
+      <div class="cf"><label>Primary text 3 — long-form</label><textarea rows="16" oninput="conceptData[${i}].copy3=this.value">${c.copy3 || ''}</textarea></div>
+      ` : `
       <div class="section-divider">Meta primary text — 3 short versions</div>
       <p style="font-size:11px;color:var(--text3);margin-bottom:10px;line-height:1.5;">Text above the image in the Meta feed. Sell the click to the article, not the product. No em dashes. Close with a short direct action.</p>
       <div class="cf"><label>Primary text 1</label><textarea rows="6" oninput="conceptData[${i}].copy1=this.value" placeholder="Direct response copy — broad avatar, no em dashes, close with: Read it. The link is below.">${c.copy1 || ''}</textarea></div>
       <div class="cf"><label>Primary text 2</label><textarea rows="6" oninput="conceptData[${i}].copy2=this.value">${c.copy2 || ''}</textarea></div>
       <div class="cf"><label>Primary text 3 — short version</label><textarea rows="4" oninput="conceptData[${i}].copy3=this.value">${c.copy3 || ''}</textarea></div>
+      `}
       <div class="section-divider">Meta headline + description</div>
       <p style="font-size:11px;color:var(--text3);margin-bottom:10px;line-height:1.5;">Shown below the image in the Meta feed as the link title and one-line description. Short and punchy.</p>
       <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:14px;margin-bottom:12px;">
@@ -1809,7 +1825,9 @@ Return this JSON structure:
     }
 
     // ─── LONG-FORM NATIVE ADVERTORIAL GENERATION ──────────────
-    async function genAdvertorial(i) {
+    // Generates 3 long-form advertorial variants into the primary-text fields.
+    // Only used for native image concepts (auto-run on analysis + manual button).
+    async function genNativeCopy(i) {
       const c = conceptData[i]; if (!c) return;
       const apiKey = getAnthropicKey();
       if (!apiKey) { alert('Anthropic API key not set.'); return; }
@@ -1817,38 +1835,36 @@ Return this JSON structure:
       const fp = A.fan_page || {};
       const lpInfo = LANDING_PAGES[bd.destination] || {};
       const btn = document.getElementById('advBtn_' + i);
-      const orig = btn ? btn.textContent : '';
-      if (btn) { btn.disabled = true; btn.textContent = 'Writing... (~60s)'; }
-      const prompt = `${NATIVE_ADVERTORIAL_FRAMEWORK}
-
-CONTEXT FOR THIS AD:
+      if (btn) { btn.disabled = true; btn.textContent = 'Writing 3 long-form copies... (~60s)'; }
+      const baseCtx = `CONTEXT FOR THIS AD:
 Product: The Paw Parent ${(bd.destination || '').toLowerCase().includes('hip') ? 'Hip & Joint' : 'Spine & Disc'} Powder (100% NZ Green Lipped Mussel).
 Angle / sub-angle: ${bd.angle || ''}
 Awareness stage: ${c.awareness || bd.awareness || ''}
 Avatar: ${A.avatar || bd.avatar || ''}
 What they desire: ${bd.desire || ''}
-Fan page persona / voice to write in: ${fp.page || bd.fanpage || ''}
+Fan page persona / voice: ${fp.page || bd.fanpage || ''}
 Core mechanism to land: ${(A.messaging || {}).mechanism || ''}
 Destination: ${bd.destination || ''} ${lpInfo.url ? '(' + lpInfo.url + ')' : ''}
 CTA direction: ${lpInfo.ctaDirection || ''}
-The native image shows: ${(c.vd && c.vd.concept_line) || c.visual || ''}
-
-Write ONE complete long-form native advertorial (1,200 to 2,200 words) following the 16-beat structure and every rule above. Output ONLY the ad copy text itself. No preamble, no section labels, no markdown headings.`;
+The native image shows: ${(c.vd && c.vd.concept_line) || c.visual || ''}`;
+      const angles = [
+        'Write it in the voice of an authority/insider (a breeder of 15 years, a vet tech) who has watched this for years.',
+        'Write it in the voice of a pet parent who watched another dog decline on the standard approach and refused to repeat it.',
+        'Write a punchier version (around 1,000 to 1,300 words) led by a single shocking realization, same structure compressed.'
+      ];
+      const callOne = (note) => fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
+        body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 8000, messages: [{ role: 'user', content: `${NATIVE_ADVERTORIAL_FRAMEWORK}\n\n${baseCtx}\n\nVARIANT DIRECTION: ${note}\n\nWrite ONE complete long-form native advertorial following the 16-beat structure and every rule above. Output ONLY the ad copy text itself. No preamble, no section labels, no markdown headings.` }] })
+      }).then(r => r.json()).then(d => { if (d.error) throw new Error(d.error.message); return d.content.filter(b => b.type === 'text').map(b => b.text).join('').trim(); });
       try {
-        const res = await fetch('https://api.anthropic.com/v1/messages', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
-          body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 8000, messages: [{ role: 'user', content: prompt }] })
-        });
-        const data = await res.json();
-        if (data.error) throw new Error(data.error.message);
-        const text = data.content.filter(b => b.type === 'text').map(b => b.text).join('').trim();
-        conceptData[i].advertorial = text;
+        const [v1, v2, v3] = await Promise.all(angles.map(callOne));
+        conceptData[i].copy1 = v1; conceptData[i].copy2 = v2; conceptData[i].copy3 = v3;
         renderConcepts();
         if (briefTexts[i] !== undefined) genBrief(i);
       } catch (e) {
         alert('Long-form copy failed: ' + e.message);
-        if (btn) { btn.disabled = false; btn.textContent = orig; }
+        if (btn) { btn.disabled = false; btn.textContent = 'Generate long-form ad copies (Claude)'; }
       }
     }
 
@@ -2045,13 +2061,10 @@ Write ONE complete long-form native advertorial (1,200 to 2,200 words) following
 
       // AD COPY
       lines.push('## Ad Copy (Meta Ads Manager)', '');
-      if (c.advertorial) {
-        lines.push('### Long-form native advertorial (primary text)', '', c.advertorial, '', '---', '');
-        lines.push('### Short primary-text variants (alternatives)', '');
-      }
+      if (isNativeConcept(c.fmt)) lines.push('_Native concept: the primary text is the long-form advertorial (the image carries no text)._', '');
       if (c.copy1) lines.push('**Primary Text (Variant 1):**', c.copy1, '');
       if (c.copy2) lines.push('**Primary Text (Variant 2):**', c.copy2, '');
-      if (c.copy3) lines.push('**Primary Text (Variant 3, short):**', c.copy3, '');
+      if (c.copy3) lines.push('**Primary Text (Variant 3):**', c.copy3, '');
       const hls = [c.hl1, c.hl2, c.hl3].filter(Boolean);
       if (hls.length) { lines.push('**Meta link headlines:**'); hls.forEach((h, n) => lines.push(`${n + 1}. ${h}`)); lines.push(''); }
       field('CTA Button', off.cta_button || c.btnText || 'Learn More');
