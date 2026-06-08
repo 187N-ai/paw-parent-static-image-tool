@@ -1237,7 +1237,7 @@ COPY WRITING RULES — apply to every piece of copy:
       const text = await res.text();
       let data;
       try { data = JSON.parse(text); } catch (e) { data = { error: text }; }
-      if (!res.ok) throw new Error((data && data.error) ? data.error : ('Proxy returned ' + res.status));
+      if (!res.ok) throw new Error((data && (data.error || data.message)) ? (data.error || data.message) : ('Proxy returned ' + res.status));
       return data;
     }
 
@@ -1369,11 +1369,14 @@ COPY WRITING RULES — apply to every piece of copy:
           content: pageContent
         };
         loadedBatchData = batchData;
-        await runFullAnalysis(batchData);
+        // Reveal the batch immediately (Notion fetch is fast), THEN run the
+        // slower Claude analysis — so its "Claude is analyzing..." status is
+        // visible instead of leaving "Loading batch from Notion..." up for ~30s.
         document.getElementById('loadedBatch').style.display = 'block';
         document.getElementById('loadedBatchName').textContent = batchData.title;
         document.getElementById('analyzeRow').style.display = 'block';
         document.getElementById('searchStatus').textContent = '';
+        await runFullAnalysis(batchData);
       } catch (e) {
         document.getElementById('searchStatus').textContent = 'Failed to load batch: ' + e.message;
       }
