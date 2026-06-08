@@ -1169,6 +1169,10 @@ COPY WRITING RULES — apply to every piece of copy:
 10. The authority figure discovered the article. They did not write it.
 `;
 
+    // ─── BRAND ────────────────────────────────────────────────
+    const BRAND_COLORS = '#FF3B00 (CTA), #242424 (text), #FFFFFF (background), #F4F4F1 (cards), #FFE1D9 (accent), #FFA500 (stars)';
+    const DEFAULT_GUARANTEE = '90-day money-back guarantee';
+
     // ─── ALL FORMATS ──────────────────────────────────────────
     const ALL_FMTS = [
       { key: 'us-them', label: 'Us vs them' }, { key: 'problem-aware', label: 'Problem-aware static' },
@@ -1193,6 +1197,7 @@ COPY WRITING RULES — apply to every piece of copy:
     let selectedFmts = [];
     let conceptData = [];
     let loadedBatchData = null;
+    let loadedAnalysis = null;
 
     function defaultConcept(fmt) {
       return { fmt: fmt || '', awareness: '', visual: '', authorityInImage: '', authorityRole: '', dogBreed: '', dogAge: '', headlinePlacement: 'Top center', headline: '', subtitle: '', btnText: '', copy1: '', copy2: '', copy3: '', hl1: '', hl2: '', hl3: '', description: '', btnPlacement: 'Bottom center', headlineFont: 'Work Sans', subtitleFont: 'Poppins', shotType: '', bgSetting: '', colorMood: '', textOverlay: '', logoPlacement: 'Bottom right', status: 'Draft', refImgSrc: null, productImgSrc: null };
@@ -1410,6 +1415,16 @@ ${lpInfo.ctaDirection ? 'CTA direction: ' + lpInfo.ctaDirection : ''}
 COPY RULES:
 ${COPY_RULES}
 
+FAN PAGES — pick the single best fit for fan_page.page (use the exact name):
+Dr. Emily Rodriguez (primary vet authority), Dr. Susan Foster (female vet, brand founder), Dr. Zachary Ricker (male vet authority), Vet Insider with Dr. Evan (vet authority), IVDD Neurology Rehabilitation (IVDD specialist), Canine Nutrition Research (scientific authority), Dog's Health Daily (educational), Mike O'Donnald (male UGC, absorption angle), Linda O'Leary (senior dog UGC), Sarah's Dog Diary (emotional UGC), Donna Thompson (breed-specific UGC), Robert Anderson (male UGC), Dog Grandpa (older male authority), Dog Trainer Jake (training authority), Louie the Frenchie, Wesley & Macho (pet-parent duo), The Pawparent (brand channel).
+
+STRATEGY GUIDANCE:
+- strategic_rationale.why_this_static: 2 to 3 sentences on why this static wins for this avatar and angle.
+- target: short labels, not paragraphs (demo e.g. "Women 45-65"; buyer_stage one of Prevention / Early Warning / Active Problem / Post-Surgery).
+- messaging.proof_points: concrete stats or studies only if supported by the batch (e.g. 87% vs 12% absorption). Never invent claims.
+- messaging.objections: the top 2 to 3 doubts this avatar has, each with a one-line counter.
+- offer: infer from the destination. BOF / PDP pages lead with the offer and a guarantee. Listicle / advertorial / editorial pages sell the article click, so cta_button is "Learn More" and offer/guarantee can be empty strings.
+
 Return this JSON structure:
 {
   "angle": "one paragraph — what is the creative angle and why does it work for this avatar",
@@ -1422,6 +1437,13 @@ Return this JSON structure:
   "why_tags": ["pick all that apply: Pattern interrupt hook, Strong avatar mirror, Proof stacking, Objection handling, Simple mechanism, Emotional arc, Contrast / tension, Clear single CTA, Native / organic feel, Curiosity loop, Specificity / concrete numbers, Dream outcome shown, Relatable scenario, Fear of consequence"],
   "dog_breed": "identify breed from batch or Unknown",
   "dog_age": "estimate age from batch or Unknown",
+  "strategic_rationale": { "why_this_static": "2 to 3 sentences — why this static wins for this avatar and angle", "opportunity": "one sentence — the market or angle gap this exploits" },
+  "target": { "demo": "short label e.g. Women 45-65", "breed": "target breed or All", "condition": "IVDD / Hip Dysplasia / Arthritis / etc.", "buyer_stage": "one of: Prevention, Early Warning, Active Problem, Post-Surgery" },
+  "messaging": { "mechanism": "the one mechanism this creative must land", "proof_points": ["concrete stat or study, only if supported by the batch"], "objections": [{ "objection": "what the avatar doubts", "counter": "one line answer" }], "emotion_arc": "e.g. Fear to Hope to Confidence to Action" },
+  "offer": { "cta_button": "Learn More or Shop Now", "offer": "the offer if BOF/PDP, else empty string", "guarantee": "guarantee if BOF/PDP, else empty string" },
+  "fan_page": { "page": "exact name from the FAN PAGES list", "reason": "one sentence — why this page fits this angle and persona" },
+  "visual_style": "one short phrase — overall vibe e.g. Warm documentary / Clinical authority / Urgent news",
+  "must_include": ["concrete elements the designer must include in the static"],
   "selected_formats": ["2 to 4 static formats that genuinely fit this batch — pick from: Us vs them, Problem-aware static, News / authority editorial, Native image + long copy, Before / after, Testimonial / social proof, Listicle / reasons why, Advertorial (fake article), Quiz / question hook, Shocking stat / bold claim, Product hero / feature callout, Urgency / scarcity static, Meme / cultural reference, Dream outcome visual"],
   "concepts": [
     {
@@ -1453,7 +1475,7 @@ Return this JSON structure:
         const res = await fetch('https://api.anthropic.com/v1/messages', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
-          body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 4000, messages: [{ role: 'user', content: prompt }] })
+          body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 8000, messages: [{ role: 'user', content: prompt }] })
         });
         const data = await res.json();
         if (data.error) throw new Error(data.error.message);
@@ -1479,6 +1501,7 @@ Return this JSON structure:
     }
 
     function fillAnalysis(d) {
+      loadedAnalysis = d || {};
       if (d.angle) document.getElementById('angleText').value = d.angle;
       if (d.avatar) document.getElementById('avatarText').value = d.avatar;
       if (d.hook) document.getElementById('hookText').value = d.hook;
@@ -1661,49 +1684,70 @@ Return this JSON structure:
       const sec = (title) => lines.push('', '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', title, '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
       const row = (k, v) => { if (v && String(v).trim()) lines.push(`${k.padEnd(22)}${v}`); };
 
-      lines.push('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', 'STATIC IMAGE DESIGNER BRIEF', '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      // batch-level analysis + batch data for the full-mirror brief
+      const A = (typeof loadedAnalysis === 'object' && loadedAnalysis) ? loadedAnalysis : {};
+      const bd = loadedBatchData || {};
+      const sr = A.strategic_rationale || {};
+      const tg = A.target || {};
+      const mg = A.messaging || {};
+      const off = A.offer || {};
+      const fp = A.fan_page || {};
+      const avatarStr = bd.avatar || A.avatar || document.getElementById('avatarText').value || '';
+      const product = bd.product || '';
+      const bullet = arr => (Array.isArray(arr) ? arr : []).map(x => {
+        const t = typeof x === 'string' ? x : (x && x.objection ? x.objection + (x.counter ? '  ->  ' + x.counter : '') : '');
+        return t && t.trim() ? '  • ' + t.trim() : '';
+      }).filter(Boolean);
+      const naming = [batchName.split(/\s+/)[0], destination, fp.page, (bd.angle || angleTag), awareness, 'STATIC', fmtLabel].filter(Boolean).join('_').replace(/\s+/g, '-');
+
+      lines.push('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', 'STATIC IMAGE AD BRIEF', '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
       row('Batch:', batchName);
-      row('Source video format:', vidFmt);
-      row('Concept:', `${i + 1}`);
+      row('Concept:', `${i + 1} of ${conceptData.length}`);
       row('Static format:', fmtLabel);
-      row('Condition:', angleTag);
-      row('Destination:', destination + (lpInfo.url ? ' (' + lpInfo.url + ')' : ''));
+      row('Source video format:', vidFmt);
       row('Status:', c.status);
 
-      if (c.translatedFrom) { sec('TRANSLATED FROM VIDEO'); lines.push(c.translatedFrom); }
+      sec('STRATEGIC RATIONALE');
+      if (sr.why_this_static) lines.push(sr.why_this_static, '');
+      row('Translated from video:', c.translatedFrom);
+      row('Opportunity:', sr.opportunity || bd.whyItWorked);
+      row('Testing hypothesis:', bd.testingHypothesis);
 
-      if (awareness) { sec('AWARENESS STAGE'); lines.push(awareness); if (ctx) lines.push('', 'This viewer ' + ctx); }
+      sec('TARGET');
+      row('Awareness stage:', awareness);
+      if (ctx) lines.push('  This viewer ' + ctx);
+      row('Avatar:', avatarStr);
+      row('Target demo:', tg.demo);
+      row('Breed:', c.dogBreed || tg.breed || A.dog_breed);
+      row('Condition:', tg.condition || angleTag);
+      row('Buyer stage:', tg.buyer_stage);
 
-      if (c.congruenceNote) { sec('LANDING PAGE CONGRUENCE'); lines.push(c.congruenceNote); if (lpInfo.staticRule) lines.push('', lpInfo.staticRule); }
+      sec('MESSAGING');
+      if (mg.mechanism) lines.push('Key mechanism:', mg.mechanism, '');
+      const proof = bullet(mg.proof_points);
+      if (proof.length) lines.push('Proof points:', ...proof, '');
+      const objs = bullet(mg.objections);
+      if (objs.length) lines.push('Objections to pre-empt:', ...objs, '');
+      row('Emotion arc:', mg.emotion_arc);
 
-      if (c.visual) {
-        sec('VISUAL'); lines.push(c.visual, '');
+      if (c.visual || c.shotType || c.bgSetting) {
+        sec('THE STATIC');
+        if (c.visual) lines.push(c.visual, '');
         row('Shot type:', c.shotType); row('Background:', c.bgSetting); row('Color mood:', c.colorMood); row('Text treatment:', c.textOverlay);
+        row('Dog breed:', c.dogBreed); row('Dog age:', c.dogAge);
+        row('Authority in image:', c.authorityInImage); row('Authority role:', c.authorityRole);
+        if (c.congruenceNote || lpInfo.staticRule) { lines.push('', 'Landing page congruence:'); if (c.congruenceNote) lines.push(c.congruenceNote); if (lpInfo.staticRule) lines.push(lpInfo.staticRule); }
       }
-
-      const dogLines = [];
-      if (c.dogBreed) dogLines.push(`${'Breed:'.padEnd(22)}${c.dogBreed}`);
-      if (c.dogAge) dogLines.push(`${'Age:'.padEnd(22)}${c.dogAge}`);
-      if (dogLines.length) { sec('DOG'); lines.push(...dogLines); }
-
-      const authLines = [];
-      if (c.authorityInImage) authLines.push(`${'Shown in image:'.padEnd(22)}${c.authorityInImage}`);
-      if (c.authorityRole) authLines.push(`${'Role / title:'.padEnd(22)}${c.authorityRole}`);
-      if (authLines.length) { sec('AUTHORITY FIGURE'); lines.push(...authLines); }
 
       if (c.headline || c.subtitle || c.btnText) {
         sec('ON THE IMAGE');
-        lines.push('These elements appear directly on the static image.');
-        lines.push('');
-        row('Headline:', c.headline);
-        row('Subtitle:', c.subtitle);
-        row('Button text:', c.btnText);
+        lines.push('Text that appears directly on the static.', '');
+        row('Headline:', c.headline); row('Subtitle:', c.subtitle); row('Button text:', c.btnText);
       }
 
       if (c.copy1 || c.copy2 || c.copy3) {
-        sec('META PRIMARY TEXT — 3 VERSIONS');
-        lines.push('Text above the image in the Meta feed. Sell the click. No em dashes. Close with a short direct action.');
-        lines.push('');
+        sec('AD COPY  /  META PRIMARY TEXT (3 versions)');
+        lines.push('Text above the image in the Meta feed. Sell the click. No em dashes. Close with a short direct action.', '');
         if (c.copy1) lines.push('--- Primary text 1 ---', '', c.copy1, '');
         if (c.copy2) lines.push('--- Primary text 2 ---', '', c.copy2, '');
         if (c.copy3) lines.push('--- Primary text 3 (short) ---', '', c.copy3, '');
@@ -1711,17 +1755,39 @@ Return this JSON structure:
 
       if (c.hl1 || c.hl2 || c.hl3 || c.description) {
         sec('META HEADLINE + DESCRIPTION');
-        lines.push('Shown below the image in Meta as the link title and one-liner.');
-        lines.push('');
+        lines.push('Shown below the image in Meta as the link title and one-liner.', '');
         if (c.hl1) lines.push('Headline 1:  ' + c.hl1);
         if (c.hl2) lines.push('Headline 2:  ' + c.hl2);
         if (c.hl3) lines.push('Headline 3:  ' + c.hl3);
         if (c.description) lines.push('', 'Description: ' + c.description);
       }
 
-      sec('LAYOUT AND TYPOGRAPHY');
+      sec('CTA & OFFER');
+      row('CTA button:', off.cta_button || c.btnText);
+      row('Landing page:', destination + (lpInfo.url ? ' (' + lpInfo.url + ')' : ''));
+      row('Funnel stage:', lpInfo.stage);
+      row('CTA direction:', lpInfo.ctaDirection);
+      row('Offer:', off.offer);
+      row('Guarantee:', off.guarantee || DEFAULT_GUARANTEE);
+
+      sec('PRODUCTION FOR DESIGNER');
+      row('Product:', product);
+      row('Brand colors:', BRAND_COLORS);
+      row('Visual style / vibe:', A.visual_style);
+      const must = bullet(A.must_include);
+      if (must.length) lines.push('Must include:', ...must, '');
       row('Headline placement:', c.headlinePlacement); row('Button placement:', c.btnPlacement);
       row('Logo placement:', c.logoPlacement); row('Headline font:', c.headlineFont); row('Subtitle font:', c.subtitleFont);
+
+      sec('FAN PAGE / PERSONA');
+      row('Assigned page:', fp.page);
+      if (fp.reason) lines.push('', fp.reason);
+
+      sec('NAMING CONVENTION');
+      lines.push(naming);
+
+      sec('MEASUREMENT');
+      lines.push('CTR target:           > 1.5%', 'CPC target:           < $2.00', 'Evaluate:             7-day test, 14-day decision', 'Kill criteria:        CTR < 0.5% after $20 spend', 'Scale criteria:       ROAS > 1.5x after 14 days');
 
       sec('DELIVERABLES');
       lines.push('Feed square:      1080 x 1080 px', 'Feed portrait:    1080 x 1350 px', 'Story / Reel:     1080 x 1920 px', 'Export: PNG + editable source file');
