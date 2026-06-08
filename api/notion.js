@@ -41,10 +41,17 @@ export default async function handler(req, res) {
   if (typeof body === 'string') {
     try { body = JSON.parse(body); } catch (e) { body = {}; }
   }
-  const { op, id, query } = body || {};
+  const { op, id, query, children } = body || {};
 
   let url, options;
-  if (op === 'query') {
+  if (op === 'append') {
+    if (!id) { res.status(400).json({ error: 'Missing id for op=append.' }); return; }
+    if (!Array.isArray(children) || children.length === 0 || children.length > 100) {
+      res.status(400).json({ error: 'append requires 1-100 children blocks.' }); return;
+    }
+    url = `https://api.notion.com/v1/blocks/${encodeURIComponent(id)}/children`;
+    options = { method: 'PATCH', headers, body: JSON.stringify({ children }) };
+  } else if (op === 'query') {
     url = `https://api.notion.com/v1/databases/${NOTION_DB_ID}/query`;
     options = {
       method: 'POST',
@@ -63,7 +70,7 @@ export default async function handler(req, res) {
     url = `https://api.notion.com/v1/blocks/${encodeURIComponent(id)}/children?page_size=100`;
     options = { method: 'GET', headers };
   } else {
-    res.status(400).json({ error: 'Unknown op: ' + op + '. Expected query | page | blocks.' });
+    res.status(400).json({ error: 'Unknown op: ' + op + '. Expected query | page | blocks | append.' });
     return;
   }
 
