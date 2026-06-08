@@ -1224,46 +1224,16 @@ COPY WRITING RULES — apply to every piece of copy:
     function getAnthropicKey() { return localStorage.getItem(ANTHROPIC_KEY_KEY) || document.getElementById('anthropicKey').value.trim(); }
 
     // ─── APIFY CALLER ────────────────────────────────────────
-    // ─── NOTION VIA CLAUDE API ───────────────────────────────
-    // Claude searches and fetches Notion directly using the Notion MCP tool.
-    // No proxy needed — all handled server-side by Claude.
-
+    // ─── NOTION DIRECT ───────────────────────────────────────
+    // Calls Notion API directly from the browser.
+    // Notion key and DB ID are stored here — this tool is internal only.
+    const NOTION_KEY = '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';
     const NOTION_DB_ID = '326b303c3ccc8101aedcff1441fbc9ba';
-
-    async function claudeWithNotion(systemPrompt, userPrompt) {
-      const apiKey = getAnthropicKey();
-      if (!apiKey) throw new Error('Anthropic API key not set — complete setup first.');
-      const res = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': apiKey,
-          'anthropic-version': '2023-06-01',
-          'anthropic-dangerous-direct-browser-access': 'true'
-        },
-        body: JSON.stringify({
-          model: 'claude-sonnet-4-20250514',
-          max_tokens: 4000,
-          tools: [{
-            type: 'mcp',
-            server_name: 'notion',
-            server_url: 'https://mcp.notion.com/mcp',
-            allowed_tools: ['notion-search', 'notion-fetch', 'notion-query-database-view']
-          }],
-          system: systemPrompt,
-          messages: [{ role: 'user', content: userPrompt }]
-        })
-      });
-      if (!res.ok) {
-        const text = await res.text();
-        throw new Error(`Claude API error ${res.status}: ${text}`);
-      }
-      const data = await res.json();
-      if (data.error) throw new Error(data.error.message);
-      // Extract text blocks from response
-      const textBlocks = (data.content || []).filter(b => b.type === 'text');
-      return textBlocks.map(b => b.text).join('');
-    }
+    const NOTION_HEADERS = {
+      'Authorization': 'Bearer ' + NOTION_KEY,
+      'Notion-Version': '2022-06-28',
+      'Content-Type': 'application/json'
+    };
 
     // ─── BATCH SEARCH ────────────────────────────────────────
     async function searchBatch() {
@@ -1275,21 +1245,38 @@ COPY WRITING RULES — apply to every piece of copy:
       status.textContent = 'Searching Creative Tracking Board...';
       document.getElementById('searchResults').innerHTML = '';
       try {
-        const raw = await claudeWithNotion(
-          'You are a Notion search assistant. Search the Creative Tracking Board database and return results as JSON only. No markdown, no explanation.',
-          `Search the Notion Creative Tracking Board (database ID: ${NOTION_DB_ID}) for batches matching: "${q}".
-Return ONLY valid JSON like this:
-{"results":[{"id":"page-id","title":"batch title","angle":"angle if visible","format":"format if visible","status":"status if visible","awareness":"awareness stage if visible"}]}`
-        );
-        let parsed;
-        try {
-          const match = raw.match(/\{[\s\S]*\}/);
-          parsed = JSON.parse(match ? match[0] : raw);
-        } catch (e) {
-          throw new Error('Could not parse search results: ' + raw.substring(0, 200));
+        const res = await fetch(`https://api.notion.com/v1/databases/${NOTION_DB_ID}/query`, {
+          method: 'POST',
+          headers: NOTION_HEADERS,
+          body: JSON.stringify({
+            filter: { property: 'title', title: { contains: q } },
+            page_size: 8
+          })
+        });
+        if (!res.ok) {
+          const text = await res.text();
+          throw new Error(`Notion returned ${res.status}: ${text}`);
         }
-        renderSearchResults(parsed.results || []);
-        status.textContent = (parsed.results?.length || 0) + ' batch(es) found';
+        const data = await res.json();
+        const results = (data.results || []).map(page => {
+          const props = page.properties || {};
+          const getTitle = p => (p?.title || p?.rich_text || []).map(t => t.plain_text).join('');
+          const getSelect = p => p?.select?.name || '';
+          const getText = p => (p?.rich_text || []).map(t => t.plain_text).join('');
+          // Find title property
+          const titleProp = props['Brief Name'] || props['Name'] || Object.values(props).find(p => p.type === 'title');
+          return {
+            id: page.id,
+            url: page.url,
+            title: getTitle(titleProp) || page.id,
+            angle: getText(props['Angle - Sub-Angle']) || getSelect(props['Angle - Sub-Angle']),
+            format: getText(props['Format']) || getSelect(props['Format']),
+            status: getSelect(props['Status']),
+            awareness: getSelect(props['Awareness Stage'])
+          };
+        });
+        renderSearchResults(results);
+        status.textContent = results.length + ' batch(es) found';
       } catch (e) {
         status.textContent = 'Search failed: ' + e.message;
       }
@@ -1298,7 +1285,10 @@ Return ONLY valid JSON like this:
 
     function renderSearchResults(results) {
       const wrap = document.getElementById('searchResults');
-      if (!results || results.length === 0) { wrap.innerHTML = '<p style="font-size:13px;color:var(--text3);">No batches found. Try a different search term.</p>'; return; }
+      if (!results || results.length === 0) {
+        wrap.innerHTML = '<p style="font-size:13px;color:var(--text3);">No batches found. Try a different search term.</p>';
+        return;
+      }
       wrap.innerHTML = results.map(r => `
     <div class="batch-result" onclick='loadBatch(${JSON.stringify(r).replace(/'/g, "&#39;")})'>
       <div>
@@ -1313,42 +1303,84 @@ Return ONLY valid JSON like this:
       document.getElementById('searchResults').innerHTML = '';
       document.getElementById('searchStatus').textContent = 'Loading batch from Notion...';
       try {
-        const raw = await claudeWithNotion(
-          'You are a Notion data extractor. Fetch the page and return all its data as JSON only. No markdown, no explanation.',
-          `Fetch this Notion page: ${result.id}
+        const cleanId = result.id.replace(/-/g, '');
+        // Fetch page properties and blocks in parallel
+        const [pageRes, blocksRes] = await Promise.all([
+          fetch(`https://api.notion.com/v1/pages/${cleanId}`, { headers: NOTION_HEADERS }),
+          fetch(`https://api.notion.com/v1/blocks/${cleanId}/children?page_size=100`, { headers: NOTION_HEADERS })
+        ]);
+        if (!pageRes.ok) throw new Error('Could not load page: ' + pageRes.status);
+        const page = await pageRes.json();
+        const blocks = blocksRes.ok ? await blocksRes.json() : { results: [] };
 
-Extract ALL properties and content. Return ONLY valid JSON:
-{
-  "title": "batch name",
-  "product": "Spine & Disc Powder or Hip & Joint",
-  "angle": "full angle description",
-  "avatar": "full avatar description",
-  "desire": "desire field",
-  "emotion": "emotion field",
-  "awareness": "awareness stage",
-  "format": "video format",
-  "destination": "destination landing page name",
-  "testingHypothesis": "testing hypothesis",
-  "whyItWorked": "why it worked or failed",
-  "hook": "primary hook or first hook variant",
-  "headline1": "headline 1", "headline2": "headline 2", "headline3": "headline 3",
-  "primaryText1": "primary text 1", "primaryText2": "primary text 2", "primaryText3": "primary text 3",
-  "description1": "description 1", "description2": "description 2", "description3": "description 3",
-  "displayLink": "display link", "frameLink": "frame io link",
-  "content": "full page content as plain text"
-}`
-        );
-        let parsed;
-        try {
-          const match = raw.match(/\{[\s\S]*\}/);
-          parsed = JSON.parse(match ? match[0] : raw);
-        } catch (e) {
-          throw new Error('Could not parse batch data');
-        }
-        loadedBatchData = parsed;
-        await runFullAnalysis(parsed);
+        // Extract blocks as plain text
+        const extractBlock = b => {
+          const t = b.type;
+          const rich = b[t]?.rich_text || [];
+          const text = rich.map(r => r.plain_text).join('');
+          if (!text) return '';
+          if (t.startsWith('heading')) return `
+### ${text}
+`;
+          if (t === 'bulleted_list_item') return `• ${text}
+`;
+          if (t === 'numbered_list_item') return `${text}
+`;
+          if (t === 'quote') return `"${text}"
+`;
+          return `${text}
+`;
+        };
+        const pageContent = (blocks.results || []).map(extractBlock).join('');
+
+        // Extract properties
+        const props = page.properties || {};
+        const getStr = key => {
+          const p = props[key];
+          if (!p) return '';
+          if (p.title) return p.title.map(t => t.plain_text).join('');
+          if (p.rich_text) return p.rich_text.map(t => t.plain_text).join('');
+          if (p.select) return p.select?.name || '';
+          if (p.multi_select) return p.multi_select.map(s => s.name).join(', ');
+          if (p.url) return p.url || '';
+          return '';
+        };
+        const titleProp = props['Brief Name'] || props['Name'] || Object.values(props).find(p => p.type === 'title');
+        const batchData = {
+          id: page.id,
+          url: page.url,
+          title: (titleProp?.title || titleProp?.rich_text || []).map(t => t.plain_text).join('') || result.title,
+          product: getStr('Product'),
+          angle: getStr('Angle - Sub-Angle'),
+          avatar: getStr('AVATAR'),
+          desire: getStr('DESIRE'),
+          emotion: getStr('Emotion'),
+          awareness: getStr('Awareness Stage'),
+          format: getStr('Format'),
+          conceptType: getStr('Concept Type'),
+          adType: getStr('Ad Type'),
+          status: getStr('Status'),
+          destination: getStr('Destination'),
+          displayLink: getStr('Display Link'),
+          frameLink: getStr('Link To Frame.io'),
+          tam: getStr('TAM'),
+          testingHypothesis: getStr('TESTING HYPOTHESE'),
+          whyItWorked: getStr('Why It Worked / Failed'),
+          headline1: getStr('Headline 1'),
+          headline2: getStr('Headline 2'),
+          headline3: getStr('Headline 3'),
+          primaryText1: getStr('Primary Text 1'),
+          primaryText2: getStr('Primary Text 2'),
+          primaryText3: getStr('Primary Text 3'),
+          description1: getStr('Description 1'),
+          description2: getStr('Description 2'),
+          description3: getStr('Description 3'),
+          content: pageContent
+        };
+        loadedBatchData = batchData;
+        await runFullAnalysis(batchData);
         document.getElementById('loadedBatch').style.display = 'block';
-        document.getElementById('loadedBatchName').textContent = parsed.title || result.title;
+        document.getElementById('loadedBatchName').textContent = batchData.title;
         document.getElementById('analyzeRow').style.display = 'block';
         document.getElementById('searchStatus').textContent = '';
       } catch (e) {
@@ -1356,7 +1388,7 @@ Extract ALL properties and content. Return ONLY valid JSON:
       }
     }
 
-    // ─── CLAUDE ANALYSIS ─────────────────────────────────────
+    // ─── CLAUDE ANALYSIS    // ─── CLAUDE ANALYSIS ─────────────────────────────────────
     async function runFullAnalysis(batchData) {
       const apiKey = getAnthropicKey();
       if (!apiKey) throw new Error('Anthropic API key not set.');
