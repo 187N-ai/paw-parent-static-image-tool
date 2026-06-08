@@ -1173,6 +1173,40 @@ COPY WRITING RULES — apply to every piece of copy:
 10. The authority figure discovered the article. They did not write it.
 `;
 
+    // ─── NATIVE ADVERTORIAL FRAMEWORK (long-form) ─────────────
+    const NATIVE_ADVERTORIAL_FRAMEWORK = `
+You are writing a LONG-FORM NATIVE FACEBOOK ADVERTORIAL — the kind that reads like an organic personal post and does ALL the selling (the image is just a native, un-designed attention grab). Length: 1,200 to 2,200 words. First person. Story-driven. No em dashes.
+
+Follow this exact proven 16-beat structure. Adapt EVERY beat to The Paw Parent dog joint/spine context (IVDD, hip dysplasia, arthritis). Never reference the original niche.
+
+1. HOOK TITLE (1-2 sentences): a specific, stakes-loaded first-person contrast. Shapes that work: "I refused [the standard treatment] for 3 years. Here's what happened." / "My [loved one]'s dog lost [everything] after X years on [the protocol]. My dog has the same [risk]."
+2. AUTHORITY / PERSONAL STAKE: who is speaking and why they are credible or personally invested (a breeder of 15 years, a vet tech, an owner who watched it happen to another dog).
+3. UNSETTLING OBSERVATION / INCITING INCIDENT: the vivid concrete scene that "kept me up at night."
+4. MECHANISM EDUCATION (the secret the establishment won't tell you): the structural reason the conventional approach fails. ONE villain-mechanism (e.g. the disc degrading silently from the inside, glucosamine never reaching the disc) + ONE memorable principle + a visual analogy (locked vault, leaking pipe, sponge vs brick).
+5. HONEST TAKEDOWN OF THE MAINSTREAM OPTION: name the standard option (joint chews, glucosamine, surgery, "wait and see"), concede what it does right, then explain precisely why it ultimately fails, with an analogy.
+6. NAMED PROOF: specific-sounding research + hard numbers. ONLY claims TRUE for our product. Validated: glucosamine reaches ~12% of the target; ETA omega-3 up to 200x more effective than fish oil and blocks COX and LOX; results often in 2-4 weeks. NEVER fabricate a study or stat.
+7. DISCOVERY / SOLUTION MECHANISM: how the real fix works, revealed through a story (research origin, a chance encounter, a second opinion).
+8. WEEK-BY-WEEK TRANSFORMATION: a concrete, sensory, MEASURABLE timeline (Week 1 / 2 / 4 / 8) of a specific dog improving (getting up faster, taking the stairs, running to the door). This is the proof engine.
+9. SKEPTIC CONVERTED: an authority (the vet) who examines, double-checks, goes quiet, then concedes.
+10. EMOTIONAL RESTORATION: a vivid scene — the dog on the couch again, the morning zoomies back, the owner's relief.
+11. SYSTEM FRAMING (us vs them): why the industry/standard care doesn't tell you this (incentives, training gap) — without bashing individuals.
+12. DIRECT MIRROR TO THE READER: "If you're reading this, you probably see yourself..." mirror the avatar's exact situation, including that they may have tried a weaker supplement before.
+13. PRODUCT REVEAL + DIFFERENTIATION: why generic versions fail (wrong source/dose) and why ours is right (100% NZ Green Lipped Mussel, the ETA omega-3, whole-food glucosamine + chondroitin + GAGs).
+14. RISK REVERSAL + OFFER: 90-day money-back guarantee, simple daily scoop in food, social-proof numbers.
+15. CROSSROADS CLOSE: two paths and the cost of waiting (the disc/joint does not pause while you decide).
+16. SIGNATURE: first name + age/role. Then 2 to 4 P.S. / P.P.S. with extra social proof, gentle scarcity, and an emotional "order it for them, just put a scoop in their bowl" nudge.
+
+COPYWRITING RULES:
+- Short, punchy one-line paragraphs interspersed with longer ones. Heavy white space.
+- Specific names, ages, places, breeds. Concrete sensory detail over adjectives.
+- Repetition for emphasis (a single word on its own line).
+- Make the mechanism visual with analogies.
+- No em dashes. No AI tell-words (game-changer, dive into, unlock, journey).
+- Every claim must be true for The Paw Parent Spine & Disc / Hip & Joint (100% NZ Green Lipped Mussel). NEVER invent ingredients (no bovine cartilage, no named Type II collagen, no CoQ10, no Vitamin K2).
+- Use "pet parent" not "pet owner".
+- Write in the voice of the assigned fan page persona.
+`;
+
     // ─── BRAND ────────────────────────────────────────────────
     const BRAND_COLORS = '#FF3B00 (CTA), #242424 (text), #FFFFFF (background), #F4F4F1 (cards), #FFE1D9 (accent), #FFA500 (stars)';
     const DEFAULT_GUARANTEE = '90-day money-back guarantee';
@@ -1205,7 +1239,7 @@ COPY WRITING RULES — apply to every piece of copy:
     const briefTexts = {};
 
     function defaultConcept(fmt) {
-      return { fmt: fmt || '', awareness: '', visual: '', vd: {}, authorityInImage: '', authorityRole: '', dogBreed: '', dogAge: '', headlinePlacement: 'Top center', headline: '', subtitle: '', btnText: '', copy1: '', copy2: '', copy3: '', hl1: '', hl2: '', hl3: '', description: '', btnPlacement: 'Bottom center', headlineFont: 'Work Sans', subtitleFont: 'Poppins', shotType: '', bgSetting: '', colorMood: '', textOverlay: '', logoPlacement: 'Bottom right', status: 'Draft', refImgSrc: null, productImgSrc: null };
+      return { fmt: fmt || '', awareness: '', visual: '', vd: {}, advertorial: '', authorityInImage: '', authorityRole: '', dogBreed: '', dogAge: '', headlinePlacement: 'Top center', headline: '', subtitle: '', btnText: '', copy1: '', copy2: '', copy3: '', hl1: '', hl2: '', hl3: '', description: '', btnPlacement: 'Bottom center', headlineFont: 'Work Sans', subtitleFont: 'Poppins', shotType: '', bgSetting: '', colorMood: '', textOverlay: '', logoPlacement: 'Bottom right', status: 'Draft', refImgSrc: null, productImgSrc: null };
     }
 
     // ─── SETUP ───────────────────────────────────────────────
@@ -1622,7 +1656,11 @@ Return this JSON structure:
         <div class="cf"><label>Subtitle</label><input type="text" value="${c.subtitle || ''}" oninput="conceptData[${i}].subtitle=this.value" placeholder="e.g. A Dachshund breeder shares what she found"></div>
         <div class="cf" style="margin-bottom:0;"><label>Button text (optional)</label><input type="text" value="${c.btnText || ''}" oninput="conceptData[${i}].btnText=this.value" placeholder="Optional — leave blank if the static has no button"></div>
       </div>
-      <div class="section-divider">Meta primary text — 3 versions</div>
+      <div class="section-divider">Long-form native ad copy</div>
+      <p style="font-size:11px;color:var(--text3);margin-bottom:10px;line-height:1.5;">The native advertorial that does the selling (1,200-2,200 words, proven 16-beat structure). The image just stops the scroll.</p>
+      <button class="btn-outline" id="advBtn_${i}" onclick="genAdvertorial(${i})">${c.advertorial ? 'Rewrite long-form ad copy' : 'Write long-form ad copy (Claude)'}</button>
+      <div class="cf" style="margin-top:10px;"><textarea rows="14" oninput="conceptData[${i}].advertorial=this.value" placeholder="Click the button above to generate a long-form native advertorial in the locked structure. ~60s.">${c.advertorial || ''}</textarea></div>
+      <div class="section-divider">Meta primary text — 3 short versions</div>
       <p style="font-size:11px;color:var(--text3);margin-bottom:10px;line-height:1.5;">Text above the image in the Meta feed. Sell the click to the article, not the product. No em dashes. Close with a short direct action.</p>
       <div class="cf"><label>Primary text 1</label><textarea rows="6" oninput="conceptData[${i}].copy1=this.value" placeholder="Direct response copy — broad avatar, no em dashes, close with: Read it. The link is below.">${c.copy1 || ''}</textarea></div>
       <div class="cf"><label>Primary text 2</label><textarea rows="6" oninput="conceptData[${i}].copy2=this.value">${c.copy2 || ''}</textarea></div>
@@ -1737,6 +1775,50 @@ Return this JSON structure:
       } catch (e) {
         if (btn) { btn.textContent = '→ Notion'; btn.disabled = false; }
         alert('Notion push failed: ' + e.message);
+      }
+    }
+
+    // ─── LONG-FORM NATIVE ADVERTORIAL GENERATION ──────────────
+    async function genAdvertorial(i) {
+      const c = conceptData[i]; if (!c) return;
+      const apiKey = getAnthropicKey();
+      if (!apiKey) { alert('Anthropic API key not set.'); return; }
+      const A = loadedAnalysis || {}, bd = loadedBatchData || {};
+      const fp = A.fan_page || {};
+      const lpInfo = LANDING_PAGES[bd.destination] || {};
+      const btn = document.getElementById('advBtn_' + i);
+      const orig = btn ? btn.textContent : '';
+      if (btn) { btn.disabled = true; btn.textContent = 'Writing... (~60s)'; }
+      const prompt = `${NATIVE_ADVERTORIAL_FRAMEWORK}
+
+CONTEXT FOR THIS AD:
+Product: The Paw Parent ${(bd.destination || '').toLowerCase().includes('hip') ? 'Hip & Joint' : 'Spine & Disc'} Powder (100% NZ Green Lipped Mussel).
+Angle / sub-angle: ${bd.angle || ''}
+Awareness stage: ${c.awareness || bd.awareness || ''}
+Avatar: ${A.avatar || bd.avatar || ''}
+What they desire: ${bd.desire || ''}
+Fan page persona / voice to write in: ${fp.page || bd.fanpage || ''}
+Core mechanism to land: ${(A.messaging || {}).mechanism || ''}
+Destination: ${bd.destination || ''} ${lpInfo.url ? '(' + lpInfo.url + ')' : ''}
+CTA direction: ${lpInfo.ctaDirection || ''}
+The native image shows: ${(c.vd && c.vd.concept_line) || c.visual || ''}
+
+Write ONE complete long-form native advertorial (1,200 to 2,200 words) following the 16-beat structure and every rule above. Output ONLY the ad copy text itself. No preamble, no section labels, no markdown headings.`;
+      try {
+        const res = await fetch('https://api.anthropic.com/v1/messages', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
+          body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 8000, messages: [{ role: 'user', content: prompt }] })
+        });
+        const data = await res.json();
+        if (data.error) throw new Error(data.error.message);
+        const text = data.content.filter(b => b.type === 'text').map(b => b.text).join('').trim();
+        conceptData[i].advertorial = text;
+        renderConcepts();
+        if (briefTexts[i] !== undefined) genBrief(i);
+      } catch (e) {
+        alert('Long-form copy failed: ' + e.message);
+        if (btn) { btn.disabled = false; btn.textContent = orig; }
       }
     }
 
@@ -1884,6 +1966,7 @@ Return this JSON structure:
 
       // STRATEGIC RATIONALE
       lines.push('## Strategic Rationale', '');
+      field('Why it works', A.why_working || (document.getElementById('whyText') && document.getElementById('whyText').value));
       field('Opportunity', sr.opportunity || bd.whyItWorked);
       field('Testing hypothesis', bd.testingHypothesis);
       if (ctx) field('Awareness context', 'This viewer ' + ctx);
@@ -1932,6 +2015,10 @@ Return this JSON structure:
 
       // AD COPY
       lines.push('## Ad Copy (Meta Ads Manager)', '');
+      if (c.advertorial) {
+        lines.push('### Long-form native advertorial (primary text)', '', c.advertorial, '', '---', '');
+        lines.push('### Short primary-text variants (alternatives)', '');
+      }
       if (c.copy1) lines.push('**Primary Text (Variant 1):**', c.copy1, '');
       if (c.copy2) lines.push('**Primary Text (Variant 2):**', c.copy2, '');
       if (c.copy3) lines.push('**Primary Text (Variant 3, short):**', c.copy3, '');
