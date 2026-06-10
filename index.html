@@ -1234,6 +1234,41 @@ NEVER: studio lighting, beauty/bokeh portrait shots, brand logos, glossy product
 For native formats, visual_direction.style_realism must spell out the iPhone-8 amateur look, and visual_direction.avoid must always include: "any on-image text/overlay/logo, studio or cinematic look, AI gloss, AI anatomy tells".
 `;
 
+    // ─── ON-IMAGE TEXT LOAD (strategist) ──────────────────────
+    const TEXT_LOAD_RULES = `
+ON-IMAGE TEXT — think like a creative strategist, not a designer filling boxes. Meta already shows the primary text (above the image), the headline + description (below it), and the CTA button (below). So on-image text must NOT repeat those. The test for every on-image element: does it do a job the IMAGE + ONE HEADLINE cannot? If not, leave it OUT.
+
+- HEADLINE: almost always earns its place. ONE idea. Pick ONE emphasis_word to colour in brand red. Make it the dominant element.
+- SUBTITLE: include ONLY if there is a genuine second beat (a curiosity gap or the proof line) the headline cannot hold. Otherwise set subtitle to "" (empty).
+- BUTTON (btn_text): on-image buttons are almost always redundant with Meta's own CTA. Set btn_text to "" UNLESS the format is an offer / urgency / PDP / guarantee play where reinforcing ACTION matters.
+- THE IMAGE must pass the MUTED TEST: with all text removed it should still stop the scroll and carry the idea.
+
+Default text_load by format:
+- Native image + long copy / any UGC photo -> "No on-image text (native photo)" — the long-form copy carries everything
+- Bold claim / pattern interrupt / before-after / shocking stat / quiz-question -> "Headline only"
+- Testimonial / quote -> the quote IS the headline, nothing else
+- News / editorial / listicle -> headline + tiny kicker, no button
+- Empathy / letter -> short headline + brief body, no button
+- Product hero / urgency-scarcity / offer / guarantee -> headline + price/badge + button
+`;
+
+    // ─── PROVEN WINNING CONCEPTS (our recent winners) ─────────
+    const WINNING_CONCEPTS = `
+PROVEN WINNING STATIC CONCEPTS (our own recent winners — emulate the closest one to this angle, never copy verbatim). For each: the move, why it works, and its on-image text load.
+
+1. BOLD CLAIM ("[problem] will be gone."): one huge two-line headline, the last word in brand red, real jar far-left, small trust row. Works because a single confident promise + product is unmissable. TEXT LOAD: headline only (with emphasis word). No subtitle, no button.
+2. "GOES VIRAL" BEFORE/AFTER: split before/after photo of a real dog, headline framed as a news/viral claim with the recovery quote highlighted. Works because the image IS the proof and "viral" borrows social proof. TEXT LOAD: headline only — no subtitle, no button.
+3. QUESTION-HOOK 3-PACK: a 2-3 word body-problem question on a band ("STIFF BACK LEGS?"), three jars, 3 small trust columns. Works because a question the avatar recognises pulls them in. TEXT LOAD: headline (the question) + one tiny clarifying line max. No button.
+4. STICKY-NOTE GUARANTEE: handwritten Post-its "[2-word benefit] / OR / MONEY BACK" over the product. Works because a handwritten guarantee feels human and de-risks. TEXT LOAD: the sticky-note words ARE the message — no separate headline, subtitle, or button.
+5. IN-STORE / UGC POV: phone-POV hand holding the jar, dog behind, a casual caption ("I wish I'd started this sooner!"), one truthful badge. Works because it reads native, not designed. TEXT LOAD: the caption only — no headline/subtitle/button.
+6. WEEK-BY-WEEK TIMELINE: Week 1 / 2-4 / 5-7 / 8+ benefit milestones beside the jar. Works because it makes the change feel concrete and near. TEXT LOAD: short milestone lines + button (PDP format).
+7. MEME / PATTERN INTERRUPT (MS-Paint "secret sale"): a deliberately crude doodle + meme copy. Works because it looks nothing like an ad. TEXT LOAD: the meme copy is the concept — no formal headline/subtitle.
+8. PROGRESSIVE PANELS ("After 3 / 14 / 30 days"): stacked time panels, the product multiplying. Works because it shows a journey at a glance. TEXT LOAD: the panel lines + button (PDP format).
+9. EMPATHY LETTER ("We're sorry."): dark background, a two-word headline, a short empathetic letter, jars, button. Works because it speaks straight to the worried owner. TEXT LOAD: short headline + brief body + button.
+
+EXCEPTION — NATIVE IMAGE CONCEPT: a photo that looks like a real Facebook user snapped it on an old iPhone (see NATIVE IMAGE PRINCIPLES). NO on-image text at all. ALL of the selling is done by the long-form ad copy (see the advertorial framework). The image only stops the scroll and looks real.
+`;
+
     // ─── BRAND ────────────────────────────────────────────────
     const BRAND_COLORS = '#FF3B00 (CTA), #242424 (text), #FFFFFF (background), #F4F4F1 (cards), #FFE1D9 (accent), #FFA500 (stars)';
     const DEFAULT_GUARANTEE = '90-day money-back guarantee';
@@ -1269,7 +1304,7 @@ For native formats, visual_direction.style_realism must spell out the iPhone-8 a
     function isNativeConcept(fmt) { return fmt === 'native-longcopy'; }
 
     function defaultConcept(fmt) {
-      return { fmt: fmt || '', awareness: '', visual: '', vd: {}, advertorial: '', authorityInImage: '', authorityRole: '', dogBreed: '', dogAge: '', headlinePlacement: 'Top center', headline: '', subtitle: '', btnText: '', copy1: '', copy2: '', copy3: '', hl1: '', hl2: '', hl3: '', description: '', btnPlacement: 'Bottom center', headlineFont: 'Work Sans', subtitleFont: 'Poppins', shotType: '', bgSetting: '', colorMood: '', textOverlay: '', logoPlacement: 'Bottom right', status: 'Draft', refImgSrc: null, productImgSrc: null };
+      return { fmt: fmt || '', awareness: '', visual: '', vd: {}, advertorial: '', authorityInImage: '', authorityRole: '', dogBreed: '', dogAge: '', headlinePlacement: 'Top center', headline: '', emphasisWord: '', textLoad: '', hierarchy: '', subtitle: '', btnText: '', copy1: '', copy2: '', copy3: '', hl1: '', hl2: '', hl3: '', description: '', btnPlacement: 'Bottom center', headlineFont: 'Work Sans', subtitleFont: 'Poppins', shotType: '', bgSetting: '', colorMood: '', textOverlay: '', logoPlacement: 'Bottom right', status: 'Draft', refImgSrc: null, productImgSrc: null };
     }
 
     // ─── SETUP ───────────────────────────────────────────────
@@ -1506,10 +1541,15 @@ STRATEGY GUIDANCE:
 - messaging.objections: the top 2 to 3 doubts this avatar has, each with a one-line counter.
 - offer: infer from the destination. BOF / PDP pages lead with the offer and a guarantee. Listicle / advertorial / editorial pages sell the article click, so cta_button is "Learn More" and offer/guarantee can be empty strings.
 - landing_page.fit: reason about awareness stage vs the destination's funnel stage (Problem / Solution aware fits MOF listicle or advertorial; Most aware / Product aware fits a PDP). If the destination is a poor fit, name a better one in landing_page.alternative.
-- visual_direction: the most important block. Be concrete enough that a designer or image model can build the static without guessing. Specify breed, pose, expression, eye direction, setting, light, props, and what to avoid. For native formats follow the NATIVE IMAGE PRINCIPLES below to the letter.
+- visual_direction: the most important block. Be concrete enough that a designer or image model can build the static without guessing. Specify breed, pose, expression, eye direction, setting, light, props, and what to avoid. For native formats follow the NATIVE IMAGE PRINCIPLES below to the letter. The image must pass the MUTED TEST: with all on-image text removed it still stops the scroll and carries the idea. Emulate the closest PROVEN WINNING CONCEPT below.
+- on-image text: fill headline, emphasis_word, text_load, hierarchy, subtitle, btn_text per the ON-IMAGE TEXT rules. Default subtitle and btn_text to empty unless they genuinely earn their place.
 
 NATIVE IMAGE PRINCIPLES — apply to visual_direction for native formats (Native image + long copy, Testimonial / social proof, Problem-aware static, Before / after, and any UGC-style concept). For designed formats (Listicle / advertorial, Us vs them, Shocking stat / bold claim, News / authority editorial, Product hero) keep the normal designed treatment.
 ${NATIVE_IMAGE_PRINCIPLES}
+
+${TEXT_LOAD_RULES}
+
+${WINNING_CONCEPTS}
 
 Return this JSON structure:
 {
@@ -1554,9 +1594,12 @@ Return this JSON structure:
       "authority_in_image": "one of: Yes — featured prominently, Yes — subtle / small, No — copy only, No authority figure",
       "authority_role": "role shown e.g. Linda O'Leary — Dachshund Breeder, 15 years or empty string",
       "congruence_note": "one sentence explaining how this static hands off to the landing page — same vocabulary, same promise",
-      "headline": "draft headline for this static — strong, direct, no em dash",
-      "subtitle": "draft subtitle — no em dash",
-      "btn_text": "draft CTA button text matching the landing page direction",
+      "headline": "the ONE hook headline — strong, direct, one idea, no em dash. Empty string if the format carries no headline (native photo, sticky-note, meme, UGC caption)",
+      "emphasis_word": "the single word or short phrase from the headline to colour in brand red #FF3B00, or empty",
+      "text_load": "the recommended on-image text set per the ON-IMAGE TEXT rules, e.g. 'Headline only', 'Headline + button (offer)', 'No on-image text (native photo)', 'Image is the message'",
+      "hierarchy": "one line — the dominant element and where the eye lands first",
+      "subtitle": "ONLY if it does a job the headline cannot (a genuine second beat), else empty string",
+      "btn_text": "ONLY for offer / urgency / PDP / guarantee formats, else empty string. Match the landing-page CTA register",
       "copy_1": "full ad copy version 1 — direct response, broad avatar, no em dash, sell the article click, close with Read it. The link is below. or similar short direct action",
       "copy_2": "full ad copy version 2 — different angle on same concept, same rules",
       "copy_3": "full ad copy version 3 — shorter and punchier, same rules",
@@ -1620,6 +1663,7 @@ Return this JSON structure:
             c.shotType = src.shot_type || ''; c.bgSetting = src.bg_setting || ''; c.colorMood = src.color_mood || '';
             c.authorityInImage = src.authority_in_image || ''; c.authorityRole = src.authority_role || '';
             c.headline = src.headline || ''; c.subtitle = src.subtitle || ''; c.btnText = src.btn_text || '';
+            c.emphasisWord = src.emphasis_word || ''; c.textLoad = src.text_load || ''; c.hierarchy = src.hierarchy || '';
             c.copy1 = src.copy_1 || ''; c.copy2 = src.copy_2 || ''; c.copy3 = src.copy_3 || '';
             c.hl1 = src.headline_1 || ''; c.hl2 = src.headline_2 || ''; c.hl3 = src.headline_3 || '';
             c.description = src.description || '';
@@ -1699,11 +1743,16 @@ Return this JSON structure:
         <div class="cf"><label>Role / name shown</label><input type="text" value="${c.authorityRole || ''}" oninput="conceptData[${i}].authorityRole=this.value" placeholder="e.g. Linda O'Leary — Dachshund Breeder"></div>
       </div>
       <div class="section-divider">On the image</div>
-      <p style="font-size:11px;color:var(--text3);margin-bottom:10px;line-height:1.5;">Text that lives directly on the static image. Seen before anyone reads anything else — must stop the scroll on its own.</p>
+      <p style="font-size:11px;color:var(--text3);margin-bottom:10px;line-height:1.5;">Headline + image do the work. Subtitle and button are optional — only when they earn it (Meta already shows its own headline, description and CTA below the ad).</p>
       <div style="background:var(--purple-light);border:1px solid #AFA9EC;border-radius:var(--radius-sm);padding:14px;margin-bottom:12px;">
-        <div class="cf"><label>Headline</label><input type="text" value="${c.headline || ''}" oninput="conceptData[${i}].headline=this.value" placeholder="e.g. 200 Dachshunds. 15 years. Almost zero IVDD cases."></div>
-        <div class="cf"><label>Subtitle</label><input type="text" value="${c.subtitle || ''}" oninput="conceptData[${i}].subtitle=this.value" placeholder="e.g. A Dachshund breeder shares what she found"></div>
-        <div class="cf" style="margin-bottom:0;"><label>Button text (optional)</label><input type="text" value="${c.btnText || ''}" oninput="conceptData[${i}].btnText=this.value" placeholder="Optional — leave blank if the static has no button"></div>
+        <div class="grid2">
+          <div class="cf"><label>Text load</label><input type="text" value="${c.textLoad || ''}" oninput="conceptData[${i}].textLoad=this.value" placeholder="e.g. Headline only"></div>
+          <div class="cf"><label>Emphasis word (brand red)</label><input type="text" value="${c.emphasisWord || ''}" oninput="conceptData[${i}].emphasisWord=this.value" placeholder="e.g. gone."></div>
+        </div>
+        <div class="cf"><label>Headline (hero)</label><input type="text" value="${c.headline || ''}" oninput="conceptData[${i}].headline=this.value" placeholder="One idea. e.g. Stiff back legs will be gone."></div>
+        <div class="cf"><label>Hierarchy</label><input type="text" value="${c.hierarchy || ''}" oninput="conceptData[${i}].hierarchy=this.value" placeholder="What's biggest / where the eye lands first"></div>
+        <div class="cf"><label>Subtitle (optional — leave blank unless it earns it)</label><input type="text" value="${c.subtitle || ''}" oninput="conceptData[${i}].subtitle=this.value" placeholder="Blank unless there's a real second beat"></div>
+        <div class="cf" style="margin-bottom:0;"><label>Button text (optional — offer/PDP only)</label><input type="text" value="${c.btnText || ''}" oninput="conceptData[${i}].btnText=this.value" placeholder="Blank unless this is an offer/urgency/PDP static"></div>
       </div>
       ${isNativeConcept(c.fmt) ? `
       <div class="section-divider">Primary text — long-form native advertorial</div>
@@ -2051,13 +2100,17 @@ The native image shows: ${(c.vd && c.vd.concept_line) || c.visual || ''}`;
       field('Shot type', c.shotType);
       field('Landing-page congruence', [c.congruenceNote, lpInfo.staticRule].filter(Boolean).join(' '));
       field('Do NOT include', vd.avoid || 'product jar, brand logo, glossy stock look, garbled text');
-      lines.push('', '### On-Image Elements', '');
-      lines.push('**Headline:** ' + (c.headline || '—'));
-      lines.push('**Subtitle:** ' + (c.subtitle || '—'));
-      lines.push('**Description beneath:** ' + (c.description || '(optional — blank for native ads)'));
-      lines.push('**Button text (optional):** ' + (c.btnText || '— none —'));
+      lines.push('', '### On-Image Elements', '_Headline + image do the work. Subtitle / button only when they earn it (Meta already shows its own headline, description and CTA below the ad)._', '');
+      field('Text load', c.textLoad || 'Headline only');
+      lines.push('**Headline (hero):** ' + (c.headline || (isNativeConcept(c.fmt) ? 'none — native photo, copy carries it' : '—')));
+      if (c.emphasisWord) field('Emphasis word (brand red)', c.emphasisWord);
+      if (c.hierarchy) field('Hierarchy', c.hierarchy);
+      lines.push('**Subtitle:** ' + (c.subtitle || 'none — headline carries it'));
+      lines.push('**Button:** ' + (c.btnText || "none — Meta's CTA handles action"));
+      if (c.description) field('Description beneath', c.description);
       field('Text treatment', c.textOverlay);
       field('Placement', [c.headlinePlacement && 'headline ' + c.headlinePlacement, c.btnPlacement && 'button ' + c.btnPlacement, c.logoPlacement && 'logo ' + c.logoPlacement].filter(Boolean).join(' · '));
+      lines.push('', '**Muted test:** with all on-image text removed, does the image still stop the scroll and carry the idea? Is every on-image element doing a job?');
       lines.push('', '---', '');
 
       // PRODUCTION NOTES
