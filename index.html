@@ -1304,7 +1304,7 @@ EXCEPTION — NATIVE IMAGE CONCEPT: a photo that looks like a real Facebook user
     function isNativeConcept(fmt) { return fmt === 'native-longcopy'; }
 
     function defaultConcept(fmt) {
-      return { fmt: fmt || '', awareness: '', visual: '', vd: {}, advertorial: '', authorityInImage: '', authorityRole: '', dogBreed: '', dogAge: '', headlinePlacement: 'Top center', headline: '', emphasisWord: '', textLoad: '', hierarchy: '', subtitle: '', btnText: '', copy1: '', copy2: '', copy3: '', hl1: '', hl2: '', hl3: '', description: '', btnPlacement: 'Bottom center', headlineFont: 'Work Sans', subtitleFont: 'Poppins', shotType: '', bgSetting: '', colorMood: '', textOverlay: '', logoPlacement: 'Bottom right', status: 'Draft', refImgSrc: null, productImgSrc: null };
+      return { fmt: fmt || '', awareness: '', visual: '', vd: {}, advertorial: '', authorityInImage: '', authorityRole: '', dogBreed: '', dogAge: '', headlinePlacement: 'Top center', headline: '', emphasisWord: '', textLoad: '', hierarchy: '', testAxis: '', variations: [], subtitle: '', btnText: '', copy1: '', copy2: '', copy3: '', hl1: '', hl2: '', hl3: '', description: '', btnPlacement: 'Bottom center', headlineFont: 'Work Sans', subtitleFont: 'Poppins', shotType: '', bgSetting: '', colorMood: '', textOverlay: '', logoPlacement: 'Bottom right', status: 'Draft', refImgSrc: null, productImgSrc: null };
     }
 
     // ─── SETUP ───────────────────────────────────────────────
@@ -1551,6 +1551,11 @@ ${TEXT_LOAD_RULES}
 
 ${WINNING_CONCEPTS}
 
+VARIATIONS — every concept ships 3 variations (V1/V2/V3). Think like a media buyer building a CLEAN test: pick ONE test_axis and change only that across the three; hold everything else constant so the result reads cleanly. Each variation must be internally CONGRUENT — its headline, image, and primary text all reinforce the same one idea.
+- Designed formats: test the HEADLINE. Same image execution; three distinct hooks (e.g. fear-led, curiosity-led, proof/number-led). Each variation's primary_text and meta_headline match its headline.
+- Native formats: test the IMAGE. Three distinct real-photo scenarios that all fit the angle (see NATIVE IMAGE PRINCIPLES), each paired with one of the 3 long-form ad copies — reference it as "(use long-form copy V1/V2/V3)", do not rewrite the long copy here.
+- Keep the on-image text rules and the winning-concept playbook in every variation. Be concise in the variations block.
+
 Return this JSON structure:
 {
   "angle": "one paragraph — what is the creative angle and why does it work for this avatar",
@@ -1606,7 +1611,13 @@ Return this JSON structure:
       "headline_1": "meta ad headline option 1",
       "headline_2": "meta ad headline option 2",
       "headline_3": "meta ad headline option 3",
-      "description": "one meta ad description"
+      "description": "one meta ad description",
+      "test_axis": "the ONE variable the 3 variations change: 'Headline' for designed formats, 'Image execution' for native formats, or 'Angle'. Hold everything else constant.",
+      "variations": [
+        { "label": "V1", "tests": "short — what this cell tests (e.g. fear-led headline)", "headline": "on-image headline for this variation (empty string if native)", "emphasis_word": "word to colour red, or empty", "image": "the image execution for this variation — for native a distinct real-photo scenario; for designed write 'same as concept' unless this is a visual test", "primary_text": "congruent Meta primary text for this variation. For native concepts write '(use long-form copy V1)'", "meta_headline": "congruent Meta link headline" },
+        { "label": "V2", "tests": "...", "headline": "...", "emphasis_word": "", "image": "...", "primary_text": "...", "meta_headline": "..." },
+        { "label": "V3", "tests": "...", "headline": "...", "emphasis_word": "", "image": "...", "primary_text": "...", "meta_headline": "..." }
+      ]
     }
   ]
 }`;
@@ -1615,7 +1626,7 @@ Return this JSON structure:
         const res = await fetch('https://api.anthropic.com/v1/messages', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
-          body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 12000, messages: [{ role: 'user', content: prompt }] })
+          body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 16000, messages: [{ role: 'user', content: prompt }] })
         });
         const data = await res.json();
         if (data.error) throw new Error(data.error.message);
@@ -1667,6 +1678,7 @@ Return this JSON structure:
             c.copy1 = src.copy_1 || ''; c.copy2 = src.copy_2 || ''; c.copy3 = src.copy_3 || '';
             c.hl1 = src.headline_1 || ''; c.hl2 = src.headline_2 || ''; c.hl3 = src.headline_3 || '';
             c.description = src.description || '';
+            c.testAxis = src.test_axis || ''; c.variations = Array.isArray(src.variations) ? src.variations : [];
             c.translatedFrom = src.translated_from_video || '';
             c.congruenceNote = src.congruence_note || '';
             c.vd = src.visual_direction || {};
@@ -1776,6 +1788,16 @@ Return this JSON structure:
         <div class="cf"><label>Meta headline 3 — link title</label><input type="text" value="${c.hl3 || ''}" oninput="conceptData[${i}].hl3=this.value" placeholder="e.g. What This Breeder Sends Home With Every Puppy"></div>
         <div class="cf" style="margin-bottom:0;"><label>Description — one liner below link title</label><input type="text" value="${c.description || ''}" oninput="conceptData[${i}].description=this.value" placeholder="e.g. 15 years. 200 Dachshunds. Almost zero IVDD. One breeder explains why."></div>
       </div>
+      ${(Array.isArray(c.variations) && c.variations.length) ? `
+      <div class="section-divider">Variations to test (3)</div>
+      <p style="font-size:11px;color:var(--text3);margin-bottom:10px;line-height:1.5;">Test axis: <b>${c.testAxis || (isNativeConcept(c.fmt) ? 'Image execution' : 'Headline')}</b>. One variable changes across V1–V3; everything else stays constant. (Full detail in the brief.)</p>
+      ${c.variations.slice(0, 3).map((v, n) => `<div style="background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:10px;margin-bottom:8px;font-size:12px;">
+        <b>${v.label || 'V' + (n + 1)}</b>${v.tests ? ' — ' + v.tests : ''}<br>
+        ${v.headline ? '<span style="color:var(--text2);">Headline:</span> ' + v.headline + '<br>' : ''}
+        ${v.image ? '<span style="color:var(--text2);">Image:</span> ' + v.image + '<br>' : ''}
+        ${v.primary_text ? '<span style="color:var(--text2);">Primary:</span> ' + v.primary_text : ''}
+      </div>`).join('')}
+      ` : ''}
       <div class="section-divider">Layout and typography</div>
       <div class="grid2">
         <div class="cf"><label>Headline placement</label><select onchange="conceptData[${i}].headlinePlacement=this.value">${placements.map(p => `<option ${c.headlinePlacement === p ? 'selected' : ''}>${p}</option>`).join('')}</select></div>
@@ -2134,6 +2156,22 @@ The native image shows: ${(c.vd && c.vd.concept_line) || c.visual || ''}`;
       field('Offer', off.offer);
       field('Guarantee', off.guarantee || DEFAULT_GUARANTEE);
       lines.push('', '---', '');
+
+      // VARIATIONS (3 test cells)
+      const vars = Array.isArray(c.variations) ? c.variations : [];
+      if (vars.length) {
+        lines.push('## Variations to test (3)', '');
+        lines.push('_Test axis: **' + (c.testAxis || (isNativeConcept(c.fmt) ? 'Image execution' : 'Headline')) + '**. One variable changes across V1–V3; everything else stays constant. Each cell is internally congruent (headline ↔ image ↔ copy)._', '');
+        vars.slice(0, 3).forEach((v, n) => {
+          lines.push('### ' + (v.label || 'V' + (n + 1)) + (v.tests ? ' — ' + v.tests : ''));
+          if (v.headline) lines.push('**Headline:** ' + v.headline + (v.emphasis_word ? '   _(red: ' + v.emphasis_word + ')_' : ''));
+          if (v.image) field('Image', v.image);
+          if (v.primary_text) lines.push('**Primary text:** ' + v.primary_text);
+          if (v.meta_headline) lines.push('**Meta headline:** ' + v.meta_headline);
+          lines.push('');
+        });
+        lines.push('---', '');
+      }
 
       // FAN PAGE
       lines.push('## Fan Page Assignment', '');
