@@ -1892,14 +1892,16 @@ Return this JSON structure:
     // same batch page we loaded from Notion (via the /api/notion append proxy).
     function mdToNotionBlocks(md) {
       const rt = (s) => {
-        const parts = []; let last = 0; const re = /\*\*(.+?)\*\*/g; let m;
+        const parts = [];
+        const pushChunked = (text, bold) => { for (let k = 0; k < text.length; k += 1900) { const o = { type: 'text', text: { content: text.slice(k, k + 1900) } }; if (bold) o.annotations = { bold: true }; parts.push(o); } };
+        let last = 0; const re = /\*\*(.+?)\*\*/g; let m;
         while ((m = re.exec(s)) !== null) {
-          if (m.index > last) parts.push({ type: 'text', text: { content: s.slice(last, m.index).slice(0, 2000) } });
-          parts.push({ type: 'text', text: { content: m[1].slice(0, 2000) }, annotations: { bold: true } });
+          if (m.index > last) pushChunked(s.slice(last, m.index), false);
+          pushChunked(m[1], true);
           last = re.lastIndex;
         }
-        if (last < s.length) parts.push({ type: 'text', text: { content: s.slice(last).slice(0, 2000) } });
-        return parts.length ? parts : [{ type: 'text', text: { content: s.slice(0, 2000) } }];
+        if (last < s.length) pushChunked(s.slice(last), false);
+        return parts.length ? parts : [{ type: 'text', text: { content: '' } }];
       };
       const blk = (type, s) => ({ object: 'block', type, [type]: { rich_text: rt(s) } });
       const blocks = [];
@@ -2018,6 +2020,9 @@ The native image shows: ${(c.vd && c.vd.concept_line) || c.visual || ''}`;
       const fmtLabel = ALL_FMTS.find(f => f.key === c.fmt)?.label || c.fmt || ('Concept ' + (i + 1));
       const batchShort = (bd.title || '').split(/\s+/)[0] || 'BATCH';
       const rt = v => [{ text: { content: String(v).slice(0, 2000) } }];
+      // Notion text PROPERTIES are hard-capped at 2000 chars. For long-form copy, store a pointer
+      // in the property and keep the full text in the page body (which has no limit).
+      const propText = v => { const s = String(v || ''); return s.length <= 1990 ? s : (s.slice(0, 600).trim() + ' … ▶ FULL COPY IN PAGE BODY BELOW (too long for this field)'); };
       const sel = v => (v && String(v).trim()) ? { select: { name: String(v).trim() } } : null;
       const P = {};
       P['Brief Name'] = { title: [{ text: { content: `${batchShort} · STATIC C${i + 1} · ${fmtLabel}`.slice(0, 200) } }] };
@@ -2037,9 +2042,9 @@ The native image shows: ${(c.vd && c.vd.concept_line) || c.visual || ''}`;
       if (c.hl1) P['Headline 1'] = { rich_text: rt(c.hl1) };
       if (c.hl2) P['Headline 2'] = { rich_text: rt(c.hl2) };
       if (c.hl3) P['Headline 3'] = { rich_text: rt(c.hl3) };
-      if (c.copy1) P['Primary Text 1'] = { rich_text: rt(c.copy1) };
-      if (c.copy2) P['Primary Text 2'] = { rich_text: rt(c.copy2) };
-      if (c.copy3) P['Primary Text 3'] = { rich_text: rt(c.copy3) };
+      if (c.copy1) P['Primary Text 1'] = { rich_text: rt(propText(c.copy1)) };
+      if (c.copy2) P['Primary Text 2'] = { rich_text: rt(propText(c.copy2)) };
+      if (c.copy3) P['Primary Text 3'] = { rich_text: rt(propText(c.copy3)) };
       if (c.description) P['Description 1'] = { rich_text: rt(c.description) };
       const ca = (c.vd && (c.vd.concept_line || c.vd.composition)) || c.visual;
       if (ca) P['Creative Analysis'] = { rich_text: rt(ca) };
@@ -2199,7 +2204,7 @@ The native image shows: ${(c.vd && c.vd.concept_line) || c.visual || ''}`;
 
       // AD COPY
       lines.push('## Ad Copy (Meta Ads Manager)', '');
-      if (isNativeConcept(c.fmt)) lines.push('_Native concept: the primary text is the long-form advertorial (the image carries no text)._', '');
+      if (isNativeConcept(c.fmt)) lines.push('_Native concept: the primary text is the long-form advertorial below — this is the FULL copy. The Primary Text 1/2/3 property fields only hold a pointer because Notion caps property fields at 2000 characters; copy the full text from here._', '');
       if (c.copy1) lines.push('**Primary Text (Variant 1):**', c.copy1, '');
       if (c.copy2) lines.push('**Primary Text (Variant 2):**', c.copy2, '');
       if (c.copy3) lines.push('**Primary Text (Variant 3):**', c.copy3, '');
