@@ -2041,7 +2041,24 @@ The native image shows: ${(c.vd && c.vd.concept_line) || c.visual || ''}`;
       // inherited select values from the source batch (already-valid option names)
       const inheritSel = { 'Angle - Sub-Angle': bd.angle, 'Awareness Stage': bd.awareness, 'Destination': bd.destination, 'Fanpage': bd.fanpage, 'Concept Type': bd.conceptType, 'Ad Type': bd.adType, 'Emotion': bd.emotion, 'Media Buyer': bd.mediaBuyer };
       Object.keys(inheritSel).forEach(k => { const s = sel(inheritSel[k]); if (s) P[k] = s; });
-      if (Array.isArray(bd.campaignName) && bd.campaignName.length) P['Campaign Name'] = { multi_select: bd.campaignName.map(n => ({ name: n })) };
+      // Campaign Name — ALWAYS set. Inherit from the batch if present; otherwise derive the CBO from the angle category.
+      const CAMPAIGN_BY_CAT = {
+        'ivdd': 'CBO - Testing Campaign - IVDD - US/CA/AUS - 22-5',
+        'hip dysplasia': 'CBO - Testing Campaign - Hip Dysplasia - US/CA/AUS - 22-5',
+        'arthritis': 'CBO - Testing Campaign - Arthritis - US/CA/AUS - 22-5',
+        'glm': 'CBO - Testing Campaign - Joint Supplements - US/CA/AUS - 22-5',
+        'glucosamine': 'CBO - Testing Campaign - Joint Supplements - US/CA/AUS - 22-5',
+        'fish oil': 'CBO - Testing Campaign - Fish Oil - US/CA/AUS - 22-5',
+        'mmvd': 'CBO - Testing Campaign - MMVD - US/CA/AUS'
+      };
+      let campaigns = (Array.isArray(bd.campaignName) && bd.campaignName.length) ? bd.campaignName.slice() : [];
+      if (!campaigns.length) {
+        const ang = String(bd.angle || (P['Angle - Sub-Angle'] && P['Angle - Sub-Angle'].select && P['Angle - Sub-Angle'].select.name) || '').toLowerCase();
+        const catKey = Object.keys(CAMPAIGN_BY_CAT).find(k => ang.includes(k));
+        if (catKey) campaigns = [CAMPAIGN_BY_CAT[catKey]];
+      }
+      if (!campaigns.length) campaigns = ['-']; // never leave it blank — strategist replaces the placeholder at launch
+      P['Campaign Name'] = { multi_select: campaigns.map(n => ({ name: n })) };
       // inherited context (rich text)
       const inheritRt = { 'AVATAR': bd.avatar, 'DESIRE': bd.desire, 'TAM': bd.tam, 'TESTING HYPOTHESE': bd.testingHypothesis, 'Why It Worked / Failed': bd.whyItWorked };
       Object.keys(inheritRt).forEach(k => { if (inheritRt[k]) P[k] = { rich_text: rt(inheritRt[k]) }; });
