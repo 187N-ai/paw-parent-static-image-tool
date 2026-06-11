@@ -1171,6 +1171,7 @@ COPY WRITING RULES — apply to every piece of copy:
 8. No AI tell-tale phrases. No "game-changer", "dive into", "unlock", "journey".
 9. Paragraphs are short — 1 to 3 lines. White space is persuasion.
 10. The authority figure discovered the article. They did not write it.
+11. IVDD angle ONLY (when the batch angle/condition is IVDD): NEVER mention stairs, going up/down stairs, jumping, bunny-hopping, hopping, or getting on/off the couch/sofa/bed — in headlines, copy, or symptom lists. IVDD pet parents do not want to read about these. Use other measurable wins instead: getting up from lying down faster, steadier hind legs, no dragging or knuckling a back paw, walking the full block, standing without wobbling, full-body tail wag, greeting you at the door. (Non-IVDD joint/arthritis angles may use stairs/couch normally.)
 `;
 
     // ─── NATIVE ADVERTORIAL FRAMEWORK (long-form) ─────────────
@@ -1968,6 +1969,10 @@ Core mechanism to land: ${(A.messaging || {}).mechanism || ''}
 Destination: ${bd.destination || ''} ${lpInfo.url ? '(' + lpInfo.url + ')' : ''}
 CTA direction: ${lpInfo.ctaDirection || ''}
 The native image shows: ${(c.vd && c.vd.concept_line) || c.visual || ''}`;
+      // HARD IVDD rule — pet parents do not want stairs/jumping/couch language in IVDD copy.
+      const ivddText = ((bd.angle || '') + ' ' + (A.angle || '') + ' ' + ((A.angle_tags || []).join(' ')) + ' ' + (c.awareness || '')).toLowerCase();
+      const isIVDD = /ivdd|intervertebral|disc/.test(ivddText);
+      const ivddRule = isIVDD ? `\n\nHARD IVDD RULE (this batch is an IVDD angle) — ABSOLUTE, NO EXCEPTIONS:\nNEVER mention stairs, climbing or going up/down stairs, jumping, bunny-hopping, hopping, or getting on/off the couch/sofa/bed anywhere in the copy (not in the hook, the symptom list, the transformation, or any P.S.). IVDD pet parents do not want to read about these. They are off-limits.\nFor the symptom/inciting beats and the week-by-week transformation and emotional-restoration beats, use OTHER concrete, measurable wins instead: getting up from lying down faster, steadier hind-leg coordination, no more dragging or knuckling a back paw, walking the full block again without tiring, standing without wobbling, full-body tail wag, eager to greet you at the door, holding a normal posture, moving freely around the house.` : '';
       const persona = fp.page || bd.fanpage || 'the fan page persona';
       const angles = [
         `You ARE ${persona}. Write entirely in first person. Lead with your own authority and a bold first-person claim (your years of experience, your track record).`,
@@ -1976,7 +1981,7 @@ The native image shows: ${(c.vd && c.vd.concept_line) || c.visual || ''}`;
       ];
       // Generate one full advertorial, auto-continuing if it hits the token limit so it always finishes.
       const callOne = async (note) => {
-        const messages = [{ role: 'user', content: `${NATIVE_ADVERTORIAL_FRAMEWORK}\n\n${baseCtx}\n\nVARIANT DIRECTION: ${note}\n\nWrite ONE complete long-form native advertorial following the 16-beat structure and every rule above. Finish the whole piece including the signature and P.S. lines. Output ONLY the ad copy text itself. No preamble, no section labels, no markdown headings.` }];
+        const messages = [{ role: 'user', content: `${NATIVE_ADVERTORIAL_FRAMEWORK}${ivddRule}\n\n${baseCtx}\n\nVARIANT DIRECTION: ${note}\n\nWrite ONE complete long-form native advertorial following the 16-beat structure and every rule above. Finish the whole piece including the signature and P.S. lines. Output ONLY the ad copy text itself. No preamble, no section labels, no markdown headings.` }];
         let full = '';
         for (let pass = 0; pass < 5; pass++) {
           const d = await fetch('https://api.anthropic.com/v1/messages', {
@@ -2022,7 +2027,9 @@ The native image shows: ${(c.vd && c.vd.concept_line) || c.visual || ''}`;
       const rt = v => [{ text: { content: String(v).slice(0, 2000) } }];
       // Notion text PROPERTIES are hard-capped at 2000 chars. For long-form copy, store a pointer
       // in the property and keep the full text in the page body (which has no limit).
-      const propText = v => { const s = String(v || ''); return s.length <= 1990 ? s : (s.slice(0, 600).trim() + ' … ▶ FULL COPY IN PAGE BODY BELOW (too long for this field)'); };
+      // Notion caps property fields at 2000 chars. Long-form copy can't fit, so the field holds a clean
+      // opening hook; the FULL copy lives at the top of the page body ("✍️ Ad Copy — Primary Text").
+      const propText = v => { const s = String(v || '').trim(); if (s.length <= 1990) return s; const cut = s.slice(0, 700); const end = Math.max(cut.lastIndexOf('. '), cut.lastIndexOf('\n')); return (end > 300 ? cut.slice(0, end + 1) : cut).trim() + ' …  ↑ Full copy at the top of this page.'; };
       const sel = v => (v && String(v).trim()) ? { select: { name: String(v).trim() } } : null;
       const P = {};
       P['Brief Name'] = { title: [{ text: { content: `${batchShort} · STATIC C${i + 1} · ${fmtLabel}`.slice(0, 200) } }] };
@@ -2130,6 +2137,17 @@ The native image shows: ${(c.vd && c.vd.concept_line) || c.visual || ''}`;
       field('Status', c.status);
       lines.push('', '---', '');
 
+      // AD COPY AT TOP — full primary text lives here so it's the first thing in the page body,
+      // instantly visible and copyable. (Notion property fields cap at 2000 chars, so the full
+      // long-form copy can ONLY live in the body — this puts it front and center.)
+      const _copies = [c.copy1, c.copy2, c.copy3].filter(x => x && String(x).trim());
+      if (_copies.length) {
+        lines.push('## ✍️ Ad Copy — Primary Text (copy from here)', '');
+        if (isNativeConcept(c.fmt)) lines.push('_Native concept: each Primary Text below is the FULL long-form advertorial. This is the complete copy — paste it straight into Meta. (The "Primary Text 1/2/3" property fields above only show the opening, because Notion caps property fields at 2000 characters.)_', '');
+        _copies.forEach((cp, n) => { lines.push('### Primary Text ' + (n + 1), cp, ''); });
+        lines.push('---', '');
+      }
+
       // PRODUCTION OVERVIEW
       lines.push('## Production Overview', '', '| Field | Detail |', '|-------|--------|');
       mdrow('Static format', fmtLabel);
@@ -2215,12 +2233,9 @@ The native image shows: ${(c.vd && c.vd.concept_line) || c.visual || ''}`;
       if (must.length) lines.push('', '**Must include:**', ...must);
       lines.push('', '---', '');
 
-      // AD COPY
-      lines.push('## Ad Copy (Meta Ads Manager)', '');
-      if (isNativeConcept(c.fmt)) lines.push('_Native concept: the primary text is the long-form advertorial below — this is the FULL copy. The Primary Text 1/2/3 property fields only hold a pointer because Notion caps property fields at 2000 characters; copy the full text from here._', '');
-      if (c.copy1) lines.push('**Primary Text (Variant 1):**', c.copy1, '');
-      if (c.copy2) lines.push('**Primary Text (Variant 2):**', c.copy2, '');
-      if (c.copy3) lines.push('**Primary Text (Variant 3):**', c.copy3, '');
+      // AD COPY — headlines + CTA only (full primary text now lives in the top section)
+      lines.push('## Meta Headlines & CTA', '');
+      lines.push('_Primary Text (Variant 1/2/3) is at the top of this page under "✍️ Ad Copy — Primary Text (copy from here)"._', '');
       const hls = [c.hl1, c.hl2, c.hl3].filter(Boolean);
       if (hls.length) { lines.push('**Meta link headlines:**'); hls.forEach((h, n) => lines.push(`${n + 1}. ${h}`)); lines.push(''); }
       field('CTA Button', off.cta_button || c.btnText || 'Learn More');
