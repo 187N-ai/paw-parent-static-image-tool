@@ -2049,9 +2049,12 @@ The native image shows: ${(c.vd && c.vd.concept_line) || c.visual || ''}`;
       if (c.hl1) P['Headline 1'] = { rich_text: rt(c.hl1) };
       if (c.hl2) P['Headline 2'] = { rich_text: rt(c.hl2) };
       if (c.hl3) P['Headline 3'] = { rich_text: rt(c.hl3) };
-      if (c.copy1) P['Primary Text 1'] = { rich_text: rt(propText(c.copy1)) };
-      if (c.copy2) P['Primary Text 2'] = { rich_text: rt(propText(c.copy2)) };
-      if (c.copy3) P['Primary Text 3'] = { rich_text: rt(propText(c.copy3)) };
+      // Native long-form: the property field can't hold the full advertorial (Notion 2000-char cap),
+      // so just point the media buyer to the body. Designed concepts keep the real (short) copy.
+      const ptOf = v => isNativeConcept(c.fmt) ? '⬇️ AD COPY IS BELOW IN BODY (see "✍️ Ad Copy — Primary Text (copy from here)" at the top of this page)' : propText(v);
+      if (c.copy1) P['Primary Text 1'] = { rich_text: rt(ptOf(c.copy1)) };
+      if (c.copy2) P['Primary Text 2'] = { rich_text: rt(ptOf(c.copy2)) };
+      if (c.copy3) P['Primary Text 3'] = { rich_text: rt(ptOf(c.copy3)) };
       if (c.description) P['Description 1'] = { rich_text: rt(c.description) };
       const ca = (c.vd && (c.vd.concept_line || c.vd.composition)) || c.visual;
       if (ca) P['Creative Analysis'] = { rich_text: rt(ca) };
