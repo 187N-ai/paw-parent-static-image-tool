@@ -1269,6 +1269,33 @@ PROVEN WINNING STATIC CONCEPTS (our own recent winners — emulate the closest o
 EXCEPTION — NATIVE IMAGE CONCEPT: a photo that looks like a real Facebook user snapped it on an old iPhone (see NATIVE IMAGE PRINCIPLES). NO on-image text at all. ALL of the selling is done by the long-form ad copy (see the advertorial framework). The image only stops the scroll and looks real.
 `;
 
+    // ─── HEADLINE DOCTRINE (Breakthrough Advertising) ────────
+    const HEADLINE_PRINCIPLES = `
+HEADLINES — this is where most of the win is, so write them with Eugene Schwartz "Breakthrough Advertising" discipline. A vague tease with NO payload is an automatic FAIL: "Every owner I talked to said the same thing", "You won't believe what happened", "The one thing nobody tells you". These say nothing. Delete and rewrite.
+
+THE JOB: the headline does not sell. Its only job is to stop the RIGHT person and make them need the next line — while carrying one concrete idea. Build it from the SINGLE strongest, most-winning element of THIS batch (use the batch hook + why_working). Ask: what is the one most dangerous, most desired, or most surprising TRUE thing in this batch? That is the headline.
+
+CHANNEL EXISTING DESIRE (don't invent it): aim the avatar's already-burning fear or want at the product. The Paw Parent IVDD avatar lives with a silent, heavy fear of their dog going down with no warning, and the guilt of missing it. Speak to that, specifically.
+
+MATCH THE AWARENESS STAGE (lead with the right thing):
+- Unaware: open with a story / identification; do not name the problem in the headline.
+- Problem aware: the headline IS the problem, named vividly (the symptom, the fear, the stakes).
+- Solution aware: lead with the NEW MECHANISM / better way ("reaches the disc, where chews can't").
+- Product aware: lead with the product, the proof, or the offer.
+- Most aware: lead with the deal / the number.
+
+MATCH SOPHISTICATION: if this market is tired of plain claims, lead with a NEW MECHANISM or raw IDENTIFICATION/feeling, not a louder promise.
+
+WHAT MAKES A HEADLINE STRONG:
+- Specific and concrete. Numbers, names, vivid nouns beat adjectives ("1 in 4 Dachshunds", "$7,000 surgery", "the disc is already drying out").
+- ONE idea. Say the strongest true thing plainly.
+- Curiosity ONLY with a payload — tease a specific gap, never an empty "you won't believe".
+- Borrow the proven winning shapes from our own winners: the disappearing-problem claim ("[problem] will be gone."), the credential stack ("200 Dachshunds. 15 years. Almost zero IVDD."), the silent-threat ("No signs. No pain. The disc is already drying out."), the cost contrast ("$7,000 surgery, or 59c a day."), the empathy open ("We're sorry."), the named-fear question ("Weak back legs?").
+- No em dashes. No "pet owner". No AI filler.
+
+The 3 variation headlines must each take a DIFFERENT breakthrough angle on the same winning idea — e.g. fear-led, mechanism-led, proof/number-led, identification-led — and every one must be specific and strong, never a placeholder.
+`;
+
     // ─── BRAND ────────────────────────────────────────────────
     const BRAND_COLORS = '#FF3B00 (CTA), #242424 (text), #FFFFFF (background), #F4F4F1 (cards), #FFE1D9 (accent), #FFA500 (stars)';
     const DEFAULT_GUARANTEE = '90-day money-back guarantee';
@@ -1559,8 +1586,10 @@ ${TEXT_LOAD_RULES}
 
 ${WINNING_CONCEPTS}
 
+${HEADLINE_PRINCIPLES}
+
 VARIATIONS — every concept ships 3 variations (V1/V2/V3). Think like a media buyer building a CLEAN test: pick ONE test_axis and change only that across the three; hold everything else constant so the result reads cleanly. Each variation must be internally CONGRUENT — its headline, image, and primary text all reinforce the same one idea.
-- Designed formats: test the HEADLINE. Same image execution; three distinct hooks (e.g. fear-led, curiosity-led, proof/number-led). Each variation's primary_text and meta_headline match its headline.
+- Designed formats: test the HEADLINE. Same image execution; three distinct BREAKTHROUGH angles on the same winning idea (e.g. fear-led, mechanism-led, proof/number-led, identification-led) — each specific and strong per the HEADLINE PRINCIPLES, never a vague tease. Each variation's primary_text and meta_headline match its headline.
 - Native formats: test the IMAGE. Three distinct real-photo scenarios that all fit the angle (see NATIVE IMAGE PRINCIPLES), each paired with one of the 3 long-form ad copies — reference it as "(use long-form copy V1/V2/V3)", do not rewrite the long copy here.
 - Keep the on-image text rules and the winning-concept playbook in every variation. Be concise in the variations block.
 
@@ -1607,7 +1636,7 @@ Return this JSON structure:
       "authority_in_image": "one of: Yes — featured prominently, Yes — subtle / small, No — copy only, No authority figure",
       "authority_role": "role shown e.g. Linda O'Leary — Dachshund Breeder, 15 years or empty string",
       "congruence_note": "one sentence explaining how this static hands off to the landing page — same vocabulary, same promise",
-      "headline": "the ONE hook headline — strong, direct, one idea, no em dash. Empty string if the format carries no headline (native photo, sticky-note, meme, UGC caption)",
+      "headline": "the ONE hook headline, written to BREAKTHROUGH ADVERTISING standard (see HEADLINE PRINCIPLES). Distil the single strongest winning element of this batch (hook + why_working) into one concrete, specific line that makes the right person need to read on. NEVER a vague tease with no payload. Empty string only if the format truly carries no headline (pure native photo with no caption, sticky-note, meme)",
       "emphasis_word": "the single word or short phrase from the headline to colour in brand red #FF3B00, or empty",
       "text_load": "the recommended on-image text set per the ON-IMAGE TEXT rules, e.g. 'Headline only', 'Headline + button (offer)', 'No on-image text (native photo)', 'Image is the message'",
       "hierarchy": "one line — the dominant element and where the eye lands first",
@@ -1616,13 +1645,13 @@ Return this JSON structure:
       "copy_1": "full ad copy version 1 — direct response, broad avatar, no em dash, sell the article click, close with Read it. The link is below. or similar short direct action",
       "copy_2": "full ad copy version 2 — different angle on same concept, same rules",
       "copy_3": "full ad copy version 3 — shorter and punchier, same rules",
-      "headline_1": "meta ad headline option 1",
-      "headline_2": "meta ad headline option 2",
-      "headline_3": "meta ad headline option 3",
+      "headline_1": "breakthrough Meta link headline — specific and concrete, pulls the click (no vague teases)",
+      "headline_2": "breakthrough Meta link headline option 2 — a different angle, same standard",
+      "headline_3": "breakthrough Meta link headline option 3 — a different angle, same standard",
       "description": "one meta ad description",
       "test_axis": "the ONE variable the 3 variations change: 'Headline' for designed formats, 'Image execution' for native formats, or 'Angle'. Hold everything else constant.",
       "variations": [
-        { "label": "V1", "tests": "short — what this cell tests (e.g. fear-led headline)", "headline": "on-image headline for this variation (empty string if native)", "emphasis_word": "word to colour red, or empty", "image": "the image execution for this variation — for native a distinct real-photo scenario; for designed write 'same as concept' unless this is a visual test", "primary_text": "congruent Meta primary text for this variation. For native concepts write '(use long-form copy V1)'", "meta_headline": "congruent Meta link headline" },
+        { "label": "V1", "tests": "short — the breakthrough angle this cell tests (e.g. fear-led, mechanism-led, proof/number-led, identification-led)", "headline": "a BREAKTHROUGH headline for this variation per HEADLINE PRINCIPLES — specific, concrete, no vague tease (empty only if native photo carries no caption)", "emphasis_word": "word to colour red, or empty", "image": "the image execution for this variation — for native a distinct real-photo scenario; for designed write 'same as concept' unless this is a visual test", "primary_text": "congruent Meta primary text for this variation. For native concepts write '(use long-form copy V1)'", "meta_headline": "congruent Meta link headline" },
         { "label": "V2", "tests": "...", "headline": "...", "emphasis_word": "", "image": "...", "primary_text": "...", "meta_headline": "..." },
         { "label": "V3", "tests": "...", "headline": "...", "emphasis_word": "", "image": "...", "primary_text": "...", "meta_headline": "..." }
       ]
