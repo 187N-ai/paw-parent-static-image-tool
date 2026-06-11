@@ -1972,11 +1972,25 @@ The native image shows: ${(c.vd && c.vd.concept_line) || c.visual || ''}`;
         `You ARE ${persona}. Write entirely in first person. Lead with a specific case you personally witnessed or lived through, told as your own story.`,
         `You ARE ${persona}. Write entirely in first person. A punchier, compressed version (around 1,000 to 1,300 words) led by a single shocking first-person realization.`
       ];
-      const callOne = (note) => fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
-        body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 8000, messages: [{ role: 'user', content: `${NATIVE_ADVERTORIAL_FRAMEWORK}\n\n${baseCtx}\n\nVARIANT DIRECTION: ${note}\n\nWrite ONE complete long-form native advertorial following the 16-beat structure and every rule above. Output ONLY the ad copy text itself. No preamble, no section labels, no markdown headings.` }] })
-      }).then(r => r.json()).then(d => { if (d.error) throw new Error(d.error.message); return d.content.filter(b => b.type === 'text').map(b => b.text).join('').trim(); });
+      // Generate one full advertorial, auto-continuing if it hits the token limit so it always finishes.
+      const callOne = async (note) => {
+        const messages = [{ role: 'user', content: `${NATIVE_ADVERTORIAL_FRAMEWORK}\n\n${baseCtx}\n\nVARIANT DIRECTION: ${note}\n\nWrite ONE complete long-form native advertorial following the 16-beat structure and every rule above. Finish the whole piece including the signature and P.S. lines. Output ONLY the ad copy text itself. No preamble, no section labels, no markdown headings.` }];
+        let full = '';
+        for (let pass = 0; pass < 5; pass++) {
+          const d = await fetch('https://api.anthropic.com/v1/messages', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
+            body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 12000, messages })
+          }).then(r => r.json());
+          if (d.error) throw new Error(d.error.message);
+          const txt = (d.content || []).filter(b => b.type === 'text').map(b => b.text).join('');
+          full += txt;
+          if (d.stop_reason !== 'max_tokens') break;           // finished naturally
+          messages.push({ role: 'assistant', content: txt });
+          messages.push({ role: 'user', content: 'Continue the advertorial from exactly where you stopped. Do not repeat anything you already wrote. Output only the continuation, and finish the whole piece.' });
+        }
+        return full.trim();
+      };
       try {
         const [v1, v2, v3] = await Promise.all(angles.map(callOne));
         conceptData[i].copy1 = v1; conceptData[i].copy2 = v2; conceptData[i].copy3 = v3;
