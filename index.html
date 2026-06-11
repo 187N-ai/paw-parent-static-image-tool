@@ -2058,21 +2058,34 @@ The native image shows: ${(c.vd && c.vd.concept_line) || c.visual || ''}`;
       const btn = document.getElementById('pushBatchBtn');
       const status = document.getElementById('pushBatchStatus');
       btn.disabled = true; btn.textContent = 'Pushing...';
+      // retry on Notion rate-limit / transient conflicts so the one click doesn't half-fail
+      const callRetry = async (payload) => {
+        for (let a = 0; a < 4; a++) {
+          try { return await notionProxy(payload); }
+          catch (e) { if (a === 3 || !/429|rate|conflict|502|503/i.test(e.message || '')) throw e; await new Promise(r => setTimeout(r, 900 * (a + 1))); }
+        }
+      };
       let ok = 0, fail = 0;
       for (let i = 0; i < conceptData.length; i++) {
-        status.textContent = `Creating ${i + 1} of ${conceptData.length}...`;
+        const c = conceptData[i];
         try {
-          if (!briefTexts[i]) genBrief(i);
+          // ensure native long-form copy exists before pushing (so the brief is complete)
+          if (isNativeConcept(c.fmt) && !(c.copy1 || c.copy2 || c.copy3)) {
+            status.textContent = `Writing long-form copy for concept ${i + 1}...`;
+            await genNativeCopy(i);
+          }
+          status.textContent = `Pushing ${i + 1} of ${conceptData.length}...`;
+          genBrief(i); // regenerate the brief so it reflects the latest copy + edits
           const properties = buildNotionProperties(i);
           const blocks = mdToNotionBlocks(briefTexts[i] || '');
-          const created = await notionProxy({ op: 'create', properties, children: blocks.slice(0, 90) });
+          const created = await callRetry({ op: 'create', properties, children: blocks.slice(0, 90) });
           const newId = created && created.id;
-          if (newId) { for (let s = 90; s < blocks.length; s += 90) { await notionProxy({ op: 'append', id: newId, children: blocks.slice(s, s + 90) }); } }
+          if (newId) { for (let s = 90; s < blocks.length; s += 90) { await callRetry({ op: 'append', id: newId, children: blocks.slice(s, s + 90) }); } }
           ok++;
         } catch (e) { fail++; console.error('Push failed for concept ' + (i + 1), e); }
       }
       btn.disabled = false; btn.textContent = 'Push concepts to Notion';
-      status.textContent = `✓ ${ok} created` + (fail ? `, ${fail} failed (see console)` : '');
+      status.textContent = `✓ ${ok} pushed (full briefing each)` + (fail ? `, ${fail} failed (see console)` : '');
     }
 
     function genBrief(i) {
