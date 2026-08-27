@@ -1,0 +1,75 @@
+# GLASSWORM-GUARD:SELF-DEFINITION
+# GlassWorm / PolinRider CI guard. Self-contained: no third-party actions, no network
+# fetch, actions/checkout pinned to a full SHA. Drop this into any repo at
+# .github/workflows/glassworm-guard.yml. It fails the build if the worm loader, the
+# folderOpen trigger, or a disguised-font payload is present on the pushed ref.
+name: GlassWorm Guard
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: "17 4 * * 1"
+permissions:
+  contents: read
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      # actions/checkout v4.2.2, pinned by SHA (never a mutable tag).
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Scan for GlassWorm/PolinRider IOCs
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import hashlib, os, re, sys
+          LOADER_SHA256 = {
+              "3287f2de563bd76465d353bd22b4d07c2af1cda9dd45efcb0da49e3ca49f7639",
+              "47353d2ce2724b3aa510bc5e304151d2f5af8b38aa188dd5664e10dc33aa3c1c",
+          }
+          MARKERS = [b"global['!']=", b"global['_V']=", b"global.i=\"A10",
+                     b"auth-confirm-nu.vercel.app",
+                     b"0xa322e5f3d311d3080e6f0121063e9adc2490ef1a", b"eth.blockscout.com"]
+          IOC_NAMES = {"temp_auto_push.bat","temp_interactive_push.bat","branch_structure.json"}
+          FONT_EXT = (".woff2",".woff",".ttf",".otf",".eot")
+          MAGIC = {".woff2":[b"wOF2"],".woff":[b"wOFF"],".ttf":[b"\x00\x01\x00\x00",b"true",b"ttcf",b"OTTO"],
+                   ".otf":[b"OTTO",b"\x00\x01\x00\x00"],".eot":None}
+          hits=[]
+          for root,dirs,files in os.walk("."):
+              dirs[:]=[d for d in dirs if d not in (".git","node_modules")]
+              for fn in files:
+                  p=os.path.join(root,fn); low=fn.lower()
+                  if low in IOC_NAMES: hits.append(("IOC_FILE",p))
+                  try:
+                      data=open(p,"rb").read(2_000_000)
+                  except OSError: continue
+                  if hashlib.sha256(data).hexdigest() in LOADER_SHA256: hits.append(("PAYLOAD",p))
+                  deesc=data.replace(b"\\u00",b"").replace(b"\\x",b"")
+                  # A file carrying the self-definition banner (this guard's own source) is exempt
+                  # from the marker-substring check ONLY; all strong signals below still run.
+                  is_self = b"GLASSWORM-GUARD:SELF-DEFINITION" in data
+                  if not is_self and any(m in data or m in deesc for m in MARKERS): hits.append(("MARKER",p))
+                  ext=os.path.splitext(low)[1]
+                  if ext in FONT_EXT:
+                      head=data[:64]; texty=b"\x00" not in head and len(head)>0
+                      mg=MAGIC.get(ext)
+                      bad=(texty if mg is None else (not any(head.startswith(x) for x in mg) and texty))
+                      if bad: hits.append(("FAKE_FONT",p))
+                  if low=="tasks.json" and ".vscode" in p.replace("\\","/"):
+                      t=data.decode("utf-8","replace")
+                      if re.search(r'"runOn"\s*:\s*"folderOpen"',t): hits.append(("FOLDEROPEN",p))
+                      if re.search(r'"task\.allowAutomaticTasks"\s*:\s*true',t): hits.append(("AUTOTASKS",p))
+                  # long leading-space run then code (padding trick), not a CSV/data row
+                  for line in data.split(b"\n",20)[:20]:
+                      i=0
+                      while i<len(line) and line[i:i+1]==b" ": i+=1
+                      if i>=200 and i<len(line):
+                          rest=line[i:i+80]
+                          if any(t in rest for t in (b"global",b"require",b"function",b"eval",b"var ")) \
+                             and not rest[:1].isdigit() and rest.count(b",")<=6:
+                              hits.append(("SPACE_PAD_CODE",p)); break
+          if hits:
+              print("::error::GlassWorm/PolinRider IOC detected")
+              for k,p in hits: print(f"  [{k}] {p}")
+              sys.exit(1)
+          print("GlassWorm guard: clean")
+          PY
