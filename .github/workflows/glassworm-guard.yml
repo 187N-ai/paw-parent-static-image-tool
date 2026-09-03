@@ -54,7 +54,7 @@ jobs:
                       mg=MAGIC.get(ext)
                       bad=(texty if mg is None else (not any(head.startswith(x) for x in mg) and texty))
                       if bad: hits.append(("FAKE_FONT",p))
-                  if low=="tasks.json" and ".vscode" in p.replace("\\","/"):
+                  if low in ("tasks.json","settings.json") and ".vscode" in p.replace("\\","/"):
                       t=data.decode("utf-8","replace")
                       if re.search(r'"runOn"\s*:\s*"folderOpen"',t): hits.append(("FOLDEROPEN",p))
                       if re.search(r'"task\.allowAutomaticTasks"\s*:\s*true',t): hits.append(("AUTOTASKS",p))
